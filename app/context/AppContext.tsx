@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useHandleApiError } from '@/hooks/useHandleApiError'
-import { useAuth0, User } from '@auth0/auth0-react'
+import { fetchApi, NodeENVType } from '@/libraries/fetch'
+import { IUser } from '@/types/user'
+import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from '@remix-run/react'
 import React, { useEffect, useState } from 'react'
 
 export interface IContextProps {
-  user: User | null
+  user: IUser | null
   token: string | null
   isLoading: boolean
 }
@@ -18,10 +20,13 @@ const AppContext = React.createContext<IContextProps>({
 
 interface IProviderProps {
   children: React.ReactNode
+  identiesApiUrl: string
+  nodeEnv: NodeENVType
 }
 
-export function AppProvider({ children }: IProviderProps) {
-  const { isAuthenticated, isLoading, user, getAccessTokenSilently } = useAuth0()
+export function AppProvider({ children, identiesApiUrl, nodeEnv }: IProviderProps) {
+  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0()
+  const [user, setUser] = useState<IUser | null>(null)
   const navigate = useNavigate()
   const [token, setToken] = useState<string>('')
   const handleApiError = useHandleApiError()
@@ -30,6 +35,9 @@ export function AppProvider({ children }: IProviderProps) {
   const fetchToken = async () => {
     try {
       const token = await getAccessTokenSilently()
+      const user = await fetchApi(`${identiesApiUrl}/user`, token, nodeEnv)
+
+      setUser(user)
       setToken(token)
     } catch (error: any) {
       handleApiError!(error?.message || 'Error when get token')

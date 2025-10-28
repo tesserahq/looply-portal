@@ -12,8 +12,8 @@ export default function EmptyContent({
   children,
 }: IEmptyContentProps) {
   return (
-    <div className="animate-slide-up flex h-full w-full flex-col items-center justify-center gap-4 lg:h-[500px] lg:flex-row">
-      <img src={image} alt={title} className="w-96 rounded-lg" />
+    <div className="flex h-full w-full animate-slide-up flex-col items-center justify-center gap-5 lg:h-[500px] lg:flex-row">
+      <img src={image} alt={title} className="w-80 rounded-lg" />
       <div className="max-w-[500px] flex-col items-center lg:items-start">
         <h1 className="mt-3 text-3xl font-semibold dark:text-foreground">{title}</h1>
         {description && (

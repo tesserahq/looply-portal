@@ -26,7 +26,7 @@ export default function Layout() {
 
   const menuItems: IMenuItemProps[] = [
     {
-      title: 'Contacs',
+      title: 'Contacts',
       path: `/contacts`,
       icon: <SquareUser size={18} />,
     },
@@ -85,7 +85,9 @@ export default function Layout() {
         />
 
         <main className="main-content w-full">
-          <Outlet />
+          <div className="mx-auto w-full max-w-screen-2xl">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

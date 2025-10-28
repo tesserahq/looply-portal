@@ -50,7 +50,7 @@ export function DataTable<TData, TValue>({
     <div
       className={cn(
         'relative flex flex-col overflow-hidden rounded border border-border bg-card',
-        fixed && 'h-[calc(100vh-10rem)]',
+        fixed && 'h-[calc(100vh-11rem)]',
       )}>
       <div className="flex-1 overflow-hidden">
         <div className="no-scrollbar h-full overflow-y-auto">
