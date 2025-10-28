@@ -21,8 +21,8 @@ interface ISidebarPanelProps {
 export default function SidebarPanel({ menuItems }: ISidebarPanelProps) {
   const { pathname } = useLocation()
 
-  const getActiveMenu = (menu: string) => {
-    return pathname.includes(menu.split(' ').join('-').toLowerCase())
+  const isMenuActive = (menuPath: string) => {
+    return pathname === menuPath || pathname.startsWith(menuPath + '/')
   }
 
   return (
@@ -37,15 +37,11 @@ export default function SidebarPanel({ menuItems }: ISidebarPanelProps) {
                   <li
                     className={cn(
                       'flex items-center justify-between overflow-hidden rounded hover:bg-slate-50 dark:hover:bg-background',
-                      (pathname === item.path || getActiveMenu(item.title)) &&
-                        'bg-accent hover:bg-accent',
+                      isMenuActive(item.path) && 'bg-accent hover:bg-accent',
                     )}>
                     <Link
                       to={item.path}
-                      className={cn(
-                        'w-full',
-                        (pathname === item.path || getActiveMenu(item.title)) && 'active',
-                      )}>
+                      className={cn('w-full', isMenuActive(item.path) && 'active')}>
                       {item.icon}
                       {item.title}
                     </Link>

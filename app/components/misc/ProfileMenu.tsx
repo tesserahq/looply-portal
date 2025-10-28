@@ -60,7 +60,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
                   'transition-all duration-500',
                   loaded ? 'opacity-100' : 'opacity-0',
                 )}
-                src={user.picture || '/images/default-avatar.jpg'}
+                src={user.avatar_url || '/images/default-avatar.jpg'}
                 loading="lazy"
                 alt="test"
                 onLoad={() => setTimeout(() => setLoaded(true), 1000)}
@@ -79,11 +79,11 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
           align="end">
           <div className="mb-3 flex flex-row justify-start gap-x-3">
             <Avatar>
-              <AvatarImage src={user?.picture || '/images/default-avatar.jpg'} />
+              <AvatarImage src={user?.avatar_url || '/images/default-avatar.jpg'} />
             </Avatar>
             <div className="flex flex-col justify-center">
               {user && (
-                <h1 className="max-w-40 truncate font-semibold">{`${user?.name}`}</h1>
+                <h1 className="max-w-40 truncate font-semibold">{`${user?.first_name} ${user?.last_name}`}</h1>
               )}
               <p className="max-w-40 truncate text-sm text-muted-foreground">
                 {user?.email}

@@ -15,6 +15,9 @@ import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
 // Import global CSS styles for the application
 // The ?url query parameter tells the bundler to handle this as a URL import
+import SpinnerCSS from '@/styles/customs/spinner.css?url'
+import RootCSS from '@/styles/root.css?url'
+import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-country-state-city.css?url'
 import { ClientHintCheck } from '@/components/misc/ClientHints'
 import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
@@ -24,14 +27,11 @@ import { useNonce } from '@/hooks/useNonce'
 import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
 import { useToast } from '@/hooks/useToast'
 import i18nServer, { localeCookie } from '@/modules/i18n/i18n.server'
-import SpinnerCSS from '@/styles/customs/spinner.css?url'
-import RootCSS from '@/styles/root.css?url'
 import { csrf } from '@/utils/csrf.server'
 import { combineHeaders, getDomainUrl } from '@/utils/misc.server'
 import { getToastSession } from '@/utils/toast.server'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
-import CoreUILayoutCSS from 'node_modules/core-ui/src/styles/layout.css?url'
 import { ProgressBar } from './components/misc/ProgressBar'
 import { AppProvider } from './context/AppContext'
 
@@ -55,7 +55,7 @@ export const links: LinksFunction = () => {
   return [
     { rel: 'stylesheet', href: RootCSS },
     { rel: 'stylesheet', href: SpinnerCSS },
-    { rel: 'stylesheet', href: CoreUILayoutCSS },
+    { rel: 'stylesheet', href: ReactCountryStateCityCSS },
   ]
 }
 
@@ -75,10 +75,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const audience = process.env.AUTH0_AUDIENCE
   const organizationID = process.env.AUTH0_ORGANIZATION_ID
   const hostUrl = process.env.HOST_URL
+  const identiesApiUrl = process.env.IDENTIES_API_URL
+  const nodeEnv = process.env.NODE_ENV
 
   return data(
     {
       hostUrl,
+      identiesApiUrl,
+      nodeEnv,
       user,
       locale,
       toast,
@@ -155,6 +159,8 @@ export default function AppWithProviders() {
     audience,
     hostUrl,
     organizationID,
+    identiesApiUrl,
+    nodeEnv,
   } = useLoaderData<typeof loader>()
 
   const nonce = useNonce()
@@ -178,7 +184,7 @@ export default function AppWithProviders() {
             audience: audience,
           }}>
           {/* To check if the route is a public gazette share page */}
-          <AppProvider>
+          <AppProvider identiesApiUrl={identiesApiUrl!} nodeEnv={nodeEnv}>
             <Outlet />
           </AppProvider>
         </Auth0Provider>

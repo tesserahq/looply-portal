@@ -15,8 +15,8 @@ interface ISidebarPanelProps {
 export default function SidebarPanelMin({ menuItems }: ISidebarPanelProps) {
   const { pathname } = useLocation()
 
-  const getActiveMenu = (menu: string) => {
-    return pathname.includes(menu.split(' ').join('-').toLowerCase())
+  const isMenuActive = (menuPath: string) => {
+    return pathname === menuPath || pathname.startsWith(menuPath + '/')
   }
 
   return (
@@ -34,11 +34,7 @@ export default function SidebarPanelMin({ menuItems }: ISidebarPanelProps) {
                         <TooltipTrigger asChild>
                           <Link
                             to={item.path}
-                            className={cn(
-                              '',
-                              (pathname === item.path || getActiveMenu(item.title)) &&
-                                'active',
-                            )}>
+                            className={cn('', isMenuActive(item.path) && 'active')}>
                             {item.icon}
                           </Link>
                         </TooltipTrigger>

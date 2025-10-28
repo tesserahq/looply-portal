@@ -50,6 +50,7 @@
         "morgan": "^1.10.0",
         "motion": "^12.15.0",
         "react": "^18.3.1",
+        "react-country-state-city": "^1.1.12",
         "react-dom": "^18.3.1",
         "react-i18next": "^15.4.0",
         "react-js-cron": "^5.2.0",
@@ -1843,6 +1844,8 @@
     "rc-virtual-list": ["rc-virtual-list@3.19.2", "", { "dependencies": { "@babel/runtime": "^7.20.0", "classnames": "^2.2.6", "rc-resize-observer": "^1.0.0", "rc-util": "^5.36.0" }, "peerDependencies": { "react": ">=16.9.0", "react-dom": ">=16.9.0" } }, "sha512-Ys6NcjwGkuwkeaWBDqfI3xWuZ7rDiQXlH1o2zLfFzATfEgXcqpk8CkgMfbJD81McqjcJVez25a3kPxCR807evA=="],
 
     "react": ["react@18.3.1", "", { "dependencies": { "loose-envify": "^1.1.0" } }, "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ=="],
+
+    "react-country-state-city": ["react-country-state-city@1.1.12", "", { "peerDependencies": { "react": ">=16" } }, "sha512-9xOfUvm5uw5zZEjjNT3eooWvrJB08Hv1MITPYfgeQUttCHEpxbD/iqMzXNBF2g3Owc9MEnhrKCSpKn5DpTDHqg=="],
 
     "react-dom": ["react-dom@18.3.1", "", { "dependencies": { "loose-envify": "^1.1.0", "scheduler": "^0.23.2" }, "peerDependencies": { "react": "^18.3.1" } }, "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw=="],
 
