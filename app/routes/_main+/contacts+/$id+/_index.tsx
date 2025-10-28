@@ -96,7 +96,7 @@ export default function ContactDetail() {
               </div>
               <div className="d-item">
                 <dt className="d-label">Full Name</dt>
-                <dd className="d-content">{fullName}</dd>
+                <dd className="d-content">{fullName || 'N/A'}</dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">
@@ -162,22 +162,31 @@ export default function ContactDetail() {
             <CardTitle>Address</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-start gap-3">
-              <MapPin className="mt-0.5 text-muted-foreground" size={20} />
-              <div className="space-y-1">
-                {contact.address_line_1 && (
-                  <p className="text-sm">{contact.address_line_1}</p>
-                )}
-                {contact.address_line_2 && (
-                  <p className="text-sm">{contact.address_line_2}</p>
-                )}
-                <p className="text-sm">
-                  {[contact.city, contact.state, contact.country, contact.zip_code]
-                    .filter(Boolean)
-                    .join(', ')}
-                </p>
+            {contact.address_line_1 ||
+            contact.address_line_2 ||
+            contact.city ||
+            contact.state ||
+            contact.country ||
+            contact.zip_code ? (
+              <div className="flex items-start gap-3">
+                <MapPin className="mt-0.5 text-muted-foreground" size={20} />
+                <div className="space-y-1">
+                  {contact.address_line_1 && (
+                    <p className="text-sm">{contact.address_line_1}</p>
+                  )}
+                  {contact.address_line_2 && (
+                    <p className="text-sm">{contact.address_line_2}</p>
+                  )}
+                  <p className="text-sm">
+                    {[contact.city, contact.state, contact.country, contact.zip_code]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-sm">N/A</p>
+            )}
           </CardContent>
         </Card>
 
