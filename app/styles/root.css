@@ -193,7 +193,7 @@ nav.header .header-container {
 
 /* Main content */
 .main-content {
-  @apply mt-[60px] bg-background px-3 pb-6 pt-2 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pl-11 lg:pr-8 print:m-0;
+  @apply mt-[65px] bg-background px-3 pb-6 pt-2 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pl-11 lg:pr-8 print:m-0;
 }
 
 .has-min-sidebar .main-content {
@@ -318,15 +318,6 @@ nav.header .header-container {
   animation-delay: -1.5s;
 }
 
-/* Setting sub menu */
-.setting-sub-menu {
-  @apply flex w-full items-center space-x-2 rounded-lg px-4 py-2.5 font-medium tracking-wide text-navy-400 outline-none transition-all hover:bg-slate-100 hover:text-navy-900 focus:bg-slate-100 focus:text-slate-800 dark:text-navy-100 dark:hover:bg-navy-500 dark:hover:text-navy-100 dark:focus:bg-navy-600 dark:focus:text-navy-100;
-}
-
-.setting-sub-menu.active {
-  @apply bg-primary text-white hover:bg-primary hover:text-white focus:bg-primary focus:text-white dark:bg-background dark:text-white dark:hover:bg-background dark:hover:text-white dark:focus:bg-background dark:focus:text-white;
-}
-
 .required::after {
   @apply ml-0.5 font-bold text-red-500;
   content: '*';
@@ -338,14 +329,6 @@ nav.header .header-container {
 
 .error-message {
   @apply animate-slide-up text-xs text-red-500 dark:text-red-400;
-}
-
-.shadow-card {
-  box-shadow: rgba(145, 145, 145, 0.1) 0px 4px 12px;
-}
-
-.shadow-card:hover {
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .button-link {
@@ -363,4 +346,8 @@ nav.header .header-container {
 
   /* For older Edge and IE */
   -ms-overflow-style: none;
+}
+
+.page-title {
+  @apply text-[1.85rem] font-bold dark:text-foreground;
 }

@@ -24,9 +24,11 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
+import { Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useScopedParams } from '@/utils/scoped_params'
+import CreateButton from '@/components/misc/CreateButton'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -160,11 +162,13 @@ export default function Contacts() {
     }
   }
 
-  // Check if we have search params
-  const hasSearchQuery = searchParams.get('q') !== null && searchParams.get('q') !== ''
+  const hasSearchQuery = useMemo(() => {
+    return searchParams.get('q') !== null && searchParams.get('q') !== ''
+  }, [searchParams])
 
-  // Check if we have data
-  const hasData = data && data.items && data.items.length > 0
+  const hasData = useMemo(() => {
+    return data && data.items && data.items.length > 0
+  }, [data])
 
   const columns: ColumnDef<IContact>[] = useMemo(
     () => [
@@ -300,7 +304,7 @@ export default function Contacts() {
     </EmptyContent>
   )
 
-  const emptyContentInTable = (
+  const emptySearchContent = (
     <EmptyContent
       image="/images/empty-contacts.svg"
       title="No contacts found"
@@ -310,26 +314,45 @@ export default function Contacts() {
 
   return (
     <div className="flex h-full animate-slide-up flex-col">
-      <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-foreground">Contacts</h1>
+      <div className="mb-5 flex flex-col gap-y-4">
+        <h1 className="page-title">Contacts</h1>
         {(hasSearchQuery || hasData) && (
-          <Button onClick={() => navigate('/contacts/new')}>New Contact</Button>
+          <div className="flex items-center justify-between">
+            <InputGroup className="max-w-96 bg-white">
+              <InputGroupInput
+                placeholder="Search contacts"
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+              {search && (
+                <InputGroupAddon align="inline-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-transparent"
+                    onClick={() => setSearch('')}>
+                    <X />
+                  </Button>
+                </InputGroupAddon>
+              )}
+            </InputGroup>
+            <CreateButton label="New Contact" onClick={() => navigate('/contacts/new')} />
+          </div>
         )}
       </div>
-
-      {/* Show empty content outside table when no search params and no data */}
-      {!hasSearchQuery && !hasData && <div className="mt-10">{emptyContent}</div>}
-
-      {/* Show table when there are search params OR when there's data */}
-      {(hasSearchQuery || hasData) && (
+      {isLoadingSearch ? (
+        <AppPreloader />
+      ) : !hasData ? (
+        <div className="mt-10 animate-slide-up">
+          {hasSearchQuery ? emptySearchContent : emptyContent}
+        </div>
+      ) : (
         <DataTable
           columns={columns}
           data={data?.items || []}
-          onSearch={handleSearch}
-          search={search}
-          labelSearch="Search Contacts"
-          isLoading={isLoadingSearch}
-          empty={emptyContentInTable}
           meta={
             data
               ? {
