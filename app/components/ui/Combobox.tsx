@@ -77,6 +77,7 @@ export interface ComboboxProps<T = unknown> {
   disabled?: boolean
   onOpenChange?: (open: boolean) => void
   label?: string
+  searchable?: boolean
 }
 
 /**
@@ -158,6 +159,7 @@ export function Combobox<T = unknown>({
   disabled = false,
   onOpenChange,
   label,
+  searchable = true,
 }: ComboboxProps<T>) {
   const [open, setOpen] = React.useState(false)
 
@@ -217,9 +219,13 @@ export function Combobox<T = unknown>({
             </Button>
           )}
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent
+          className={cn('w-full p-0', !searchable && 'min-w-52')}
+          align="start">
           <Command>
-            <CommandInput placeholder={searchPlaceholder} disabled={disabled} />
+            {searchable && (
+              <CommandInput placeholder={searchPlaceholder} disabled={disabled} />
+            )}
             <CommandList>
               <CommandEmpty>{emptyText}</CommandEmpty>
               <CommandGroup>

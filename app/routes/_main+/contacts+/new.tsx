@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { GetCountries, GetState, GetCity } from 'react-country-state-city'
 import { Country, State, City } from 'react-country-state-city/dist/esm/types'
 import { FormField } from 'core-ui'
@@ -11,7 +11,11 @@ import { useApp } from '@/context/AppContext'
 import { Button } from '@/components/ui/button'
 import { redirectWithToast } from '@/utils/toast.server'
 import { fetchApi } from '@/libraries/fetch'
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 import InputEmail from '@/components/misc/InputEmail'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export default function ContactNew() {
   const fetcher = useFetcher()
@@ -23,6 +27,10 @@ export default function ContactNew() {
   const [states, setStates] = useState<ComboboxOption<State>[]>([])
   const [cities, setCities] = useState<ComboboxOption<City>[]>([])
   const [errorEmail, setErrorEmail] = useState<string>('error')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState<string | undefined>(undefined)
+  const [contactType, setContactType] = useState<string | undefined>(undefined)
+  const [phoneType, setPhoneType] = useState<string | undefined>(undefined)
 
   const isSubmitting = useMemo(() => fetcher.state === 'submitting', [fetcher.state])
 
@@ -80,6 +88,77 @@ export default function ContactNew() {
     setCities(mappedCities)
   }
 
+  const handlePhoneChange = useCallback((phone: string | undefined) => {
+    if (phone && isValidPhoneNumber(phone)) {
+      setPhoneNumber(phone)
+      setPhoneError(null)
+    } else if (phone === undefined) {
+      setPhoneError(null)
+    } else {
+      setPhoneError('Please enter valid phone number')
+    }
+  }, [])
+
+  const disabledSave = useMemo(() => {
+    return isSubmitting || errorEmail !== '' || phoneError
+  }, [isSubmitting, errorEmail, phoneError])
+
+  const contactTypeOptions: ComboboxOption[] = [
+    {
+      id: 'personal',
+      label: 'Personal',
+      value: 'personal',
+    },
+    {
+      id: 'business',
+      label: 'Business',
+      value: 'business',
+    },
+    {
+      id: 'vendor',
+      label: 'Vendor',
+      value: 'vendor',
+    },
+    {
+      id: 'customer',
+      label: 'Customer',
+      value: 'customer',
+    },
+    {
+      id: 'partner',
+      label: 'Partner',
+      value: 'partner',
+    },
+    {
+      id: 'supplier',
+      label: 'Supplier',
+      value: 'supplier',
+    },
+    {
+      id: 'lead',
+      label: 'Lead',
+      value: 'lead',
+    },
+  ]
+
+  const phoneTypeOptions: ComboboxOption[] = [
+    {
+      id: 'mobile',
+      label: 'Mobile',
+      value: 'mobile',
+    },
+    {
+      id: 'home',
+      label: 'Home',
+      value: 'home',
+    },
+    {
+      id: 'work',
+      label: 'Work',
+      value: 'work',
+    },
+  ]
+
   useEffect(() => {
     getStates()
   }, [selectedCountry])
@@ -104,11 +183,15 @@ export default function ContactNew() {
             <input type="hidden" name="country" value={selectedCountry?.data?.name} />
             <input type="hidden" name="state" value={selectedState?.data?.name} />
             <input type="hidden" name="city" value={selectedCity?.data?.name} />
+            <input type="hidden" name="phone" value={phoneNumber} />
+            <input type="hidden" name="contact_type" value={contactType || ''} />
+            <input type="hidden" name="phone_type" value={phoneType || ''} />
             <h2 className="mb-3 text-lg font-medium">General</h2>
             <Card className="shadow-none">
               <CardContent className="pt-4">
                 <InputEmail
                   required
+                  autoFocus
                   errorMessage={
                     (fetcher.data as { errors?: { email?: string } })?.errors?.email || ''
                   }
@@ -122,6 +205,17 @@ export default function ContactNew() {
                 <FormField label="Company" name="company" />
                 <FormField label="Job" name="job" />
                 <FormField label="Website" name="website" />
+                <Combobox
+                  label="Contact Type"
+                  options={contactTypeOptions}
+                  value={contactType}
+                  className="mb-3"
+                  onChange={(value) => setContactType(value)}
+                  searchable={false}
+                  renderOption={(option) => (
+                    <span className="text-sm">{option.label}</span>
+                  )}
+                />
                 <FormField label="Notes" name="notes" type="textarea" />
               </CardContent>
             </Card>
@@ -129,9 +223,34 @@ export default function ContactNew() {
             <h2 className="mb-3 mt-5 text-lg font-medium">Contact Information</h2>
             <Card className="shadow-none">
               <CardContent className="pt-4">
-                <FormField label="Phone" name="phone" />
-                <FormField label="Contact Type" name="contact_type" />
-                <FormField label="Phone Type" name="phone_type" />
+                <div className="mb-3">
+                  <Label>Phone</Label>
+                  <PhoneInput
+                    international
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    inputComponent={Input}
+                    numberInputProps={{
+                      name: 'phone',
+                      id: 'phone',
+                      className: `${phoneError ? 'input-error' : ''}`,
+                    }}
+                    className="flex h-10 w-full rounded bg-transparent py-2 pl-3 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-primary-foreground md:text-sm"
+                  />
+                  {phoneError && (
+                    <p className="mt-1 text-xs text-red-500">{phoneError}</p>
+                  )}
+                </div>
+                <Combobox
+                  label="Phone Type"
+                  options={phoneTypeOptions}
+                  value={phoneType}
+                  onChange={(value) => setPhoneType(value)}
+                  searchable={false}
+                  renderOption={(option) => (
+                    <span className="text-sm">{option.label}</span>
+                  )}
+                />
               </CardContent>
             </Card>
 
@@ -140,7 +259,7 @@ export default function ContactNew() {
               <CardContent className="pt-4">
                 <div className="grid gap-4 lg:grid-cols-3">
                   <Combobox
-                    label="Countries"
+                    label="Country"
                     options={countryOptions}
                     value={selectedCountry?.value}
                     onChange={(_, option) => setSelectedCountry(option)}
@@ -154,19 +273,19 @@ export default function ContactNew() {
                     )}
                   />
                   <Combobox
-                    label="States"
+                    label="State"
                     options={states}
                     value={selectedState?.value}
-                    emptyText="Select country first"
+                    disabled={!selectedCountry?.value}
                     onChange={(_, option) =>
                       setSelectedState(option as ComboboxOption<State>)
                     }
                   />
                   <Combobox
-                    label="Cities"
+                    label="City"
                     options={cities}
                     value={selectedCity?.value}
-                    emptyText="Select state first"
+                    disabled={!selectedState?.value}
                     onChange={(_, option) =>
                       setSelectedCity(option as ComboboxOption<City>)
                     }
@@ -182,7 +301,7 @@ export default function ContactNew() {
             </Card>
 
             <div className="mt-10 flex justify-end">
-              <Button type="submit" disabled={isSubmitting || errorEmail !== ''}>
+              <Button type="submit" disabled={disabledSave as boolean}>
                 {isSubmitting ? 'Saving...' : 'Save'}
               </Button>
             </div>

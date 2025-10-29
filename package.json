@@ -64,6 +64,7 @@
     "react-i18next": "^15.4.0",
     "react-js-cron": "^5.2.0",
     "react-markdown": "^10.1.0",
+    "react-phone-number-input": "^3.4.13",
     "react-resizable-panels": "^3.0.2",
     "remark-gfm": "^4.0.1",
     "remix-auth-github": "^2.0.0",

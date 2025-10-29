@@ -13,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useScopedParams } from '@/utils/scoped_params'
-import { useNavigate, useSearchParams } from '@remix-run/react'
+import { useNavigate } from '@remix-run/react'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
@@ -23,7 +23,6 @@ export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
   const { getScopedSearch } = useScopedParams()
   const navigate = useNavigate()
   const { pages, page, total, size } = meta
-  const [searchParams, setSearchParams] = useSearchParams()
 
   // Build a sliding window of pages around the active page
   const getVisiblePages = () => {

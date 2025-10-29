@@ -68,8 +68,11 @@ export default function Layout() {
   return (
     <div
       ref={containerRef}
-      className={cn('has-min-sidebar is-header-blur', isExpanded && 'is-sidebar-open')}>
-      <div id="root" className="min-h-100vh flex grow">
+      className={cn(
+        'has-min-sidebar is-header-blur h-full',
+        isExpanded && 'is-sidebar-open',
+      )}>
+      <div id="root" className="flex h-full grow">
         <div className="sidebar print:hidden">
           <SidebarPanel menuItems={menuItems} />
           <SidebarPanelMin menuItems={menuItems} />
@@ -85,7 +88,7 @@ export default function Layout() {
         />
 
         <main className="main-content w-full">
-          <div className="mx-auto w-full max-w-screen-2xl">
+          <div className="mx-auto mt-3 h-full w-full max-w-screen-2xl">
             <Outlet />
           </div>
         </main>
