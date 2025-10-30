@@ -85,7 +85,7 @@ export default function Layout() {
         />
 
         <main className="main-content w-full">
-          <div className="mx-auto w-full max-w-screen-2xl">
+          <div className="mx-auto h-full w-full max-w-screen-2xl">
             <Outlet />
           </div>
         </main>

@@ -11,6 +11,7 @@ interface IInputEmailProps {
   trigger?: 'onChange' | 'onBlur'
   required?: boolean
   defaultValue?: string
+  autoFocus?: boolean
 }
 
 const InputEmail = ({
@@ -20,6 +21,7 @@ const InputEmail = ({
   trigger = 'onChange',
   required = false,
   defaultValue = '',
+  autoFocus = false,
 }: IInputEmailProps) => {
   const [error, setError] = useState(errorMessage)
 
@@ -50,6 +52,7 @@ const InputEmail = ({
       <Input
         name="email"
         autoComplete="off"
+        autoFocus={autoFocus}
         defaultValue={defaultValue}
         onChange={(e) => {
           if (trigger === 'onChange') {

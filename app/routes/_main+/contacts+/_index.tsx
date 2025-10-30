@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useApp } from '@/context/AppContext'
 import { useHandleApiError } from '@/hooks/useHandleApiError'
+import useDebounce from '@/hooks/useDebounce'
 import { fetchApi } from '@/libraries/fetch'
 import { IContact } from '@/types/contact'
 import { IPaging } from '@/types/pagination'
@@ -15,10 +16,19 @@ import { handleFetcherData } from '@/utils/fetcher.data'
 import { ensureCanonicalPagination } from '@/utils/pagination.server'
 import { redirectWithToast } from '@/utils/toast.server'
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from '@remix-run/react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Edit, EllipsisVertical, EyeIcon, Trash2 } from 'lucide-react'
+import { Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useScopedParams } from '@/utils/scoped_params'
+import CreateButton from '@/components/misc/CreateButton'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -37,40 +47,77 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Contacts() {
   const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
   const handleApiError = useHandleApiError()
+  const { getScopedSearch } = useScopedParams()
   const { token } = useApp()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
   const [data, setData] = useState<IPaging<IContact>>()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedContact, setSelectedContact] = useState<IContact | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [search, setSearch] = useState<string>(searchParams.get('q') || '')
   const deleteFetcher = useFetcher()
 
-  const fetchData = async () => {
+  const fetchData = async (searchQuery?: string) => {
     if (!token) return
 
-    setIsLoading(true)
+    // Determine endpoint and params based on search query
+    const hasSearchQuery = searchQuery && searchQuery.trim() !== ''
+    const endpoint = hasSearchQuery ? `${apiUrl}/contacts/search` : `${apiUrl}/contacts`
+    const params = hasSearchQuery ? { page, size, q: searchQuery } : { page, size }
+
     try {
-      const response: IPaging<IContact> = await fetchApi(
-        `${apiUrl}/contacts`,
-        token,
-        nodeEnv,
-        {
-          params: { page, size },
-        },
-      )
+      const response: IPaging<IContact> = await fetchApi(endpoint, token, nodeEnv, {
+        params,
+      })
       setData(response)
     } catch (error: any) {
       handleApiError(error)
     } finally {
       setIsLoading(false)
+      setIsLoadingSearch(false)
+      if (!hasSearchQuery) {
+        searchParams.delete('q')
+        setSearchParams(searchParams)
+      }
     }
   }
 
+  const fetchSearch = async (search: string) => {
+    if (!token) return
+
+    if (search) {
+      navigate(getScopedSearch({ q: search }))
+    } else {
+      // setIsLoading(true)
+    }
+    await fetchData(search)
+  }
+
+  const handleSearch = (search: string) => setSearch(search)
+
+  // Debounced search - only triggers when user types (not on initial load)
+  useDebounce(
+    () => {
+      // prevent on first load
+      if (!isLoading) {
+        setIsLoadingSearch(true)
+        fetchSearch(search)
+      }
+    },
+    [search],
+    500,
+  )
+
+  // Initial data load and pagination changes
   useEffect(() => {
     if (token) {
-      fetchData()
+      const searchQuery = searchParams.get('q')
+      // Use search query from URL if available, otherwise fetch all contacts
+      fetchData(searchQuery || undefined)
     }
-  }, [token, page, size])
+  }, [token])
 
   useEffect(() => {
     if (deleteFetcher.data) {
@@ -115,20 +162,28 @@ export default function Contacts() {
     }
   }
 
+  const hasSearchQuery = useMemo(() => {
+    return searchParams.get('q') !== null && searchParams.get('q') !== ''
+  }, [searchParams])
+
+  const hasData = useMemo(() => {
+    return data && data.items && data.items.length > 0
+  }, [data])
+
   const columns: ColumnDef<IContact>[] = useMemo(
     () => [
       {
         accessorKey: 'id',
         header: '',
-        size: 5,
+        size: 20,
         cell: ({ row }) => {
           const { id } = row.original
 
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button size="icon" variant="ghost">
-                  <EllipsisVertical size={18} />
+                <Button size="icon" variant="ghost" className="px-0">
+                  <Ellipsis size={18} />
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" side="right" className="w-44 p-2">
@@ -163,26 +218,33 @@ export default function Contacts() {
       {
         accessorKey: 'email',
         header: 'Email',
-        size: 250,
         cell: ({ row }) => {
           const email = row.original.email
           if (!email) return <span className="text-muted-foreground">-</span>
           return (
-            <div className="flex items-center gap-2">
+            <div className="inline">
               <Link to={`/contacts/${row.original.id}`} className="button-link">
                 <span className="text-sm">{email}</span>
               </Link>
-              <Badge variant="outline">
-                {row.original.is_active ? 'Active' : 'Inactive'}
-              </Badge>
             </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'state',
+        header: 'State',
+        size: 100,
+        cell: ({ row }) => {
+          return (
+            <Badge variant="outline">
+              {row.original.is_active ? 'Active' : 'Inactive'}
+            </Badge>
           )
         },
       },
       {
         accessorKey: 'first_name',
         header: 'Name',
-        size: 200,
         cell: ({ row }) => {
           const { first_name, last_name } = row.original
           const fullName = [first_name, last_name].filter(Boolean).join(' ')
@@ -190,9 +252,18 @@ export default function Contacts() {
         },
       },
       {
+        accessorKey: 'contact_type',
+        header: 'Contact Type',
+        cell: ({ row }) => {
+          const { contact_type } = row.original
+          return (
+            <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
+          )
+        },
+      },
+      {
         accessorKey: 'phone',
         header: 'Phone',
-        size: 200,
         cell: ({ row }) => {
           const { phone, phone_type } = row.original
           if (!phone) return <span className="text-muted-foreground">-</span>
@@ -216,7 +287,7 @@ export default function Contacts() {
           if (!address) return <span className="text-muted-foreground">-</span>
           return (
             <div className="flex items-center gap-2">
-              <span className="text-sm">{address}</span>
+              <span className="truncate text-sm">{address}</span>
             </div>
           )
         },
@@ -226,7 +297,7 @@ export default function Contacts() {
   )
 
   if (isLoading) {
-    return <AppPreloader className="min-h-screen" />
+    return <AppPreloader />
   }
 
   const emptyContent = (
@@ -240,28 +311,65 @@ export default function Contacts() {
     </EmptyContent>
   )
 
+  const emptySearchContent = (
+    <EmptyContent
+      image="/images/empty-contacts.svg"
+      title="No contacts found"
+      description="Try adjusting your search criteria"
+    />
+  )
+
   return (
     <div className="h-full animate-slide-up">
-      <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-foreground">Contacts</h1>
-        {data && data.items.length > 0 && (
-          <Button onClick={() => navigate('/contacts/new')}>New Contact</Button>
+      <div className="mb-5 flex flex-col gap-y-4">
+        <h1 className="page-title">Contacts</h1>
+        {(hasSearchQuery || hasData) && (
+          <div className="flex items-center justify-between">
+            <InputGroup className="max-w-96 bg-white dark:bg-card">
+              <InputGroupInput
+                placeholder="Search contacts"
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+              {search && (
+                <InputGroupAddon align="inline-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-transparent"
+                    onClick={() => setSearch('')}>
+                    <X />
+                  </Button>
+                </InputGroupAddon>
+              )}
+            </InputGroup>
+            <CreateButton label="New Contact" onClick={() => navigate('/contacts/new')} />
+          </div>
         )}
       </div>
-
-      {data && data.items.length > 0 ? (
+      {!hasData && !hasSearchQuery ? (
+        emptyContent
+      ) : (
         <DataTable
           columns={columns}
-          data={data.items}
-          meta={{
-            page: data.page,
-            pages: data.pages,
-            size: data.size,
-            total: data.total,
-          }}
+          data={data?.items || []}
+          hasFilter
+          isLoading={isLoadingSearch}
+          empty={emptySearchContent}
+          meta={
+            data
+              ? {
+                  page: data.page,
+                  pages: data.pages,
+                  size: data.size,
+                  total: data.total,
+                }
+              : undefined
+          }
         />
-      ) : (
-        <div className="mt-10">{emptyContent}</div>
       )}
 
       <DeleteConfirmation

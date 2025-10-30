@@ -48,7 +48,7 @@ export default function ContactDetail() {
   }, [token, params.id])
 
   if (isLoading) {
-    return <AppPreloader className="min-h-screen" />
+    return <AppPreloader />
   }
 
   if (!contact) {
@@ -99,10 +99,21 @@ export default function ContactDetail() {
                 <dd className="d-content">{fullName || 'N/A'}</dd>
               </div>
               <div className="d-item">
-                <dt className="d-label">
-                  Phone {contact.phone_type && `(${contact.phone_type})`}
-                </dt>
-                <dd className="d-content">{contact.phone || 'N/A'}</dd>
+                <dt className="d-label">Phone</dt>
+                <dd className="d-content">
+                  {contact.phone ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm">{contact.phone}</span>
+                      {contact.phone_type && (
+                        <span className="text-muted-foreground">
+                          ({contact.phone_type})
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span>N/A</span>
+                  )}
+                </dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Website</dt>
@@ -135,7 +146,7 @@ export default function ContactDetail() {
               </div>
               <div className="d-item">
                 <dt className="d-label">Contact Type</dt>
-                <dd className="d-content">{contact.contact_type || 'N/A'}</dd>
+                <dd className="d-content capitalize">{contact.contact_type || 'N/A'}</dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Created At</dt>
