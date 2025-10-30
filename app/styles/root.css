@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply !h-full bg-background font-geist dark:bg-gray-950;
+  @apply bg-background font-geist;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
@@ -193,7 +193,7 @@ nav.header .header-container {
 
 /* Main content */
 .main-content {
-  @apply mt-[65px] bg-background px-3 pb-6 pt-2 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pl-11 lg:pr-8 print:m-0;
+  @apply mt-[65px] bg-background px-3 pb-3 pt-6 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pl-11 lg:pr-8 print:m-0;
 }
 
 .has-min-sidebar .main-content {

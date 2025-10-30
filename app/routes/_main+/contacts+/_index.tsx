@@ -218,26 +218,33 @@ export default function Contacts() {
       {
         accessorKey: 'email',
         header: 'Email',
-        size: 300,
         cell: ({ row }) => {
           const email = row.original.email
           if (!email) return <span className="text-muted-foreground">-</span>
           return (
-            <div className="flex items-center gap-2">
+            <div className="inline">
               <Link to={`/contacts/${row.original.id}`} className="button-link">
                 <span className="text-sm">{email}</span>
               </Link>
-              <Badge variant="outline">
-                {row.original.is_active ? 'Active' : 'Inactive'}
-              </Badge>
             </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'state',
+        header: 'State',
+        size: 100,
+        cell: ({ row }) => {
+          return (
+            <Badge variant="outline">
+              {row.original.is_active ? 'Active' : 'Inactive'}
+            </Badge>
           )
         },
       },
       {
         accessorKey: 'first_name',
         header: 'Name',
-        size: 500,
         cell: ({ row }) => {
           const { first_name, last_name } = row.original
           const fullName = [first_name, last_name].filter(Boolean).join(' ')
@@ -247,16 +254,16 @@ export default function Contacts() {
       {
         accessorKey: 'contact_type',
         header: 'Contact Type',
-        size: 300,
         cell: ({ row }) => {
           const { contact_type } = row.original
-          return <span className="text-left capitalize">{contact_type || '-'}</span>
+          return (
+            <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
+          )
         },
       },
       {
         accessorKey: 'phone',
         header: 'Phone',
-        size: 300,
         cell: ({ row }) => {
           const { phone, phone_type } = row.original
           if (!phone) return <span className="text-muted-foreground">-</span>
@@ -273,14 +280,14 @@ export default function Contacts() {
       {
         accessorKey: 'address',
         header: 'Address',
-        size: 500,
+        size: 300,
         cell: ({ row }) => {
           const { city, state, country } = row.original
           const address = [city, state, country].filter(Boolean).join(', ')
           if (!address) return <span className="text-muted-foreground">-</span>
           return (
             <div className="flex items-center gap-2">
-              <span className="text-sm">{address}</span>
+              <span className="truncate text-sm">{address}</span>
             </div>
           )
         },
@@ -313,12 +320,12 @@ export default function Contacts() {
   )
 
   return (
-    <div className="flex h-full animate-slide-up flex-col">
+    <div className="h-full animate-slide-up">
       <div className="mb-5 flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
         {(hasSearchQuery || hasData) && (
           <div className="flex items-center justify-between">
-            <InputGroup className="max-w-96 bg-white">
+            <InputGroup className="max-w-96 bg-white dark:bg-card">
               <InputGroupInput
                 placeholder="Search contacts"
                 value={search}
@@ -343,16 +350,15 @@ export default function Contacts() {
           </div>
         )}
       </div>
-      {isLoadingSearch ? (
-        <AppPreloader />
-      ) : !hasData ? (
-        <div className="mt-10 animate-slide-up">
-          {hasSearchQuery ? emptySearchContent : emptyContent}
-        </div>
+      {!hasData && !hasSearchQuery ? (
+        emptyContent
       ) : (
         <DataTable
           columns={columns}
           data={data?.items || []}
+          hasFilter
+          isLoading={isLoadingSearch}
+          empty={emptySearchContent}
           meta={
             data
               ? {
