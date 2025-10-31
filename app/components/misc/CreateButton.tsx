@@ -5,14 +5,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 interface IProps {
   label: string
   onClick: () => void
+  size?: 'sm' | 'lg' | 'default' | 'xs' | 'icon' | null | undefined
 }
 
-export default function CreateButton({ label, onClick }: IProps) {
+export default function CreateButton({ label, onClick, size = 'default' }: IProps) {
   return (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button onClick={onClick}>
+          <Button onClick={onClick} size={size}>
             <Plus />
             <span className="font-semibold">New</span>
           </Button>

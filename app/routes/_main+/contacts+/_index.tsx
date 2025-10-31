@@ -404,7 +404,7 @@ export async function action({ request }: ActionFunctionArgs) {
           toast: {
             type: 'success',
             title: 'Success',
-            description: 'Successfully removed vehicle',
+            description: 'Successfully removed contact',
           },
           response: { id: contactId },
         },
