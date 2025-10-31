@@ -5,7 +5,7 @@ import { GetCountries, GetState, GetCity } from 'react-country-state-city'
 import { Country, State, City } from 'react-country-state-city/dist/esm/types'
 import { FormField } from 'core-ui'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useFetcher } from '@remix-run/react'
+import { Form, useNavigation } from '@remix-run/react'
 import { ActionFunctionArgs } from '@remix-run/node'
 import { useApp } from '@/context/AppContext'
 import { Button } from '@/components/ui/button'
@@ -17,9 +17,66 @@ import InputEmail from '@/components/misc/InputEmail'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+export const contactTypeOptions: ComboboxOption[] = [
+  {
+    id: 'personal',
+    label: 'Personal',
+    value: 'personal',
+  },
+  {
+    id: 'business',
+    label: 'Business',
+    value: 'business',
+  },
+  {
+    id: 'vendor',
+    label: 'Vendor',
+    value: 'vendor',
+  },
+  {
+    id: 'customer',
+    label: 'Customer',
+    value: 'customer',
+  },
+  {
+    id: 'partner',
+    label: 'Partner',
+    value: 'partner',
+  },
+  {
+    id: 'supplier',
+    label: 'Supplier',
+    value: 'supplier',
+  },
+  {
+    id: 'lead',
+    label: 'Lead',
+    value: 'lead',
+  },
+]
+
+export const phoneTypeOptions: ComboboxOption[] = [
+  {
+    id: 'mobile',
+    label: 'Mobile',
+    value: 'mobile',
+  },
+  {
+    id: 'home',
+    label: 'Home',
+    value: 'home',
+  },
+  {
+    id: 'work',
+    label: 'Work',
+    value: 'work',
+  },
+]
+
 export default function ContactNew() {
-  const fetcher = useFetcher()
+  // const fetcher = useFetcher()
   const { token } = useApp()
+  const navigation = useNavigation()
   const [selectedCountry, setSelectedCountry] = useState<ComboboxOption<Country>>()
   const [selectedState, setSelectedState] = useState<ComboboxOption<State>>()
   const [selectedCity, setSelectedCity] = useState<ComboboxOption<City>>()
@@ -32,7 +89,10 @@ export default function ContactNew() {
   const [contactType, setContactType] = useState<string | undefined>(undefined)
   const [phoneType, setPhoneType] = useState<string | undefined>(undefined)
 
-  const isSubmitting = useMemo(() => fetcher.state === 'submitting', [fetcher.state])
+  const isSubmitting = useMemo(
+    () => navigation.state === 'submitting',
+    [navigation.state],
+  )
 
   const countryOptions: ComboboxOption<Country>[] = useMemo(
     () =>
@@ -103,62 +163,6 @@ export default function ContactNew() {
     return isSubmitting || errorEmail !== '' || phoneError
   }, [isSubmitting, errorEmail, phoneError])
 
-  const contactTypeOptions: ComboboxOption[] = [
-    {
-      id: 'personal',
-      label: 'Personal',
-      value: 'personal',
-    },
-    {
-      id: 'business',
-      label: 'Business',
-      value: 'business',
-    },
-    {
-      id: 'vendor',
-      label: 'Vendor',
-      value: 'vendor',
-    },
-    {
-      id: 'customer',
-      label: 'Customer',
-      value: 'customer',
-    },
-    {
-      id: 'partner',
-      label: 'Partner',
-      value: 'partner',
-    },
-    {
-      id: 'supplier',
-      label: 'Supplier',
-      value: 'supplier',
-    },
-    {
-      id: 'lead',
-      label: 'Lead',
-      value: 'lead',
-    },
-  ]
-
-  const phoneTypeOptions: ComboboxOption[] = [
-    {
-      id: 'mobile',
-      label: 'Mobile',
-      value: 'mobile',
-    },
-    {
-      id: 'home',
-      label: 'Home',
-      value: 'home',
-    },
-    {
-      id: 'work',
-      label: 'Work',
-      value: 'work',
-    },
-  ]
-
   useEffect(() => {
     getStates()
   }, [selectedCountry])
@@ -178,7 +182,7 @@ export default function ContactNew() {
           <CardTitle>New Contact</CardTitle>
         </CardHeader>
         <CardContent>
-          <fetcher.Form method="POST">
+          <Form method="POST">
             <input type="hidden" name="token" value={token!} />
             <input type="hidden" name="country" value={selectedCountry?.data?.name} />
             <input type="hidden" name="state" value={selectedState?.data?.name} />
@@ -189,14 +193,7 @@ export default function ContactNew() {
             <h2 className="mb-3 text-lg font-medium">General</h2>
             <Card className="shadow-none">
               <CardContent className="pt-4">
-                <InputEmail
-                  required
-                  autoFocus
-                  errorMessage={
-                    (fetcher.data as { errors?: { email?: string } })?.errors?.email || ''
-                  }
-                  callbackError={setErrorEmail}
-                />
+                <InputEmail required autoFocus callbackError={setErrorEmail} />
                 <div className="mt-3 grid gap-4 lg:grid-cols-3">
                   <FormField label="First Name" name="first_name" />
                   <FormField label="Middle Name" name="middle_name" />
@@ -305,7 +302,7 @@ export default function ContactNew() {
                 {isSubmitting ? 'Saving...' : 'Save'}
               </Button>
             </div>
-          </fetcher.Form>
+          </Form>
         </CardContent>
       </Card>
     </div>

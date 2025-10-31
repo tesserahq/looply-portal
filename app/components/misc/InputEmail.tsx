@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { cn } from '@/utils/misc'
 
 interface IInputEmailProps {
-  errorMessage: string
+  errorMessage?: string
   placeholder?: string
   callbackError?: (val: string) => void
   trigger?: 'onChange' | 'onBlur'

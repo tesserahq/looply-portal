@@ -5,7 +5,7 @@ import { GetCountries, GetState, GetCity } from 'react-country-state-city'
 import { Country, State, City } from 'react-country-state-city/dist/esm/types'
 import { FormField } from 'core-ui'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useFetcher, useLoaderData, useParams } from '@remix-run/react'
+import { Form, useLoaderData, useNavigation, useParams } from '@remix-run/react'
 import { ActionFunctionArgs } from '@remix-run/node'
 import { useApp } from '@/context/AppContext'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label'
 import { AppPreloader } from '@/components/misc/AppPreloader'
 import { IContact } from '@/types/contact'
 import { useHandleApiError } from '@/hooks/useHandleApiError'
+import { contactTypeOptions, phoneTypeOptions } from '../new'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -29,7 +30,7 @@ export function loader() {
 
 export default function ContactEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const fetcher = useFetcher()
+  const navigation = useNavigation()
   const handleApiError = useHandleApiError()
   const { token } = useApp()
   const params = useParams()
@@ -67,7 +68,10 @@ export default function ContactEdit() {
     }
   }, [token, params.id])
 
-  const isSubmitting = useMemo(() => fetcher.state === 'submitting', [fetcher.state])
+  const isSubmitting = useMemo(
+    () => navigation.state === 'submitting',
+    [navigation.state],
+  )
 
   const countryOptions: ComboboxOption<Country>[] = useMemo(
     () =>
@@ -137,62 +141,6 @@ export default function ContactEdit() {
   const disabledSave = useMemo(() => {
     return isSubmitting || errorEmail !== '' || phoneError
   }, [isSubmitting, errorEmail, phoneError])
-
-  const contactTypeOptions: ComboboxOption[] = [
-    {
-      id: 'personal',
-      label: 'Personal',
-      value: 'personal',
-    },
-    {
-      id: 'business',
-      label: 'Business',
-      value: 'business',
-    },
-    {
-      id: 'vendor',
-      label: 'Vendor',
-      value: 'vendor',
-    },
-    {
-      id: 'customer',
-      label: 'Customer',
-      value: 'customer',
-    },
-    {
-      id: 'partner',
-      label: 'Partner',
-      value: 'partner',
-    },
-    {
-      id: 'supplier',
-      label: 'Supplier',
-      value: 'supplier',
-    },
-    {
-      id: 'lead',
-      label: 'Lead',
-      value: 'lead',
-    },
-  ]
-
-  const phoneTypeOptions: ComboboxOption[] = [
-    {
-      id: 'mobile',
-      label: 'Mobile',
-      value: 'mobile',
-    },
-    {
-      id: 'home',
-      label: 'Home',
-      value: 'home',
-    },
-    {
-      id: 'work',
-      label: 'Work',
-      value: 'work',
-    },
-  ]
 
   useEffect(() => {
     if (!isLoading && contact) {
@@ -325,7 +273,7 @@ export default function ContactEdit() {
           <CardTitle>Edit Contact</CardTitle>
         </CardHeader>
         <CardContent>
-          <fetcher.Form method="POST">
+          <Form method="PUT">
             <input type="hidden" name="token" value={token!} />
             <input type="hidden" name="country" value={selectedCountry?.data?.name} />
             <input type="hidden" name="state" value={selectedState?.data?.name} />
@@ -339,9 +287,6 @@ export default function ContactEdit() {
                 <InputEmail
                   required
                   defaultValue={contact.email}
-                  errorMessage={
-                    (fetcher.data as { errors?: { email?: string } })?.errors?.email || ''
-                  }
                   callbackError={setErrorEmail}
                 />
                 <div className="mt-3 grid gap-4 lg:grid-cols-3">
@@ -489,7 +434,7 @@ export default function ContactEdit() {
                 {isSubmitting ? 'Saving...' : 'Save'}
               </Button>
             </div>
-          </fetcher.Form>
+          </Form>
         </CardContent>
       </Card>
     </div>
