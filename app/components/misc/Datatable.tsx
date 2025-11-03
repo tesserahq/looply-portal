@@ -5,6 +5,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  Table as ReactTableType,
 } from '@tanstack/react-table'
 
 import {
@@ -58,6 +59,8 @@ interface DataTableProps<TData, TValue> {
   fixed?: boolean
   isLoading?: boolean
   hasFilter?: boolean
+  table?: ReactTableType<TData>
+  onTableReady?: (table: ReactTableType<TData>) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -68,6 +71,8 @@ export function DataTable<TData, TValue>({
   fixed = true,
   isLoading,
   hasFilter = false,
+  table: tableProp,
+  onTableReady,
 }: DataTableProps<TData, TValue>) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const [skeletonRowCount, setSkeletonRowCount] = useState<number>(10)
@@ -101,7 +106,7 @@ export function DataTable<TData, TValue>({
     }
   }, [])
 
-  const table = useReactTable({
+  const internalTable = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -112,6 +117,14 @@ export function DataTable<TData, TValue>({
       maxSize: 500,
     },
   })
+
+  const table = tableProp || internalTable
+
+  useEffect(() => {
+    if (table && onTableReady) {
+      onTableReady(table)
+    }
+  }, [table, onTableReady])
 
   return (
     <div
