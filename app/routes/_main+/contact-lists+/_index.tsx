@@ -300,7 +300,7 @@ export default function ContactLists() {
 
   return (
     <div className="h-full animate-slide-up">
-      <div className="mb-5 flex flex-col gap-y-4">
+      <div className="mb-5 flex items-center justify-between gap-y-4">
         <h1 className="page-title">Contact Lists</h1>
         {(hasSearchQuery || hasData) && (
           <div className="flex items-center justify-end">
