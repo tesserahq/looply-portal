@@ -88,31 +88,6 @@ export default function ContactListDetail() {
   const columns: ColumnDef<IContact>[] = useMemo(
     () => [
       {
-        accessorKey: 'id',
-        header: '',
-        size: 20,
-        cell: ({ row }) => {
-          return (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button size="icon" variant="ghost" className="px-0">
-                  <Ellipsis size={18} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" side="right" className="w-44 p-2">
-                <Button
-                  variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => handleDeleteClick(row.original)}>
-                  <Trash2 size={18} />
-                  <span>Delete</span>
-                </Button>
-              </PopoverContent>
-            </Popover>
-          )
-        },
-      },
-      {
         accessorKey: 'email',
         header: 'Email',
         size: 300,
@@ -173,6 +148,31 @@ export default function ContactListDetail() {
                 <span className="text-xs text-muted-foreground">({phone_type})</span>
               )}
             </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: '',
+        size: 20,
+        cell: ({ row }) => {
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <Ellipsis size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent side="left" className="w-44 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => handleDeleteClick(row.original)}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           )
         },
       },
@@ -289,6 +289,14 @@ export default function ContactListDetail() {
             <div className="d-item">
               <dt className="d-label">Description</dt>
               <dd className="d-content">{contactList.description || 'N/A'}</dd>
+            </div>
+            <div className="d-item">
+              <dt className="d-label">Visibility</dt>
+              <dd className="d-content">
+                <Badge variant={contactList.is_public ? 'public' : 'private'}>
+                  {contactList.is_public ? 'Public' : 'Private'}
+                </Badge>
+              </dd>
             </div>
             <div className="d-item">
               <dt className="d-label">Created At</dt>

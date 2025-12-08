@@ -29,7 +29,7 @@ import { ActionFunctionArgs } from '@remix-run/node'
 import { Link, useFetcher, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { ColumnDef, useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
+import { Edit, Ellipsis, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export function loader() {
@@ -211,11 +211,6 @@ export default function WaitingListDetail() {
         ),
         size: 20,
         cell: ({ row }) => {
-          const member = row.original
-          const isMember = isWaitingListMember(member)
-          const contact = getContactFromMember(member)
-          const status = isMember ? member.status : undefined
-
           return (
             <div className="flex items-center">
               <Checkbox
@@ -225,40 +220,6 @@ export default function WaitingListDetail() {
                 aria-label="Select member"
                 tabIndex={0}
               />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="px-0 hover:bg-transparent"
-                    aria-label="Open actions"
-                    tabIndex={0}>
-                    <EllipsisVertical size={18} />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="start" side="right" className="w-44 p-2">
-                  {isMember && status && (
-                    <Button
-                      variant="ghost"
-                      onClick={() => updateMemberRef.current?.onOpen(contact, status)}
-                      aria-label="Update status"
-                      tabIndex={0}
-                      className="flex w-full justify-start gap-2">
-                      <Edit size={18} />
-                      <span>Update Status</span>
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => handleDeleteClick(member)}
-                    aria-label="Delete member"
-                    tabIndex={0}>
-                    <Trash2 size={18} />
-                    <span>Delete</span>
-                  </Button>
-                </PopoverContent>
-              </Popover>
             </div>
           )
         },
@@ -327,6 +288,54 @@ export default function WaitingListDetail() {
                 <span className="text-xs text-muted-foreground">({phone_type})</span>
               )}
             </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: '',
+        size: 20,
+        cell: ({ row }) => {
+          const member = row.original
+          const isMember = isWaitingListMember(member)
+          const contact = getContactFromMember(member)
+          const status = isMember ? member.status : undefined
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="px-0 hover:bg-transparent"
+                  aria-label="Open actions"
+                  tabIndex={0}>
+                  <Ellipsis size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="left" className="w-44 space-y-1 p-2">
+                {isMember && status && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => updateMemberRef.current?.onOpen(contact, status)}
+                    aria-label="Update status"
+                    tabIndex={0}
+                    className="flex w-full justify-start gap-2">
+                    <Edit size={18} />
+                    <span>Update Status</span>
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => handleDeleteClick(member)}
+                  aria-label="Delete member"
+                  tabIndex={0}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           )
         },
       },

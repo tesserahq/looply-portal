@@ -1,18 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppPreloader } from '@/components/misc/AppPreloader'
+import CreateButton from '@/components/misc/CreateButton'
 import { DataTable } from '@/components/misc/Datatable'
+import { DateTime } from '@/components/misc/datetime'
 import DeleteConfirmation from '@/components/misc/Dialog/DeleteConfirmation'
 import EmptyContent from '@/components/misc/EmptyContent'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useApp } from '@/context/AppContext'
-import { useHandleApiError } from '@/hooks/useHandleApiError'
 import useDebounce from '@/hooks/useDebounce'
+import { useHandleApiError } from '@/hooks/useHandleApiError'
 import { fetchApi } from '@/libraries/fetch'
 import { IContactList } from '@/types/contact-list'
 import { IPaging } from '@/types/pagination'
 import { handleFetcherData } from '@/utils/fetcher.data'
 import { ensureCanonicalPagination } from '@/utils/pagination.server'
+import { useScopedParams } from '@/utils/scoped_params'
 import { redirectWithToast } from '@/utils/toast.server'
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
 import {
@@ -25,10 +30,6 @@ import {
 import type { ColumnDef } from '@tanstack/react-table'
 import { Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useScopedParams } from '@/utils/scoped_params'
-import CreateButton from '@/components/misc/CreateButton'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { format } from 'date-fns'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -175,6 +176,68 @@ export default function ContactLists() {
   const columns: ColumnDef<IContactList>[] = useMemo(
     () => [
       {
+        accessorKey: 'name',
+        header: 'Name',
+        size: 300,
+        cell: ({ row }) => {
+          const name = row.original.name
+          if (!name) return <span className="text-muted-foreground">-</span>
+          return (
+            <div className="inline">
+              <Link to={`/contact-lists/${row.original.id}`} className="button-link">
+                <span className="text-sm font-medium">{name}</span>
+              </Link>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'description',
+        header: 'Description',
+        size: 400,
+        cell: ({ row }) => {
+          const { description } = row.original
+          if (!description) return <span className="text-muted-foreground">-</span>
+          return (
+            <span className="line-clamp-2 text-sm text-muted-foreground">
+              {description}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: 'is_public',
+        header: 'Visibility',
+        size: 100,
+        cell: ({ row }) => {
+          return (
+            <Badge variant={row.original.is_public ? 'public' : 'private'}>
+              {row.original.is_public ? 'Public' : 'Private'}
+            </Badge>
+          )
+        },
+      },
+      {
+        accessorKey: 'created_at',
+        header: 'Created At',
+        size: 100,
+        cell: ({ row }) => {
+          const { created_at } = row.original
+          if (!created_at) return <span className="text-muted-foreground">-</span>
+          return <DateTime date={created_at} />
+        },
+      },
+      {
+        accessorKey: 'updated_at',
+        header: 'Updated At',
+        size: 100,
+        cell: ({ row }) => {
+          const { updated_at } = row.original
+          if (!updated_at) return <span className="text-muted-foreground">-</span>
+          return <DateTime date={updated_at} />
+        },
+      },
+      {
         accessorKey: 'id',
         header: '',
         size: 20,
@@ -214,60 +277,6 @@ export default function ContactLists() {
                 </Button>
               </PopoverContent>
             </Popover>
-          )
-        },
-      },
-      {
-        accessorKey: 'name',
-        header: 'Name',
-        size: 300,
-        cell: ({ row }) => {
-          const name = row.original.name
-          if (!name) return <span className="text-muted-foreground">-</span>
-          return (
-            <div className="inline">
-              <Link to={`/contact-lists/${row.original.id}`} className="button-link">
-                <span className="text-sm font-medium">{name}</span>
-              </Link>
-            </div>
-          )
-        },
-      },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        size: 400,
-        cell: ({ row }) => {
-          const { description } = row.original
-          if (!description) return <span className="text-muted-foreground">-</span>
-          return (
-            <span className="line-clamp-2 text-sm text-muted-foreground">
-              {description}
-            </span>
-          )
-        },
-      },
-      {
-        accessorKey: 'created_at',
-        header: 'Created At',
-        size: 180,
-        cell: ({ row }) => {
-          const { created_at } = row.original
-          if (!created_at) return <span className="text-muted-foreground">-</span>
-          return (
-            <span className="text-sm">{format(new Date(created_at + 'z'), 'PPP')}</span>
-          )
-        },
-      },
-      {
-        accessorKey: 'updated_at',
-        header: 'Updated At',
-        size: 180,
-        cell: ({ row }) => {
-          const { updated_at } = row.original
-          if (!updated_at) return <span className="text-muted-foreground">-</span>
-          return (
-            <span className="text-sm">{format(new Date(updated_at + 'z'), 'PPP')}</span>
           )
         },
       },
