@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FormField } from 'core-ui'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Form,
   useActionData,
   useLoaderData,
+  useNavigate,
   useNavigation,
   useParams,
 } from '@remix-run/react'
 import { ActionFunctionArgs } from '@remix-run/node'
-import { useApp } from '@/context/AppContext'
-import { Button } from '@/components/ui/button'
 import { redirectWithToast } from '@/utils/toast.server'
 import { fetchApi } from '@/libraries/fetch'
 import { AppPreloader } from '@/components/misc/AppPreloader'
 import { IContactList } from '@/types/contact-list'
 import { useHandleApiError } from '@/hooks/useHandleApiError'
 import { useEffect, useState } from 'react'
-import { contactListSchema } from '@/schemas/contact-list'
+import {
+  ContactListForm,
+  contactListFormSchema,
+} from '@/components/form/contact-list-form'
+import { useApp } from '@/context/AppContext'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -29,6 +29,7 @@ export function loader() {
 export default function ContactListEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const navigation = useNavigation()
+  const navigate = useNavigate()
   const actionData = useActionData<typeof action>()
   const handleApiError = useHandleApiError()
   const { token } = useApp()
@@ -72,49 +73,20 @@ export default function ContactListEdit() {
   if (!contactList) {
     return (
       <div className="flex h-full animate-slide-up items-center justify-center">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">Contact list not found</p>
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border bg-card p-6">
+          <p className="text-muted-foreground">Contact list not found</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto w-full max-w-screen-md animate-slide-up">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Contact List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form method="POST">
-            <input type="hidden" name="token" value={token!} />
-            <FormField
-              label="Name"
-              name="name"
-              autoFocus
-              defaultValue={contactList.name}
-              error={errorFields?.name}
-            />
-            <FormField
-              label="Description"
-              name="description"
-              type="textarea"
-              className="mt-3"
-              defaultValue={contactList.description}
-              error={errorFields?.description}
-            />
-
-            <div className="mt-10 flex justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+    <ContactListForm
+      initialData={contactList}
+      errorFields={errorFields}
+      isSubmitting={isSubmitting}
+      onCancel={() => navigate(`/contact-lists/${params.id}`)}
+    />
   )
 }
 
@@ -122,11 +94,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
   const formData = await request.formData()
-  const { name, description, token } = Object.fromEntries(formData)
+  const { name, description, is_public, token } = Object.fromEntries(formData)
 
-  const validated = contactListSchema.safeParse({
+  const validated = contactListFormSchema.safeParse({
     name,
     description,
+    is_public: is_public === 'true',
   })
 
   if (!validated.success) {
@@ -143,6 +116,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         body: JSON.stringify({
           name: name.toString(),
           description: description?.toString() || '',
+          is_public: is_public === 'true',
         }),
       },
     )

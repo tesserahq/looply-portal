@@ -173,49 +173,6 @@ export default function Contacts() {
   const columns: ColumnDef<IContact>[] = useMemo(
     () => [
       {
-        accessorKey: 'id',
-        header: '',
-        size: 20,
-        cell: ({ row }) => {
-          const { id } = row.original
-
-          return (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button size="icon" variant="ghost" className="px-0">
-                  <Ellipsis size={18} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" side="right" className="w-44 p-2">
-                <Button
-                  variant="ghost"
-                  className="flex w-full justify-start gap-2"
-                  onClick={() => navigate(`/contacts/${id}`)}>
-                  <EyeIcon size={18} />
-                  <span>View</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="flex w-full justify-start gap-2"
-                  onClick={() => {
-                    navigate(`/contacts/${id}/edit`)
-                  }}>
-                  <Edit size={18} />
-                  <span>Edit</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => handleDeleteClick(row.original)}>
-                  <Trash2 size={18} />
-                  <span>Delete</span>
-                </Button>
-              </PopoverContent>
-            </Popover>
-          )
-        },
-      },
-      {
         accessorKey: 'email',
         header: 'Email',
         cell: ({ row }) => {
@@ -236,7 +193,7 @@ export default function Contacts() {
         size: 100,
         cell: ({ row }) => {
           return (
-            <Badge variant="outline">
+            <Badge variant="active">
               {row.original.is_active ? 'Active' : 'Inactive'}
             </Badge>
           )
@@ -289,6 +246,49 @@ export default function Contacts() {
             <div className="flex items-center gap-2">
               <span className="truncate text-sm">{address}</span>
             </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: '',
+        size: 20,
+        cell: ({ row }) => {
+          const { id } = row.original
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <Ellipsis size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="right" className="w-44 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/contacts/${id}`)}>
+                  <EyeIcon size={18} />
+                  <span>View</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => {
+                    navigate(`/contacts/${id}/edit`)
+                  }}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => handleDeleteClick(row.original)}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           )
         },
       },

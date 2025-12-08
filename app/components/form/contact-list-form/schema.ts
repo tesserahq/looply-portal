@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const invalid_type_error = 'We expect a string here'
 
-export const contactListSchema = z.object({
+export const contactListFormSchema = z.object({
   name: z
     .string({ invalid_type_error, required_error: "Name can't be blank" })
     .min(1, 'Name is required'),
@@ -10,4 +10,5 @@ export const contactListSchema = z.object({
   is_public: z.boolean().optional(),
 })
 
-export type ContactListSchema = z.infer<typeof contactListSchema>
+export type ContactListFormSchema = z.infer<typeof contactListFormSchema>
+
