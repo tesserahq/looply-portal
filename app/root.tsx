@@ -15,12 +15,13 @@ import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
 // Import global CSS styles for the application
 // The ?url query parameter tells the bundler to handle this as a URL import
-import SpinnerCSS from '@/styles/customs/spinner.css?url'
+import SpinnerCSS from '@/styles/spinner.css?url'
 import RootCSS from '@/styles/root.css?url'
+import 'react-day-picker/style.css'
 import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-country-state-city.css?url'
 import { ClientHintCheck } from '@/components/misc/ClientHints'
 import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@shadcn/ui/sonner'
 import { SITE_CONFIG } from '@/constants/brand'
 import { getHints } from '@/hooks/useHints'
 import { useNonce } from '@/hooks/useNonce'
@@ -32,8 +33,9 @@ import { combineHeaders, getDomainUrl } from '@/utils/misc.server'
 import { getToastSession } from '@/utils/toast.server'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
-import { ProgressBar } from './components/misc/ProgressBar'
+import { ProgressBar } from './components/loader/progress-bar'
 import { AppProvider } from './context/AppContext'
+import { ReactQueryProvider } from './modules/react-query'
 
 library.add(fab)
 
@@ -185,7 +187,9 @@ export default function AppWithProviders() {
           }}>
           {/* To check if the route is a public gazette share page */}
           <AppProvider identiesApiUrl={identiesApiUrl!} nodeEnv={nodeEnv}>
-            <Outlet />
+            <ReactQueryProvider>
+              <Outlet />
+            </ReactQueryProvider>
           </AppProvider>
         </Auth0Provider>
       </AuthenticityTokenProvider>

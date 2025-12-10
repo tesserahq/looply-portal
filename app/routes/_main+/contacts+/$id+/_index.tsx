@@ -1,16 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import DeleteConfirmation, {
+  type DeleteConfirmationHandle,
+} from '@/components/delete-confirmation/delete-confirmation'
 import { useApp } from '@/context/AppContext'
-import { useHandleApiError } from '@/hooks/useHandleApiError'
-import { fetchApi } from '@/libraries/fetch'
-import { IContact } from '@/types/contact'
+import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
 import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { Badge } from '@shadcn/ui/badge'
+import { Button } from '@shadcn/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { format } from 'date-fns'
-import { Edit, MapPin } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Edit, EllipsisVertical, MapPin, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useRef } from 'react'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -21,31 +22,47 @@ export function loader() {
 
 export default function ContactDetail() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const handleApiError = useHandleApiError()
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [contact, setContact] = useState<IContact | null>(null)
+  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
 
-  const fetchContact = async () => {
-    if (!token) return
-
-    try {
-      const data = await fetchApi(`${apiUrl}/contacts/${params.id}`, token, nodeEnv)
-      setContact(data)
-    } catch (error: any) {
-      handleApiError(error)
-    } finally {
-      setIsLoading(false)
-    }
+  const config = {
+    apiUrl: apiUrl!,
+    nodeEnv,
+    token: token!,
   }
 
+  const { data: contact, isLoading } = useContactDetail(config, params.id!, {
+    enabled: !!params.id && !!token,
+  })
+
+  const { mutate: deleteContact, isPending: isDeleting } = useDeleteContact(config, {
+    onSuccess: () => {
+      deleteConfirmationRef.current?.close()
+      navigate('/contacts')
+    },
+  })
+
+  const handleDelete = useCallback(() => {
+    if (!params.id) return
+
+    deleteConfirmationRef.current?.open({
+      title: 'Remove Contact',
+      description: `This will remove "${contact?.email}" from your contacts. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+        await deleteContact(params.id!)
+      },
+      isLoading: false,
+    })
+  }, [params.id, contact?.email, deleteContact])
+
   useEffect(() => {
-    if (token && params.id) {
-      fetchContact()
+    if (isDeleting) {
+      deleteConfirmationRef.current?.updateConfig({ isLoading: true })
     }
-  }, [token, params.id])
+  }, [isDeleting])
 
   if (isLoading) {
     return <AppPreloader />
@@ -68,150 +85,174 @@ export default function ContactDetail() {
     .join(' ')
 
   return (
-    <div className="grid h-full animate-slide-up gap-4 lg:grid-cols-3">
-      {/* Main Contact Information */}
-      <div className="lg:col-span-2">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center justify-start gap-3">
-                <h1 className="text-xl font-bold lg:text-3xl">Contact Details</h1>
-                <Badge variant="outline">
-                  {contact.is_active ? 'Active' : 'Inactive'}
-                </Badge>
+    <div className="flex h-full animate-slide-up flex-col gap-4">
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Main Contact Information */}
+        <div className="space-y-5 lg:col-span-2">
+          {/* Details */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-start gap-3">
+                  <h1 className="text-xl font-bold lg:text-3xl">Contact Details</h1>
+                  <Badge variant="outline">
+                    {contact.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button size="icon" variant="ghost" className="px-0">
+                      <EllipsisVertical size={18} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" side="left" className="w-40 p-2">
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      onClick={() => navigate(`/contacts/${params.id}/edit`)}>
+                      <Edit size={18} />
+                      <span>Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={handleDelete}>
+                      <Trash2 size={18} />
+                      <span>Delete</span>
+                    </Button>
+                  </PopoverContent>
+                </Popover>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/contacts/${params.id}/edit`)}>
-                <Edit /> Edit
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4 px-6 pt-4">
-            <div className="d-list">
-              <div className="d-item">
-                <dt className="d-label">Email</dt>
-                <dd className="d-content">{contact.email}</dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Full Name</dt>
-                <dd className="d-content">{fullName || 'N/A'}</dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Phone</dt>
-                <dd className="d-content">
-                  {contact.phone ? (
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm">{contact.phone}</span>
-                      {contact.phone_type && (
-                        <span className="text-muted-foreground">
-                          ({contact.phone_type})
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <span>N/A</span>
-                  )}
-                </dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Website</dt>
-                <dd className="d-content">
-                  {contact.website ? (
-                    <a
-                      href={
-                        contact.website.startsWith('http://') ||
-                        contact.website.startsWith('https://')
-                          ? contact.website
-                          : `https://${contact.website}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary underline">
-                      {contact.website}
-                    </a>
-                  ) : (
-                    'N/A'
-                  )}
-                </dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Company</dt>
-                <dd className="d-content">{contact.company || 'N/A'}</dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Job</dt>
-                <dd className="d-content">{contact.job || 'N/A'}</dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Contact Type</dt>
-                <dd className="d-content capitalize">{contact.contact_type || 'N/A'}</dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Created At</dt>
-                <dd className="d-content">
-                  {format(new Date(contact.created_at + 'z'), 'PPPpp')}
-                </dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Updated At</dt>
-                <dd className="d-content">
-                  {format(new Date(contact.updated_at + 'z'), 'PPPpp')}
-                </dd>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Address and Notes */}
-      <div className="space-y-4 lg:col-span-1">
-        {/* Address */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Address</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {contact.address_line_1 ||
-            contact.address_line_2 ||
-            contact.city ||
-            contact.state ||
-            contact.country ||
-            contact.zip_code ? (
-              <div className="flex items-start gap-3">
-                <MapPin className="mt-0.5 text-muted-foreground" size={20} />
-                <div className="space-y-1">
-                  {contact.address_line_1 && (
-                    <p className="text-sm">{contact.address_line_1}</p>
-                  )}
-                  {contact.address_line_2 && (
-                    <p className="text-sm">{contact.address_line_2}</p>
-                  )}
-                  <p className="text-sm">
-                    {[contact.city, contact.state, contact.country, contact.zip_code]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </p>
+            </CardHeader>
+            <CardContent className="space-y-4 px-6 pt-4">
+              <div className="d-list">
+                <div className="d-item">
+                  <dt className="d-label">Email</dt>
+                  <dd className="d-content">{contact.email}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Full Name</dt>
+                  <dd className="d-content">{fullName || 'N/A'}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Phone</dt>
+                  <dd className="d-content">
+                    {contact.phone ? (
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm">{contact.phone}</span>
+                        {contact.phone_type && (
+                          <span className="text-muted-foreground">
+                            ({contact.phone_type})
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span>N/A</span>
+                    )}
+                  </dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Website</dt>
+                  <dd className="d-content">
+                    {contact.website ? (
+                      <a
+                        href={
+                          contact.website.startsWith('http://') ||
+                          contact.website.startsWith('https://')
+                            ? contact.website
+                            : `https://${contact.website}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline">
+                        {contact.website}
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Company</dt>
+                  <dd className="d-content">{contact.company || 'N/A'}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Job</dt>
+                  <dd className="d-content">{contact.job || 'N/A'}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Contact Type</dt>
+                  <dd className="d-content capitalize">
+                    {contact.contact_type || 'N/A'}
+                  </dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Created At</dt>
+                  <dd className="d-content">
+                    {format(new Date(contact.created_at + 'z'), 'PPPpp')}
+                  </dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Updated At</dt>
+                  <dd className="d-content">
+                    {format(new Date(contact.updated_at + 'z'), 'PPPpp')}
+                  </dd>
                 </div>
               </div>
-            ) : (
-              <p className="text-sm">N/A</p>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Notes */}
+        {/* Address and Notes */}
+        <div className="space-y-4 lg:col-span-1">
+          {/* Address */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Address</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {contact.address_line_1 ||
+              contact.address_line_2 ||
+              contact.city ||
+              contact.state ||
+              contact.country ||
+              contact.zip_code ? (
+                <div className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 text-muted-foreground" size={20} />
+                  <div className="space-y-1">
+                    {contact.address_line_1 && (
+                      <p className="text-sm">{contact.address_line_1}</p>
+                    )}
+                    {contact.address_line_2 && (
+                      <p className="text-sm">{contact.address_line_2}</p>
+                    )}
+                    <p className="text-sm">
+                      {[contact.city, contact.state, contact.country, contact.zip_code]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm">N/A</p>
+              )}
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Notes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-wrap text-sm">{contact.notes || 'N/A'}</p>
-          </CardContent>
-        </Card>
+          {/* Notes */}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="whitespace-pre-wrap text-sm">{contact.notes || 'N/A'}</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+
+      <DeleteConfirmation ref={deleteConfirmationRef} />
     </div>
   )
 }

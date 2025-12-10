@@ -1,34 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import CreateButton from '@/components/misc/CreateButton'
-import { DataTable } from '@/components/misc/Datatable'
-import { DateTime } from '@/components/misc/datetime'
-import DeleteConfirmation from '@/components/misc/Dialog/DeleteConfirmation'
-import EmptyContent from '@/components/misc/EmptyContent'
-import { Button } from '@/components/ui/button'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { DataTable } from '@/components/data-table'
+import { DateTime } from '@/components/datetime'
+import EmptyContent from '@/components/empty-content/empty-content'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { useApp } from '@/context/AppContext'
-import useDebounce from '@/hooks/useDebounce'
-import { useHandleApiError } from '@/hooks/useHandleApiError'
-import { fetchApi } from '@/libraries/fetch'
-import { IPaging } from '@/types/pagination'
-import { IWaitingList } from '@/types/waiting-list'
-import { handleFetcherData } from '@/utils/fetcher.data'
+import { useWaitingLists, useDeleteWaitingList } from '@/resources/hooks/waiting-lists'
+import { WaitingListType } from '@/resources/queries/waiting-lists'
 import { ensureCanonicalPagination } from '@/utils/pagination.server'
-import { useScopedParams } from '@/utils/scoped_params'
-import { redirectWithToast } from '@/utils/toast.server'
-import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-  useSearchParams,
-} from '@remix-run/react'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import { Link, useLoaderData, useNavigate, useSearchParams } from '@remix-run/react'
+import { Button } from '@shadcn/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
+import { useCallback, useMemo, useRef } from 'react'
+import NewButton from '@/components/new-button/new-button'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -46,133 +32,51 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function WaitingLists() {
   const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
-  const handleApiError = useHandleApiError()
-  const { getScopedSearch } = useScopedParams()
   const { token } = useApp()
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
-  const [data, setData] = useState<IPaging<IWaitingList>>()
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedWaitingList, setSelectedWaitingList] = useState<IWaitingList | null>(
-    null,
-  )
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [search, setSearch] = useState<string>(searchParams.get('q') || '')
-  const deleteFetcher = useFetcher()
+  const [searchParams] = useSearchParams()
+  const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
 
-  const fetchData = async (searchQuery?: string) => {
-    if (!token) return
-
-    // Determine endpoint and params based on search query
-    const hasSearchQuery = searchQuery && searchQuery.trim() !== ''
-    const endpoint = hasSearchQuery
-      ? `${apiUrl}/waiting-lists/search`
-      : `${apiUrl}/waiting-lists`
-    const params = hasSearchQuery ? { page, size, q: searchQuery } : { page, size }
-
-    try {
-      const response: IPaging<IWaitingList> = await fetchApi(endpoint, token, nodeEnv, {
-        params,
-      })
-      setData(response)
-    } catch (error: any) {
-      handleApiError(error)
-    } finally {
-      setIsLoading(false)
-      setIsLoadingSearch(false)
-      if (!hasSearchQuery) {
-        searchParams.delete('q')
-        setSearchParams(searchParams)
-      }
-    }
+  const config = {
+    nodeEnv,
+    apiUrl: apiUrl!,
+    token: token!,
   }
 
-  const fetchSearch = async (search: string) => {
-    if (!token) return
+  const searchQuery = searchParams.get('q') || undefined
 
-    if (search) {
-      navigate(getScopedSearch({ q: search }))
-    }
-    await fetchData(search)
-  }
-
-  const handleSearch = (search: string) => setSearch(search)
-
-  // Debounced search - only triggers when user types (not on initial load)
-  useDebounce(
-    () => {
-      // prevent on first load
-      if (!isLoading) {
-        setIsLoadingSearch(true)
-        fetchSearch(search)
-      }
-    },
-    [search],
-    500,
-  )
-
-  // Initial data load and pagination changes
-  useEffect(() => {
-    if (token) {
-      const searchQuery = searchParams.get('q')
-      // Use search query from URL if available, otherwise fetch all waiting lists
-      fetchData(searchQuery || undefined)
-    }
-  }, [token])
-
-  useEffect(() => {
-    if (deleteFetcher.data) {
-      handleFetcherData(deleteFetcher.data, (responseData) => {
-        setData((prevData) => {
-          if (!prevData) return prevData
-          return {
-            ...prevData,
-            total: prevData.total - 1,
-            pages: Math.ceil((prevData.total - 1) / prevData.size),
-            items: prevData.items.filter((item) => item.id !== responseData.id),
-          }
-        })
-        setIsDeleteDialogOpen(false)
-        setSelectedWaitingList(null)
-      })
-    }
-  }, [deleteFetcher.data])
-
-  const handleDeleteClick = (waitingList: IWaitingList) => {
-    setSelectedWaitingList(waitingList)
-    setIsDeleteDialogOpen(true)
-  }
-
-  const handleDeleteConfirm = () => {
-    if (selectedWaitingList && token) {
-      const formData = new FormData()
-      formData.append('intent', 'delete')
-      formData.append('id', selectedWaitingList.id)
-      formData.append('token', token)
-
-      deleteFetcher.submit(formData, {
-        method: 'POST',
-      })
-    }
-  }
-
-  const handleCloseDeleteDialog = () => {
-    setIsDeleteDialogOpen(false)
-    if (deleteFetcher.state === 'idle') {
-      setSelectedWaitingList(null)
-    }
-  }
-
-  const hasSearchQuery = useMemo(() => {
-    return searchParams.get('q') !== null && searchParams.get('q') !== ''
-  }, [searchParams])
+  const { data, isLoading } = useWaitingLists(config, {
+    page,
+    size,
+    q: searchQuery,
+  })
 
   const hasData = useMemo(() => {
     return data && data.items && data.items.length > 0
   }, [data])
 
-  const columns: ColumnDef<IWaitingList>[] = useMemo(
+  const { mutate: deleteWaitingList } = useDeleteWaitingList(config, {
+    onSuccess: () => {
+      deleteModalRef.current?.close()
+      navigate('/waiting-lists')
+    },
+  })
+
+  const handleDelete = useCallback(
+    (waitingList: WaitingListType) => {
+      deleteModalRef.current?.open({
+        title: 'Remove Waiting List',
+        description: `This will remove "${waitingList.name}" from your waiting lists. This action cannot be undone.`,
+        onDelete: async () => {
+          deleteModalRef.current?.updateConfig({ isLoading: true })
+          await deleteWaitingList(waitingList.id)
+        },
+      })
+    },
+    [deleteWaitingList],
+  )
+
+  const columns: ColumnDef<WaitingListType>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
@@ -258,7 +162,7 @@ export default function WaitingLists() {
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => handleDeleteClick(row.original)}>
+                  onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
                   <span>Delete</span>
                 </Button>
@@ -268,7 +172,7 @@ export default function WaitingLists() {
         },
       },
     ],
-    [navigate, handleDeleteClick],
+    [navigate, handleDelete],
   )
 
   if (isLoading) {
@@ -286,116 +190,32 @@ export default function WaitingLists() {
     </EmptyContent>
   )
 
-  const emptySearchContent = (
-    <EmptyContent
-      image="/images/empty-contacts.svg"
-      title="No waiting lists found"
-      description="Try adjusting your search criteria"
-    />
-  )
-
   return (
     <div className="h-full animate-slide-up">
-      <div className="mb-5 flex items-center justify-between gap-y-4">
+      <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Waiting Lists</h1>
-        {(hasSearchQuery || hasData) && (
-          <div className="flex items-center justify-end">
-            <InputGroup className="hidden max-w-96 bg-white dark:bg-card">
-              <InputGroupInput
-                placeholder="Search waiting lists"
-                value={search}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-              <InputGroupAddon>
-                <Search />
-              </InputGroupAddon>
-              {search && (
-                <InputGroupAddon align="inline-end">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-transparent"
-                    onClick={() => setSearch('')}>
-                    <X />
-                  </Button>
-                </InputGroupAddon>
-              )}
-            </InputGroup>
-            <CreateButton
-              label="New Waiting List"
-              onClick={() => navigate('/waiting-lists/new')}
-            />
-          </div>
-        )}
+        <NewButton
+          label="New Waiting List"
+          onClick={() => navigate('/waiting-lists/new')}
+        />
       </div>
-      {!hasData && !hasSearchQuery ? (
+      {!hasData ? (
         emptyContent
       ) : (
         <DataTable
           columns={columns}
           data={data?.items || []}
-          isLoading={isLoadingSearch}
-          empty={emptySearchContent}
-          meta={
-            data
-              ? {
-                  page: data.page,
-                  pages: data.pages,
-                  size: data.size,
-                  total: data.total,
-                }
-              : undefined
-          }
+          meta={{
+            page: data?.page || 1,
+            pages: data?.pages || 1,
+            size: data?.size || 1,
+            total: data?.total || 0,
+          }}
+          isLoading={isLoading}
         />
       )}
 
-      <DeleteConfirmation
-        open={isDeleteDialogOpen}
-        onOpenChange={handleCloseDeleteDialog}
-        title="Remove Waiting List"
-        description={`This will remove "${selectedWaitingList?.name}" from your waiting lists. This action cannot be undone.`}
-        onDelete={handleDeleteConfirm}
-        fetcher={deleteFetcher}
-      />
+      <DeleteConfirmation ref={deleteModalRef} />
     </div>
   )
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const apiUrl = process.env.API_URL
-  const nodeEnv = process.env.NODE_ENV
-  const formData = await request.formData()
-  const intent = formData.get('intent')
-  const waitingListId = formData.get('id')
-
-  if (intent === 'delete' && waitingListId) {
-    const token = formData.get('token') as string
-
-    try {
-      await fetchApi(`${apiUrl}/waiting-lists/${waitingListId}`, token, nodeEnv, {
-        method: 'DELETE',
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: 'Successfully removed waiting list',
-          },
-          response: { id: waitingListId },
-        },
-        { status: 200 },
-      )
-    } catch (error: any) {
-      const convertError = JSON.parse(error?.message)
-      return redirectWithToast('/waiting-lists', {
-        type: 'error',
-        title: 'Error',
-        description: `${convertError.status} - ${convertError.error}`,
-      })
-    }
-  }
-
-  return null
 }

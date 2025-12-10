@@ -1,65 +1,271 @@
 ---
-globs:
 description: Use this rule when generating a page with call data GET from API
+globs:
 alwaysApply: false
 ---
 
 @api-integration.mdc
 
-Implementation:
+## Implementation Guidelines
 
-- Create a folder named <name>+ and a file with name \_index.tsx inside it
-- Call <AppPreloader/> to display loading, located in [app/components/mics/AppPreloader.tsx](mdc:app/components/mics/AppPreloader.tsx)
+When creating a list page (`_index.tsx`), follow these patterns:
 
-Example:
+### File Structure
+
+- Create a file named `_index.tsx` inside the resource route directory (e.g., `app/routes/_main+/contacts+/_index.tsx`)
+- Use React Query hooks for data fetching instead of direct `fetchApi` calls
+- Use `DataTable` component for displaying paginated data
+- Use `ensureCanonicalPagination` in loader for pagination handling
+
+### Required Components
+
+1. **Loader Function**
+   - Export a `loader()` function that uses `ensureCanonicalPagination` for pagination
+   - Return `apiUrl`, `nodeEnv`, `size`, and `page` from loader
+   - Set default pagination values (typically `defaultSize: 25`, `defaultPage: 1`)
+
+2. **React Query Hook**
+   - Import and use the list query hook from `@/resources/hooks/[resource-name]` (e.g., `useContacts`, `useWaitingLists`)
+   - Pass config object with `apiUrl`, `token`, and `nodeEnv`
+   - Pass query params object with `page`, `size`, and optional `q` (search query)
+   - Configure `enabled` option based on token availability
+
+3. **DataTable Component**
+   - Use `DataTable` component from `@/components/data-table`
+   - Define columns using `ColumnDef` from `@tanstack/react-table`
+   - Pass `meta` prop with pagination data (`page`, `pages`, `size`, `total`)
+   - Handle empty states with `EmptyContent` component
+
+4. **Delete Functionality**
+   - Use delete mutation hook from resources hooks
+   - Use `DeleteConfirmation` component with ref for delete modals
+   - Handle delete success with navigation or modal closing
+
+5. **Search Functionality** (Optional)
+   - Use `useSearchParams` and `useState` for search state
+   - Use `useDebounce` hook for debounced search
+   - Pass search query (`q`) to React Query hook params
+
+6. **Loading State**
+   - Use `AppPreloader` component from `@/components/loader/pre-loader` when `isLoading` is true
+
+### Example Structure
 
 ```tsx
-export function loader() {
+import { AppPreloader } from '@/components/loader/pre-loader'
+import { DataTable } from '@/components/data-table'
+import EmptyContent from '@/components/empty-content/empty-content'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
+import { useApp } from '@/context/AppContext'
+import { use[Resource]s, useDelete[Resource] } from '@/resources/hooks/[resource-name]'
+import { [Resource]Type } from '@/resources/queries/[resource-name]'
+import { ensureCanonicalPagination } from '@/utils/pagination.server'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import { Link, useLoaderData, useNavigate, useSearchParams } from '@remix-run/react'
+import { Button } from '@shadcn/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import type { ColumnDef } from '@tanstack/react-table'
+import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
+import { useCallback, useMemo, useRef } from 'react'
+import NewButton from '@/components/new-button/new-button'
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const canonical = ensureCanonicalPagination(request, {
+    defaultSize: 25,
+    defaultPage: 1,
+  })
+
+  if (canonical instanceof Response) return canonical
+
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv }
+  return { apiUrl, nodeEnv, size: canonical.size, page: canonical.page }
 }
 
-export default function <name>Page() {
-  const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const handleApiError = useHandleApiError()
+export default function [Resource]s() {
+  const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
   const { token } = useApp()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [data, setData] = useState<IProps>()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
 
-  const fetchData = async () => {
-    try {
-      const data = await fetchApi(endpoint, token, nodeEnv)
-      // Handle success
-      setData(data)
-    } catch (error) {
-      handleApiError(error)
-    } finally {
-      setIsLoading(false)
-    }
+  const config = {
+    nodeEnv,
+    apiUrl: apiUrl!,
+    token: token!,
   }
 
-  useEffect(() => {
-    if (token) {
-      fetch(data)
-    }
-  }, [token])
+  const searchQuery = searchParams.get('q') || undefined
+
+  const { data, isLoading } = use[Resource]s(config, {
+    page,
+    size,
+    q: searchQuery,
+  })
+
+  const hasData = useMemo(() => {
+    return data && data.items && data.items.length > 0
+  }, [data])
+
+  const { mutate: delete[Resource] } = useDelete[Resource](config, {
+    onSuccess: () => {
+      deleteModalRef.current?.close()
+    },
+  })
+
+  const handleDelete = useCallback(
+    ([resource]: [Resource]Type) => {
+      deleteModalRef.current?.open({
+        title: 'Remove [Resource]',
+        description: `This will remove "${[resource].name}" from your [resource]s. This action cannot be undone.`,
+        onDelete: async () => {
+          deleteModalRef.current?.updateConfig({ isLoading: true })
+          await delete[Resource]([resource].id)
+        },
+      })
+    },
+    [delete[Resource]],
+  )
+
+  const columns: ColumnDef<[Resource]Type>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        size: 300,
+        cell: ({ row }) => {
+          const name = row.original.name
+          if (!name) return <span className="text-muted-foreground">-</span>
+          return (
+            <div className="inline">
+              <Link to={`/[resource-name]/${row.original.id}`} className="button-link">
+                <span className="text-sm font-medium">{name}</span>
+              </Link>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: '',
+        size: 20,
+        cell: ({ row }) => {
+          const { id } = row.original
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <Ellipsis size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="right" className="w-44 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/[resource-name]/${id}`)}>
+                  <EyeIcon size={18} />
+                  <span>View</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/[resource-name]/${id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => handleDelete(row.original)}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
+          )
+        },
+      },
+    ],
+    [navigate, handleDelete],
+  )
 
   if (isLoading) {
     return <AppPreloader />
   }
 
+  const emptyContent = (
+    <EmptyContent
+      image="/images/empty-contacts.svg"
+      title="No [resource]s found"
+      description="Get started by creating your first [resource]">
+      <Button variant="black" onClick={() => navigate('/[resource-name]/new')}>
+        New [Resource]
+      </Button>
+    </EmptyContent>
+  )
+
   return (
     <div className="h-full animate-slide-up">
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-foreground">Workspace</h1>
+        <h1 className="page-title">[Resource]s</h1>
+        <NewButton
+          label="New [Resource]"
+          onClick={() => navigate('/[resource-name]/new')}
+        />
       </div>
+      {!hasData ? (
+        emptyContent
+      ) : (
+        <DataTable
+          columns={columns}
+          data={data?.items || []}
+          meta={{
+            page: data?.page || 1,
+            pages: data?.pages || 1,
+            size: data?.size || 1,
+            total: data?.total || 0,
+          }}
+          isLoading={isLoading}
+        />
+      )}
 
-      <div></div>
+      <DeleteConfirmation ref={deleteModalRef} />
     </div>
   )
 }
 ```
 
-Reference: workspaces in app/routes/\_main+/workspaces+/\_index.tsx
+### Key Patterns
+
+1. **Pagination**: Always use `ensureCanonicalPagination` in loader with default values
+2. **React Query**: Use React Query hooks for data fetching with config object
+3. **DataTable**: Use `DataTable` component with `meta` prop for pagination
+4. **Empty States**: Show `EmptyContent` when no data exists
+5. **Delete Modals**: Use `DeleteConfirmation` component with ref pattern
+6. **Column Definitions**: Use `useMemo` for column definitions to prevent re-renders
+7. **Action Handlers**: Use `useCallback` for event handlers
+8. **Loading State**: Show `AppPreloader` when `isLoading` is true
+
+### Optional Features
+
+- **Search**: Add search functionality using `useSearchParams` and `useDebounce`
+- **Filtering**: Add filtering UI and pass filter params to query hook
+- **Bulk Actions**: Add checkbox selection and bulk action handlers
+
+### Notes
+
+- All list pages use pagination by default
+- React Query handles caching and refetching automatically
+- Error handling is done automatically by React Query hooks (toast notifications)
+- Token is obtained from `useApp()` context
+- No need for manual `useState` for data or loading states
+- No need for `useEffect` to fetch data
+
+### References
+
+- Contact list: `app/routes/_main+/contacts+/_index.tsx`
+- Waiting list list: `app/routes/_main+/waiting-lists+/_index.tsx`
+- Contact list list: `app/routes/_main+/contact-lists+/_index.tsx`
+- Contact interaction list: `app/routes/_main+/contact-interactions+/_index.tsx`

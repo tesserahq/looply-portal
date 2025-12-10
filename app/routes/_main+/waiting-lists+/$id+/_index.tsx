@@ -1,36 +1,39 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import CreateButton from '@/components/misc/CreateButton'
-import { DataTable } from '@/components/misc/Datatable'
-import DeleteConfirmation from '@/components/misc/Dialog/DeleteConfirmation'
-import NewMemberContactList from '@/components/misc/Dialog/NewMemberContactList'
-import NewMemberWaitingList from '@/components/misc/Dialog/NewMemberWaitingList'
-import UpdateMemberWaitingListStatus from '@/components/misc/Dialog/UpdateMemberWaitingListStatus'
-import EmptyContent from '@/components/misc/EmptyContent'
-import { StatusBadge } from '@/components/misc/StatusBadge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import NewButton from '@/components/new-button/new-button'
+import { DataTable } from '@/components/data-table'
+import { NewMemberWaitingList, UpdateMemberWaitingListStatus } from '@/components/dialog'
+import EmptyContent from '@/components/empty-content/empty-content'
+import { WaitingListStatusBadge } from '@/components/waiting-list-status/waiting-list-status'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
+import { Button } from '@shadcn/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
+import { Checkbox } from '@shadcn/ui/checkbox'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import { Tabs, TabsList, TabsTrigger } from '@shadcn/ui/tabs'
 import { useApp } from '@/context/AppContext'
-import { useHandleApiError } from '@/hooks/useHandleApiError'
-import { fetchApi } from '@/libraries/fetch'
-import { IContact } from '@/types/contact'
 import {
-  IWaitingList,
-  IWaitingListMember,
-  IWaitingListStatus,
-} from '@/types/waiting-list'
-import { handleFetcherData } from '@/utils/fetcher.data'
+  useWaitingListDetail,
+  useWaitingListMembers,
+  useWaitingListMembersByStatus,
+  useWaitingListStatuses,
+  useRemoveWaitingListMember,
+  useRemoveAllWaitingListMembers,
+  useAddWaitingListMembers,
+  useUpdateWaitingListMemberStatus,
+  useBulkUpdateWaitingListMemberStatus,
+  useDeleteWaitingList,
+} from '@/resources/hooks/waiting-lists'
+import {
+  WaitingListMemberType,
+  WaitingListStatusType,
+} from '@/resources/queries/waiting-lists'
 import { cn } from '@/utils/misc'
-import { redirectWithToast } from '@/utils/toast.server'
-import { ActionFunctionArgs } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { ColumnDef, useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Edit, Ellipsis, Trash2 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { ContactType } from '@/resources/queries/contacts'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -41,32 +44,70 @@ export function loader() {
 
 export default function WaitingListDetail() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const handleApiError = useHandleApiError()
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
-  const newMemberFetcher = useFetcher()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [waitingList, setWaitingList] = useState<IWaitingList | null>(null)
-  const [members, setMembers] = useState<IWaitingListMember[] | IContact[]>([])
-  const [memberStatuses, setMemberStatuses] = useState<IWaitingListStatus[]>([])
-  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState<boolean>(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
-  const [isLoadingByStatus, setIsLoadingByStatus] = useState<boolean>(false)
-  const [selectedMember, setSelectedMember] = useState<
-    IWaitingListMember | IContact | null
-  >(null)
-  const [memberStatus, setMemberStatus] = useState<string>('all')
-  const deleteFetcher = useFetcher()
-  const updateMemberFetcher = useFetcher()
-  const newMemberRef = useRef<React.ElementRef<typeof NewMemberContactList>>(null)
+  const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteWaitingListModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const newMemberRef = useRef<React.ElementRef<typeof NewMemberWaitingList>>(null)
   const updateMemberRef =
     useRef<React.ElementRef<typeof UpdateMemberWaitingListStatus>>(null)
   const [rowSelection, setRowSelection] = useState({})
+  const [memberStatus, setMemberStatus] = useState<string>('all')
+
+  const config = {
+    apiUrl: apiUrl!,
+    nodeEnv,
+    token: token!,
+  }
+
+  const waitingListId = params.id || ''
+
+  const { data: waitingList, isLoading: isLoadingWaitingList } = useWaitingListDetail(
+    config,
+    waitingListId,
+    {
+      enabled: !!waitingListId && !!token,
+    },
+  )
+
+  const { data: allMembers = [], isLoading: isLoadingAllMembers } = useWaitingListMembers(
+    config,
+    waitingListId,
+    {
+      enabled: !!waitingListId && !!token && memberStatus === 'all',
+    },
+  )
+
+  const { data: membersByStatus = [], isLoading: isLoadingMembersByStatus } =
+    useWaitingListMembersByStatus(config, waitingListId, memberStatus, {
+      enabled: !!waitingListId && !!token && memberStatus !== 'all',
+    })
+
+  const { data: statusesData = [] } = useWaitingListStatuses(config, {
+    enabled: !!token,
+  })
+
+  const members =
+    memberStatus === 'all'
+      ? allMembers
+      : (membersByStatus as WaitingListMemberType[] | ContactType[])
+  const isLoadingMembers =
+    memberStatus === 'all' ? isLoadingAllMembers : isLoadingMembersByStatus
+  const isLoading = isLoadingWaitingList || isLoadingMembers
+
+  const memberStatuses: WaitingListStatusType[] = useMemo(() => {
+    return [{ value: 'all', label: 'All', description: '' }, ...statusesData]
+  }, [statusesData])
+
+  const hasData = useMemo(() => {
+    return members && members.length > 0
+  }, [members])
 
   // Type guard helper
   const isWaitingListMember = useCallback(
-    (member: IWaitingListMember | IContact): member is IWaitingListMember => {
+    (member: WaitingListMemberType | ContactType): member is WaitingListMemberType => {
       return 'contact' in member && 'status' in member
     },
     [],
@@ -74,7 +115,7 @@ export default function WaitingListDetail() {
 
   // Helper to extract contact from member
   const getContactFromMember = useCallback(
-    (member: IWaitingListMember | IContact): IContact => {
+    (member: WaitingListMemberType | ContactType): ContactType => {
       return isWaitingListMember(member) ? member.contact : member
     },
     [isWaitingListMember],
@@ -82,115 +123,133 @@ export default function WaitingListDetail() {
 
   // Helper to get member ID for deletion
   const getMemberId = useCallback(
-    (member: IWaitingListMember | IContact): string => {
+    (member: WaitingListMemberType | ContactType): string => {
       return isWaitingListMember(member) ? member.contact.id : member.id
     },
     [isWaitingListMember],
   )
 
-  // Fetch waiting list data
-  const fetchWaitingList = useCallback(async () => {
-    if (!token || !params.id) return
-
-    try {
-      const [waitingLists, members, waitingListStatuses] = await Promise.all([
-        fetchApi(`${apiUrl}/waiting-lists/${params.id}`, token, nodeEnv),
-        fetchApi(`${apiUrl}/waiting-lists/${params.id}/members`, token, nodeEnv),
-        fetchApi(`${apiUrl}/waiting-lists/member-statuses`, token, nodeEnv),
-      ])
-
-      setWaitingList(waitingLists)
-      setMembers(members.members || [])
-      setMemberStatuses([{ value: 'all', label: 'All' }, ...waitingListStatuses.items])
-    } catch (error: any) {
-      handleApiError(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [token, params.id, apiUrl, nodeEnv, handleApiError])
-
-  // Fetch members by status
-  const fetchMembersByStatus = useCallback(
-    async (status: string) => {
-      if (!token || !params.id) return
-
-      setIsLoadingByStatus(true)
-
-      try {
-        const url =
-          status === 'all'
-            ? `${apiUrl}/waiting-lists/${params.id}/members`
-            : `${apiUrl}/waiting-lists/${params.id}/members/by-status/${status}`
-
-        const response = await fetchApi(url, token, nodeEnv)
-
-        if (status === 'all') {
-          setMembers((response.members || []) as IWaitingListMember[])
-        } else {
-          setMembers((response.members || response || []) as IContact[])
-        }
-      } catch (error) {
-        handleApiError(error)
-      } finally {
-        setIsLoadingByStatus(false)
-      }
+  const { mutateAsync: removeMember } = useRemoveWaitingListMember(
+    config,
+    waitingListId,
+    {
+      onSuccess: () => {
+        deleteModalRef.current?.close()
+      },
     },
-    [token, params.id, apiUrl, nodeEnv, handleApiError],
   )
 
-  const handleDeleteClick = useCallback((member: IWaitingListMember | IContact) => {
-    setSelectedMember(member)
-    setIsDeleteDialogOpen(true)
+  const { mutateAsync: removeAllMembers } = useRemoveAllWaitingListMembers(
+    config,
+    waitingListId,
+    {
+      onSuccess: () => {
+        deleteAllModalRef.current?.close()
+      },
+    },
+  )
+
+  const { mutateAsync: addMembers } = useAddWaitingListMembers(config, waitingListId, {
+    onSuccess: () => {
+      newMemberRef.current?.onClose()
+    },
+  })
+
+  const { mutateAsync: updateMemberStatus } = useUpdateWaitingListMemberStatus(
+    config,
+    waitingListId,
+    {
+      onSuccess: () => {
+        updateMemberRef.current?.onClose()
+        setRowSelection({})
+      },
+    },
+  )
+
+  const { mutateAsync: bulkUpdateMemberStatus } = useBulkUpdateWaitingListMemberStatus(
+    config,
+    waitingListId,
+    {
+      onSuccess: () => {
+        updateMemberRef.current?.onClose()
+        setRowSelection({})
+      },
+    },
+  )
+
+  const { mutate: deleteWaitingList } = useDeleteWaitingList(config, {
+    onSuccess: () => {
+      deleteWaitingListModalRef.current?.close()
+      navigate('/waiting-lists')
+    },
+  })
+
+  const handleDelete = useCallback(
+    (member: WaitingListMemberType | ContactType) => {
+      deleteModalRef.current?.open({
+        title: 'Remove Member',
+        description: `This will remove "${getContactFromMember(member).email}" from your member waiting list. This action cannot be undone.`,
+        onDelete: async () => {
+          deleteModalRef.current?.updateConfig({ isLoading: true })
+          await removeMember(getMemberId(member))
+        },
+      })
+    },
+    [removeMember, getContactFromMember, getMemberId],
+  )
+
+  const handleDeleteAll = useCallback(() => {
+    deleteAllModalRef.current?.open({
+      title: 'Remove All Members',
+      description: `This will remove all members from your waiting list "${waitingList?.name}". This action cannot be undone.`,
+      onDelete: async () => {
+        deleteAllModalRef.current?.updateConfig({ isLoading: true })
+        await removeAllMembers()
+      },
+    })
+  }, [removeAllMembers, waitingList?.name])
+
+  const handleAddMembers = useCallback(
+    async (contactIds: string[], status?: string) => {
+      await addMembers({ contact_ids: contactIds, status })
+    },
+    [addMembers],
+  )
+
+  const handleUpdateStatus = useCallback(
+    async (contactId: string, status: string) => {
+      await updateMemberStatus({ memberId: contactId, data: { status } })
+    },
+    [updateMemberStatus],
+  )
+
+  const handleBulkUpdateStatus = useCallback(
+    async (contactIds: string[], status: string) => {
+      await bulkUpdateMemberStatus({ contact_ids: contactIds, status })
+    },
+    [bulkUpdateMemberStatus],
+  )
+
+  const handleChangeStatus = useCallback((status: string) => {
+    setMemberStatus(status)
+    setRowSelection({})
   }, [])
 
-  const handleDeleteMemberConfirm = useCallback(() => {
-    if (!selectedMember || !token || !waitingList?.id) return
+  const handleDeleteWaitingList = useCallback(() => {
+    if (!waitingList) return
 
-    const formData = new FormData()
-    formData.append('intent', 'delete_member_by_id')
-    formData.append('waiting_list_id', waitingList.id)
-    formData.append('member_id', getMemberId(selectedMember))
-    formData.append('token', token)
-
-    deleteFetcher.submit(formData, {
-      method: 'POST',
+    deleteWaitingListModalRef.current?.open({
+      title: 'Remove Waiting List',
+      description: `This will remove "${waitingList.name}" from your waiting lists. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteWaitingListModalRef.current?.updateConfig({ isLoading: true })
+        await deleteWaitingList(waitingListId)
+      },
     })
-  }, [selectedMember, token, waitingList?.id, getMemberId, deleteFetcher])
-
-  const handleDeleteMembersConfirm = useCallback(() => {
-    if (!waitingList?.id || !token) return
-
-    const formData = new FormData()
-    formData.append('intent', 'delete_all_member')
-    formData.append('waiting_list_id', waitingList.id)
-    formData.append('token', token)
-
-    deleteFetcher.submit(formData, {
-      method: 'POST',
-    })
-  }, [waitingList?.id, token, deleteFetcher])
-
-  const handleChangeStatus = useCallback(
-    async (status: string) => {
-      setMemberStatus(status)
-      await fetchMembersByStatus(status)
-    },
-    [fetchMembersByStatus],
-  )
-
-  const handleCloseDeleteDialog = useCallback(() => {
-    setIsDeleteDialogOpen(false)
-    if (deleteFetcher.state === 'idle') {
-      setSelectedMember(null)
-    }
-  }, [deleteFetcher.state])
-
-  const hasData = useMemo(() => {
-    return members && members.length > 0
-  }, [members])
+  }, [waitingList, waitingListId, deleteWaitingList])
 
   // Memoized columns definition with optimized cell renderers
-  const columns: ColumnDef<IWaitingListMember | IContact>[] = useMemo(
+  const columns: ColumnDef<WaitingListMemberType | ContactType>[] = useMemo(
     () => [
       {
         accessorKey: 'id',
@@ -249,7 +308,7 @@ export default function WaitingListDetail() {
         cell: ({ row }) => {
           const member = row.original
           const status = isWaitingListMember(member) ? member.status : memberStatus
-          return <StatusBadge status={status} />
+          return <WaitingListStatusBadge status={status} />
         },
       },
       {
@@ -310,10 +369,10 @@ export default function WaitingListDetail() {
                   className="px-0 hover:bg-transparent"
                   aria-label="Open actions"
                   tabIndex={0}>
-                  <Ellipsis size={18} />
+                  <EllipsisVertical size={18} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="start" side="left" className="w-44 space-y-1 p-2">
+              <PopoverContent align="start" side="left" className="w-40 space-y-1 p-2">
                 {isMember && status && (
                   <Button
                     variant="ghost"
@@ -328,7 +387,7 @@ export default function WaitingListDetail() {
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => handleDeleteClick(member)}
+                  onClick={() => handleDelete(member)}
                   aria-label="Delete member"
                   tabIndex={0}>
                   <Trash2 size={18} />
@@ -340,7 +399,7 @@ export default function WaitingListDetail() {
         },
       },
     ],
-    [memberStatus, isWaitingListMember, getContactFromMember, handleDeleteClick, hasData],
+    [memberStatus, isWaitingListMember, getContactFromMember, handleDelete, hasData],
   )
 
   // Create table instance with row selection
@@ -354,7 +413,7 @@ export default function WaitingListDetail() {
       rowSelection,
     },
     getRowId: (row) => {
-      const member = row as IWaitingListMember | IContact
+      const member = row as WaitingListMemberType | ContactType
       return getMemberId(member)
     },
   })
@@ -369,7 +428,7 @@ export default function WaitingListDetail() {
       .map((member) => getContactFromMember(member))
   }, [rowSelection, members, getMemberId, getContactFromMember])
 
-  const handleBulkUpdateStatus = useCallback(() => {
+  const handleBulkUpdateStatusClick = useCallback(() => {
     if (selectedContacts.length > 0) {
       updateMemberRef.current?.onOpenBulk(selectedContacts)
     }
@@ -405,83 +464,6 @@ export default function WaitingListDetail() {
     [memberStatus],
   )
 
-  // Initial data fetch
-  useEffect(() => {
-    fetchWaitingList()
-  }, [fetchWaitingList])
-
-  // Handle delete fetcher response
-  useEffect(() => {
-    if (!deleteFetcher.data) return
-
-    handleFetcherData(deleteFetcher.data, (responseData) => {
-      if (responseData.intent === 'delete_member_by_id') {
-        setMembers((prevData) => {
-          if (!prevData) return prevData
-
-          // Maintain the array type based on memberStatus
-          if (memberStatus === 'all') {
-            return (prevData as IWaitingListMember[]).filter(
-              (item) => item.contact.id !== responseData.id,
-            )
-          }
-          return (prevData as IContact[]).filter((item) => item.id !== responseData.id)
-        })
-        setIsDeleteDialogOpen(false)
-        setSelectedMember(null)
-      }
-
-      if (responseData.intent === 'delete_all_member') {
-        setMembers([])
-        setIsDeleteAllDialogOpen(false)
-      }
-    })
-  }, [deleteFetcher.data])
-
-  // Handle new member fetcher response
-  useEffect(() => {
-    if (!newMemberFetcher.data) return
-
-    handleFetcherData(newMemberFetcher.data, () => {
-      newMemberRef.current?.onClose()
-      fetchWaitingList()
-    })
-  }, [newMemberFetcher.data, fetchWaitingList])
-
-  // Handle update member status fetcher response
-  useEffect(() => {
-    if (!updateMemberFetcher.data) return
-
-    handleFetcherData(updateMemberFetcher.data, async (responseData) => {
-      updateMemberRef.current?.onClose()
-
-      // Clear row selection after update
-      setRowSelection({})
-
-      // Only update status if we're showing all members (IWaitingListMember[])
-      if (memberStatus === 'all') {
-        if (responseData.intent === 'update_member_waiting_list_status_bulk') {
-          // Bulk update - refresh the data
-          await fetchMembersByStatus(memberStatus)
-        } else {
-          // Single update
-          setMembers((prevData) => {
-            if (!prevData) return prevData
-            return (prevData as IWaitingListMember[]).map((item) => {
-              if (item.contact.id === responseData.contact_id) {
-                return { ...item, status: responseData.status }
-              }
-              return item
-            })
-          })
-        }
-      } else {
-        // If filtered, refresh the data to reflect the updated status
-        await fetchMembersByStatus(memberStatus)
-      }
-    })
-  }, [updateMemberFetcher.data, fetchMembersByStatus])
-
   if (isLoading) {
     return <AppPreloader />
   }
@@ -504,12 +486,29 @@ export default function WaitingListDetail() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-3xl">Waiting List Details</h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/waiting-lists/${params.id}/edit`)}>
-              <Edit /> Edit
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <EllipsisVertical size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="left" className="w-40 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/waiting-lists/${params.id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={handleDeleteWaitingList}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
@@ -546,7 +545,7 @@ export default function WaitingListDetail() {
               {selectedContacts.length > 0 && (
                 <Button
                   variant="outline"
-                  onClick={handleBulkUpdateStatus}
+                  onClick={handleBulkUpdateStatusClick}
                   aria-label="Update selected members status"
                   tabIndex={0}>
                   <Edit size={16} className="mr-1" />
@@ -554,14 +553,14 @@ export default function WaitingListDetail() {
                 </Button>
               )}
               {(hasData || memberStatus !== 'all') && (
-                <CreateButton label="New Members" onClick={handleOpenNewMember} />
+                <NewButton label="New Members" onClick={handleOpenNewMember} />
               )}
             </div>
           </div>
         </CardHeader>
 
         <CardContent>
-          {!hasData && memberStatus === 'all' && !isLoadingByStatus ? (
+          {!hasData && memberStatus === 'all' && !isLoadingMembers ? (
             emptyContent
           ) : (
             <div className="animate-slide-up">
@@ -586,7 +585,7 @@ export default function WaitingListDetail() {
                 columns={columns}
                 data={members || []}
                 fixed={false}
-                isLoading={isLoadingByStatus}
+                isLoading={isLoadingMembers}
                 empty={emptyContentByStatus}
                 table={table}
               />
@@ -596,175 +595,31 @@ export default function WaitingListDetail() {
 
         {hasData && (
           <CardFooter className="justify-end">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setIsDeleteAllDialogOpen(true)}>
+            <Button variant="destructive" size="sm" onClick={handleDeleteAll}>
               Delete All Members
             </Button>
           </CardFooter>
         )}
       </Card>
 
-      <DeleteConfirmation
-        open={isDeleteDialogOpen}
-        onOpenChange={handleCloseDeleteDialog}
-        title="Remove Member"
-        description={`This will remove "${
-          selectedMember ? getContactFromMember(selectedMember).email : ''
-        }" from your member waiting list. This action cannot be undone.`}
-        onDelete={handleDeleteMemberConfirm}
-        fetcher={deleteFetcher}
-      />
-
-      <DeleteConfirmation
-        open={isDeleteAllDialogOpen}
-        onOpenChange={setIsDeleteAllDialogOpen}
-        title="Remove All Members"
-        description={`This will remove all members from your waiting list "${waitingList?.name}". This action cannot be undone.`}
-        onDelete={handleDeleteMembersConfirm}
-        fetcher={deleteFetcher}
-      />
+      <DeleteConfirmation ref={deleteModalRef} />
+      <DeleteConfirmation ref={deleteAllModalRef} />
+      <DeleteConfirmation ref={deleteWaitingListModalRef} />
 
       <NewMemberWaitingList
         ref={newMemberRef}
-        fetcher={newMemberFetcher}
+        onAddMembers={handleAddMembers}
+        memberStatuses={memberStatuses.filter((status) => status.value !== 'all')}
         apiUrl={apiUrl!}
         nodeEnv={nodeEnv}
-        memberStatuses={memberStatuses.filter((status) => status.value !== 'all')}
       />
 
       <UpdateMemberWaitingListStatus
         ref={updateMemberRef}
-        fetcher={updateMemberFetcher}
+        onUpdateStatus={handleUpdateStatus}
+        onBulkUpdateStatus={handleBulkUpdateStatus}
         memberStatuses={memberStatuses.filter((status) => status.value !== 'all')}
       />
     </div>
   )
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const apiUrl = process.env.API_URL
-  const nodeEnv = process.env.NODE_ENV
-  const formData = await request.formData()
-  const intent = formData.get('intent')
-  const token = formData.get('token') as string
-  const memberId = formData.get('member_id')
-  const waitingListId = formData.get('waiting_list_id')
-  const contactIds = formData.get('contact_ids')
-  const status = formData.get('status')
-  const contact_id = formData.get('contact_id')
-
-  try {
-    if (intent === 'delete_member_by_id' && memberId) {
-      const url = `${apiUrl}/waiting-lists/${waitingListId}/members/${memberId}`
-
-      await fetchApi(url, token, nodeEnv, {
-        method: 'DELETE',
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: 'Successfully removed member',
-          },
-          response: { id: memberId, intent },
-        },
-        { status: 200 },
-      )
-    }
-
-    if (intent === 'delete_all_member' && waitingListId) {
-      const url = `${apiUrl}/waiting-lists/${waitingListId}/members`
-
-      await fetchApi(url, token, nodeEnv, {
-        method: 'DELETE',
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: 'Successfully removed member',
-          },
-          response: { intent },
-        },
-        { status: 200 },
-      )
-    }
-
-    if (intent === 'new_member_waiting_list') {
-      const url = `${apiUrl}/waiting-lists/${waitingListId}/members`
-
-      const response = await fetchApi(url, token, nodeEnv, {
-        method: 'POST',
-        body: JSON.stringify({ contact_ids: JSON.parse(contactIds as string), status }),
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: response.message,
-          },
-          response: { intent },
-        },
-        { status: 200 },
-      )
-    }
-
-    if (intent === 'update_member_waiting_list_status') {
-      const url = `${apiUrl}/waiting-lists/${waitingListId}/members/${contact_id}/status?status=${status}`
-
-      const response = await fetchApi(url, token, nodeEnv, {
-        method: 'PUT',
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: response.message,
-          },
-          response: { intent, status, contact_id },
-        },
-        { status: 200 },
-      )
-    }
-
-    if (intent === 'update_member_waiting_list_status_bulk') {
-      const contactIds = JSON.parse(formData.get('contact_ids') as string)
-      const url = `${apiUrl}/waiting-lists/${waitingListId}/members/bulk-status?status=${status}`
-
-      const response = await fetchApi(url, token, nodeEnv, {
-        method: 'POST',
-        body: JSON.stringify([...contactIds]),
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: response.message || 'Successfully updated member statuses',
-          },
-          response: { intent, status, contact_ids: contactIds },
-        },
-        { status: 200 },
-      )
-    }
-  } catch (error: any) {
-    const convertError = JSON.parse(error?.message)
-
-    return redirectWithToast(`/waiting-lists/${waitingListId}`, {
-      type: 'error',
-      title: 'Error',
-      description: `${convertError.status} - ${convertError.error}`,
-    })
-  }
 }

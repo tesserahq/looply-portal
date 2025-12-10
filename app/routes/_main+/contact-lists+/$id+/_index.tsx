@@ -1,27 +1,28 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import CreateButton from '@/components/misc/CreateButton'
-import { DataTable } from '@/components/misc/Datatable'
-import DeleteConfirmation from '@/components/misc/Dialog/DeleteConfirmation'
-import NewMemberContactList from '@/components/misc/Dialog/NewMemberContactList'
-import EmptyContent from '@/components/misc/EmptyContent'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import NewButton from '@/components/new-button/new-button'
+import { DataTable } from '@/components/data-table'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
+import NewMemberContactList from '@/components/dialog/new-member-contact-list'
+import EmptyContent from '@/components/empty-content/empty-content'
+import { Badge } from '@shadcn/ui/badge'
+import { Button } from '@shadcn/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { useApp } from '@/context/AppContext'
-import { useHandleApiError } from '@/hooks/useHandleApiError'
-import { fetchApi } from '@/libraries/fetch'
-import { IContact } from '@/types/contact'
-import { IContactList } from '@/types/contact-list'
-import { handleFetcherData } from '@/utils/fetcher.data'
-import { redirectWithToast } from '@/utils/toast.server'
-import { Link, useFetcher, useLoaderData, useNavigate, useParams } from '@remix-run/react'
-import { ActionFunctionArgs } from '@remix-run/router'
+import {
+  useContactListDetail,
+  useContactListMembers,
+  useRemoveContactListMember,
+  useRemoveAllContactListMembers,
+  useAddContactListMembers,
+  useDeleteContactList,
+} from '@/resources/hooks/contact-lists'
+import { ContactListMemberType } from '@/resources/queries/contact-lists'
+import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Edit, Ellipsis, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
+import { useCallback, useMemo, useRef } from 'react'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -32,60 +33,118 @@ export function loader() {
 
 export default function ContactListDetail() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const handleApiError = useHandleApiError()
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [contactList, setContactList] = useState<IContactList | null>(null)
-  const [members, setMembers] = useState<IContact[]>([])
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
-  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState<boolean>(false)
-  const [selectedMember, setSelectedMember] = useState<IContact | null>(null)
-  const deleteFetcher = useFetcher()
-  const newMemberFetcher = useFetcher()
+  const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteContactListModalRef =
+    useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const newMemberRef = useRef<React.ElementRef<typeof NewMemberContactList>>(null)
 
-  const handleDeleteClick = (contact: IContact) => {
-    setSelectedMember(contact)
-    setIsDeleteDialogOpen(true)
+  const config = {
+    apiUrl: apiUrl!,
+    nodeEnv,
+    token: token!,
   }
 
-  const handleDeleteMemberConfirm = () => {
-    if (selectedMember && token) {
-      const formData = new FormData()
-      formData.append('intent', 'delete_member_by_id')
-      formData.append('contact_list_id', contactList?.id || '')
-      formData.append('member_id', selectedMember.id)
-      formData.append('token', token)
+  const contactListId = params.id || ''
 
-      deleteFetcher.submit(formData, {
-        method: 'POST',
+  const { data: contactList, isLoading: isLoadingContactList } = useContactListDetail(
+    config,
+    contactListId,
+    {
+      enabled: !!contactListId && !!token,
+    },
+  )
+
+  const { data: members = [], isLoading: isLoadingMembers } = useContactListMembers(
+    config,
+    contactListId,
+    {
+      enabled: !!contactListId && !!token,
+    },
+  )
+
+  const { mutateAsync: removeMember } = useRemoveContactListMember(
+    config,
+    contactListId,
+    {
+      onSuccess: () => {
+        deleteModalRef.current?.close()
+      },
+    },
+  )
+
+  const { mutateAsync: removeAllMembers } = useRemoveAllContactListMembers(
+    config,
+    contactListId,
+    {
+      onSuccess: () => {
+        deleteAllModalRef.current?.close()
+      },
+    },
+  )
+
+  const { mutateAsync: addMembers } = useAddContactListMembers(config, contactListId, {
+    onSuccess: () => {
+      newMemberRef.current?.onClose()
+    },
+  })
+
+  const { mutate: deleteContactList } = useDeleteContactList(config, {
+    onSuccess: () => {
+      deleteContactListModalRef.current?.close()
+      navigate('/contact-lists')
+    },
+  })
+
+  const handleDelete = useCallback(
+    (member: ContactListMemberType) => {
+      deleteModalRef.current?.open({
+        title: 'Remove Member',
+        description: `This will remove "${member.email}" from your member contact list. This action cannot be undone.`,
+        onDelete: async () => {
+          deleteModalRef.current?.updateConfig({ isLoading: true })
+          await removeMember(member.id)
+        },
       })
-    }
-  }
+    },
+    [removeMember],
+  )
 
-  const handleDeleteMembersConfirm = () => {
-    if (contactList && token) {
-      const formData = new FormData()
-      formData.append('intent', 'delete_all_member')
-      formData.append('contact_list_id', contactList.id)
-      formData.append('token', token)
+  const handleDeleteAll = useCallback(() => {
+    deleteAllModalRef.current?.open({
+      title: 'Remove All Members',
+      description: `This will remove all members from your contact list "${contactList?.name}". This action cannot be undone.`,
+      onDelete: async () => {
+        deleteAllModalRef.current?.updateConfig({ isLoading: true })
+        await removeAllMembers()
+      },
+    })
+  }, [removeAllMembers, contactList?.name])
 
-      deleteFetcher.submit(formData, {
-        method: 'POST',
-      })
-    }
-  }
+  const handleAddMembers = useCallback(
+    async (contactIds: string[]) => {
+      await addMembers({ contact_ids: contactIds })
+    },
+    [addMembers],
+  )
 
-  const handleCloseDeleteDialog = () => {
-    setIsDeleteDialogOpen(false)
-    if (deleteFetcher.state === 'idle') {
-      setSelectedMember(null)
-    }
-  }
+  const handleDeleteContactList = useCallback(() => {
+    if (!contactList) return
 
-  const columns: ColumnDef<IContact>[] = useMemo(
+    deleteContactListModalRef.current?.open({
+      title: 'Remove Contact List',
+      description: `This will remove "${contactList.name}" from your contact lists. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteContactListModalRef.current?.updateConfig({ isLoading: true })
+        await deleteContactList(contactListId)
+      },
+    })
+  }, [contactList, contactListId, deleteContactList])
+
+  const columns: ColumnDef<ContactListMemberType>[] = useMemo(
     () => [
       {
         accessorKey: 'email',
@@ -160,14 +219,14 @@ export default function ContactListDetail() {
             <Popover>
               <PopoverTrigger asChild>
                 <Button size="icon" variant="ghost" className="px-0">
-                  <Ellipsis size={18} />
+                  <EllipsisVertical size={18} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent side="left" className="w-44 p-2">
+              <PopoverContent align="start" side="left" className="w-40 p-2">
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => handleDeleteClick(row.original)}>
+                  onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
                   <span>Delete</span>
                 </Button>
@@ -177,67 +236,14 @@ export default function ContactListDetail() {
         },
       },
     ],
-    [members],
+    [handleDelete],
   )
 
   const hasData = useMemo(() => {
     return members && members.length > 0
   }, [members])
 
-  const fetchContactList = async () => {
-    if (!token) return
-
-    try {
-      const [contactList, members] = await Promise.all([
-        fetchApi(`${apiUrl}/contact-lists/${params.id}`, token, nodeEnv),
-        fetchApi(`${apiUrl}/contact-lists/${params.id}/members`, token, nodeEnv),
-      ])
-
-      setContactList(contactList)
-      setMembers(members.members || [])
-    } catch (error: any) {
-      handleApiError(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (token && params.id) {
-      fetchContactList()
-    }
-  }, [token, params.id])
-
-  useEffect(() => {
-    if (deleteFetcher.data) {
-      handleFetcherData(deleteFetcher.data, (responseData) => {
-        // delete member by id
-        if (responseData.intent === 'delete_member_by_id') {
-          setMembers((prevData) => {
-            if (!prevData) return prevData
-            return prevData.filter((item) => item.id !== responseData.id)
-          })
-          setIsDeleteDialogOpen(false)
-          setSelectedMember(null)
-        }
-
-        // delete all member by contact-list id
-        if (responseData.intent === 'delete_all_member') {
-          setMembers([])
-          setIsDeleteAllDialogOpen(false)
-        }
-      })
-    }
-  }, [deleteFetcher.data])
-
-  useEffect(() => {
-    if (newMemberFetcher.data) {
-      handleFetcherData(newMemberFetcher.data, () => {
-        newMemberRef.current?.onClose()
-        fetchContactList() // reload after successfully add member
-      })
-    }
-  }, [newMemberFetcher.data])
+  const isLoading = isLoadingContactList || isLoadingMembers
 
   const emptyContent = (
     <EmptyContent
@@ -272,12 +278,29 @@ export default function ContactListDetail() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-3xl">Contact List Details</h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/contact-lists/${params.id}/edit`)}>
-              <Edit /> Edit
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <EllipsisVertical size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="left" className="w-40 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/contact-lists/${params.id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={handleDeleteContactList}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
@@ -319,7 +342,7 @@ export default function ContactListDetail() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-2xl">Members</h1>
             {hasData && (
-              <CreateButton
+              <NewButton
                 label="New Members"
                 onClick={() => newMemberRef.current?.onOpen()}
               />
@@ -339,122 +362,23 @@ export default function ContactListDetail() {
 
         {hasData && (
           <CardFooter className="justify-end">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setIsDeleteAllDialogOpen(true)}>
+            <Button variant="destructive" size="sm" onClick={handleDeleteAll}>
               Delete All Members
             </Button>
           </CardFooter>
         )}
       </Card>
 
-      <DeleteConfirmation
-        open={isDeleteDialogOpen}
-        onOpenChange={handleCloseDeleteDialog}
-        title="Remove Member"
-        description={`This will remove "${selectedMember?.email}" from your member contact list. This action cannot be undone.`}
-        onDelete={handleDeleteMemberConfirm}
-        fetcher={deleteFetcher}
-      />
-
-      <DeleteConfirmation
-        open={isDeleteAllDialogOpen}
-        onOpenChange={setIsDeleteAllDialogOpen}
-        title="Remove All Members"
-        description={`This will remove all members from your contact list "${contactList?.name}". This action cannot be undone.`}
-        onDelete={handleDeleteMembersConfirm}
-        fetcher={deleteFetcher}
-      />
+      <DeleteConfirmation ref={deleteModalRef} />
+      <DeleteConfirmation ref={deleteAllModalRef} />
+      <DeleteConfirmation ref={deleteContactListModalRef} />
 
       <NewMemberContactList
         ref={newMemberRef}
-        fetcher={newMemberFetcher}
+        onAddMembers={handleAddMembers}
         apiUrl={apiUrl!}
         nodeEnv={nodeEnv}
       />
     </div>
   )
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const apiUrl = process.env.API_URL
-  const nodeEnv = process.env.NODE_ENV
-  const formData = await request.formData()
-  const intent = formData.get('intent')
-  const token = formData.get('token') as string
-  const memberId = formData.get('member_id')
-  const contactListId = formData.get('contact_list_id')
-  const contactIds = formData.get('contact_ids')
-
-  try {
-    if (intent === 'delete_member_by_id' && memberId) {
-      const url = `${apiUrl}/contact-lists/${contactListId}/members/${memberId}`
-
-      await fetchApi(url, token, nodeEnv, {
-        method: 'DELETE',
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: 'Successfully removed member',
-          },
-          response: { id: memberId, intent },
-        },
-        { status: 200 },
-      )
-    }
-
-    if (intent === 'delete_all_member' && contactListId) {
-      const url = `${apiUrl}/contact-lists/${contactListId}/members`
-
-      await fetchApi(url, token, nodeEnv, {
-        method: 'DELETE',
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: 'Successfully removed member',
-          },
-          response: { intent },
-        },
-        { status: 200 },
-      )
-    }
-
-    if (intent === 'new_contact_list') {
-      const url = `${apiUrl}/contact-lists/${contactListId}/members`
-
-      const response = await fetchApi(url, token, nodeEnv, {
-        method: 'POST',
-        body: JSON.stringify({ contact_ids: JSON.parse(contactIds as string) }),
-      })
-
-      return Response.json(
-        {
-          toast: {
-            type: 'success',
-            title: 'Success',
-            description: response.message,
-          },
-          response: { intent },
-        },
-        { status: 200 },
-      )
-    }
-  } catch (error: any) {
-    const convertError = JSON.parse(error?.message)
-
-    return redirectWithToast(`/contact-lists/${contactListId}`, {
-      type: 'error',
-      title: 'Error',
-      description: `${convertError.status} - ${convertError.error}`,
-    })
-  }
 }

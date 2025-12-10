@@ -30,6 +30,8 @@ The user asks questions about the following coding languages:
 - TailwindCSS
 - HTML
 - CSS
+- React Hook Forms
+- React Tanstack Query
 
 ### Code Implementation Guidelines
 

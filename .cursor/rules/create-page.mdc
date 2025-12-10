@@ -6,90 +6,106 @@ alwaysApply: false
 
 @api-integration.mdc
 
-Implementation:
+## Implementation Guidelines
 
-- Create a file with name `new.tsx` inside it
-- Call <FormWrapper>, <FormField /> from `core-ui` and fill required props from that components
-- Call actionData hooks named `useActionData()`, import from `@remix-run/react`
-- Call hooks navigation to check loading state after user submitting, import form `@remix-run/react`
-- Create state errorField to check error after submitting form
-- Send token from useApp into `hiddenInputs`
+When creating a new page (`new.tsx`), follow these patterns:
 
-Example:
+### File Structure
+
+- Create a file named `new.tsx` inside the resource route directory (e.g., `app/routes/_main+/contacts+/new.tsx`)
+- Use React Query mutations for API calls instead of Remix actions
+- Use custom form components from `@/components/crud-forms/` instead of generic form wrappers
+
+### Required Components
+
+1. **Loader Function**
+   - Export a `loader()` function that returns `apiUrl` and `nodeEnv` from environment variables
+   - Use `useLoaderData()` hook to access loader data in the component
+
+2. **React Query Mutation Hook**
+   - Import and use the create mutation hook from `@/resources/hooks/[resource-name]` (e.g., `useCreateContact`)
+   - Pass config object with `apiUrl`, `token`, and `nodeEnv`
+   - Configure `onSuccess` callback to navigate to the detail page after successful creation
+   - The mutation hook handles toast notifications automatically
+
+3. **Form Component**
+   - Use the corresponding form component from `@/components/crud-forms/` (e.g., `ContactForm`, `WaitingListForm`)
+   - Pass `onSubmit` handler that calls the mutation
+   - Pass `defaultValues` from the schema file (e.g., `defaultContactFormValues`)
+
+4. **Navigation**
+   - Use `useNavigate()` from `@remix-run/react` for navigation
+   - Navigate to detail page (`/[resource-name]/[id]`) on successful creation
+
+5. **Token Management**
+   - Get token from `useApp()` hook from `@/context/AppContext`
+   - Token is automatically passed to the mutation hook via config object
+
+### Example Structure
 
 ```tsx
-export default function <Name>Create() {
-  const [errorFields, setErrorFields] = useState<any>()
+import { [Resource]Form } from '@/components/crud-forms/[resource]-form'
+import { useApp } from '@/context/AppContext'
+import { useCreate[Resource] } from '@/resources/hooks/[resource-name]'
+import { [Resource]FormData, [Resource]Type } from '@/resources/queries/[resource-name]'
+import { default[Resource]FormValues } from '@/resources/queries/[resource-name]/[resource].schema'
+import { useLoaderData, useNavigate } from '@remix-run/react'
 
-  useEffect(() => {
-    if (actionData?.errors) {
-      setErrorFields(actionData.errors)
-    }
-  }, [actionData])
-
-  return <FormWrapper
-          method="POST"
-          title="Create Workspace"
-          onCancel={onCancel}
-          isSubmitting={navigation.state === 'submitting'}
-          hiddenInputs={{
-            token: token!,
-          }}>
-           <FormField
-            label="Name"
-            name="name"
-            error={errorFields?.name}
-          />
-     </FormWrapper>
-}
-
-export async function action({ request }: ActionFunctionArgs) {
+export function loader() {
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
-  const formData = await request.formData()
-  const { name, description, identifier, locked, token, logo } = Object.fromEntries(formData)
 
-  const validated = workspaceSchema.safeParse({
-    name,
-    description,
-    identifier,
-    locked: locked === 'on',
-  })
+  return { apiUrl, nodeEnv }
+}
 
-  if (!validated.success) {
-    return Response.json({ errors: validated.error.flatten().fieldErrors })
-  }
+export default function [Resource]New() {
+  const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { token } = useApp()
+  const navigate = useNavigate()
 
-  try {
-    const response = await fetchApi(`${apiUrl}/workspaces`, token.toString(), nodeEnv, {
-      method: 'POST',
-      body: JSON.stringify({
-        name: name.toString(),
-        description: description.toString(),
-        identifier: identifier.toString(),
-        locked: locked === 'on',
-        logo,
-      }),
-    })
-
-    return redirectWithToast(`/workspaces/${response.id}/overview`, {
-      type: 'success',
-      title: 'Success',
-      description: 'Successfully created workspace',
-    })
-  } catch (error: any) {
-    const convertError = JSON.parse(error?.message)
-
-    return redirectWithToast(
-      convertError.status === 401 ? '/logout' : '/workspaces/new',
-      {
-        type: 'error',
-        title: 'Error',
-        description: `${convertError.status} - ${convertError.error}`,
+  // [Resource] create mutation
+  const { mutateAsync: create[Resource] } = useCreate[Resource](
+    { apiUrl: apiUrl!, token: token!, nodeEnv },
+    {
+      onSuccess: (data: [Resource]Type) => {
+        navigate(`/[resource-name]/${data.id}`)
       },
-    )
+    },
+  )
+
+  const handleSubmit = async (data: [Resource]FormData): Promise<void> => {
+    await create[Resource](data)
   }
+
+  return (
+    <[Resource]Form
+      onSubmit={handleSubmit}
+      defaultValues={default[Resource]FormValues}
+    />
+  )
 }
 ```
 
-Reference: create workspaces in app/routes/\_main+/workspaces+/\new.tsx
+### Key Patterns
+
+1. **Loader Pattern**: Always export a loader function that provides `apiUrl` and `nodeEnv`
+2. **Mutation Pattern**: Use React Query mutations with config object `{ apiUrl, token, nodeEnv }`
+3. **Success Navigation**: Navigate to detail page using `navigate(\`/[resource-name]/\${data.id}\`)`
+4. **Form Integration**: Form components handle their own validation, submission state, and UI
+5. **Type Safety**: Use TypeScript types from query files (`[Resource]FormData`, `[Resource]Type`)
+6. **Default Values**: Import default form values from schema files
+
+### Notes
+
+- Form components handle loading states internally (no need to check `navigation.state`)
+- Error handling is done automatically by React Query hooks (toast notifications)
+- Token is obtained from `useApp()` context, not from form data
+- No need for `useActionData()` or error field state management
+- Form components include Cancel button and navigation logic internally
+
+### References
+
+- Contact create: `app/routes/_main+/contacts+/new.tsx`
+- Contact interaction create: `app/routes/_main+/contact-interactions+/new.tsx`
+- Contact list create: `app/routes/_main+/contact-lists+/new.tsx`
+- Waiting list create: `app/routes/_main+/waiting-lists+/new.tsx`

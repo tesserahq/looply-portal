@@ -1,0 +1,265 @@
+---
+description: Use this rule when generating a page detail with call data GET from API
+globs:
+alwaysApply: false
+---
+
+@api-integration.mdc
+
+## Implementation Guidelines
+
+When creating a detail page (`$id+/_index.tsx`), follow these patterns:
+
+### File Structure
+
+- Create a folder named `$id+` and a file named `_index.tsx` inside it (e.g., `app/routes/_main+/contacts+/$id+/_index.tsx`)
+- Use React Query hooks for data fetching when available, or `fetchApi` directly
+- Use `AppPreloader` component for loading states
+- Display data in `Card` components with proper layout
+
+### Required Components
+
+1. **Loader Function**
+   - Export a `loader()` function that returns `apiUrl` and `nodeEnv` from environment variables
+   - Use `useLoaderData()` hook to access loader data in the component
+
+2. **Data Fetching**
+   - **Preferred**: Use React Query detail hook from `@/resources/hooks/[resource-name]` (e.g., `useContactDetail`, `useWaitingListDetail`)
+   - **Alternative**: Use `fetchApi` directly with `useEffect` and `useState` (for pages not yet migrated to React Query)
+   - Get token from `useApp()` hook
+   - Use `useParams()` to get the resource ID from URL
+
+3. **Loading State**
+   - Use `AppPreloader` component from `@/components/loader/pre-loader` when loading
+   - Check `isLoading` from React Query hook or manual loading state
+
+4. **Error/Not Found Handling**
+   - Show appropriate message when resource is not found
+   - Use `Card` component for error states
+
+5. **Data Display**
+   - Use `Card`, `CardHeader`, `CardContent` components from `@shadcn/ui/card`
+   - Use description list pattern with `d-list`, `d-item`, `d-label`, `d-content` classes
+   - Format dates using `date-fns` format function
+   - Add Edit button in header that navigates to edit page
+
+### Example Structure (React Query Pattern - Preferred)
+
+```tsx
+import { AppPreloader } from '@/components/loader/pre-loader'
+import { useApp } from '@/context/AppContext'
+import { use[Resource]Detail } from '@/resources/hooks/[resource-name]'
+import { [Resource]Type } from '@/resources/queries/[resource-name]'
+import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { Button } from '@shadcn/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
+import { format } from 'date-fns'
+import { Edit } from 'lucide-react'
+
+export function loader() {
+  const apiUrl = process.env.API_URL
+  const nodeEnv = process.env.NODE_ENV
+
+  return { apiUrl, nodeEnv }
+}
+
+export default function [Resource]Detail() {
+  const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { token } = useApp()
+  const navigate = useNavigate()
+  const params = useParams()
+
+  const config = {
+    apiUrl: apiUrl!,
+    nodeEnv,
+    token: token!,
+  }
+
+  const { data: [resource], isLoading } = use[Resource]Detail(
+    config,
+    params.id!,
+    {
+      enabled: !!params.id && !!token,
+    },
+  )
+
+  if (isLoading) {
+    return <AppPreloader />
+  }
+
+  if (![resource]) {
+    return (
+      <div className="flex h-full animate-slide-up items-center justify-center">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-muted-foreground">[Resource] not found</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full animate-slide-up flex-col gap-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-bold lg:text-3xl">
+              [Resource] Details
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/[resource-name]/${params.id}/edit`)}>
+              <Edit /> Edit
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6 pt-4">
+          <div className="d-list">
+            <div className="d-item">
+              <dt className="d-label">Name</dt>
+              <dd className="d-content">{[resource].name || 'N/A'}</dd>
+            </div>
+            <div className="d-item">
+              <dt className="d-label">Created At</dt>
+              <dd className="d-content">
+                {format(new Date([resource].created_at + 'z'), 'PPPpp')}
+              </dd>
+            </div>
+            {/* Add more fields as needed */}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+```
+
+### Example Structure (Direct fetchApi Pattern - Legacy)
+
+```tsx
+import { AppPreloader } from '@/components/loader/pre-loader'
+import { useApp } from '@/context/AppContext'
+import { useHandleApiError } from '@/hooks/useHandleApiError'
+import { fetchApi } from '@/libraries/fetch'
+import { [Resource]Type } from '@/resources/types'
+import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { Button } from '@shadcn/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
+import { format } from 'date-fns'
+import { Edit } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+export function loader() {
+  const apiUrl = process.env.API_URL
+  const nodeEnv = process.env.NODE_ENV
+
+  return { apiUrl, nodeEnv }
+}
+
+export default function [Resource]Detail() {
+  const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const handleApiError = useHandleApiError()
+  const { token } = useApp()
+  const navigate = useNavigate()
+  const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [[resource], set[Resource]] = useState<[Resource]Type | null>(null)
+
+  const fetch[Resource] = async () => {
+    if (!token) return
+
+    try {
+      const data = await fetchApi(`${apiUrl}/[resource-name]/${params.id}`, token, nodeEnv)
+      set[Resource](data)
+    } catch (error: any) {
+      handleApiError(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (token && params.id) {
+      fetch[Resource]()
+    }
+  }, [token, params.id])
+
+  if (isLoading) {
+    return <AppPreloader />
+  }
+
+  if (![resource]) {
+    return (
+      <div className="flex h-full animate-slide-up items-center justify-center">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-muted-foreground">[Resource] not found</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full animate-slide-up flex-col gap-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-bold lg:text-3xl">
+              [Resource] Details
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/[resource-name]/${params.id}/edit`)}>
+              <Edit /> Edit
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6 pt-4">
+          <div className="d-list">
+            <div className="d-item">
+              <dt className="d-label">Name</dt>
+              <dd className="d-content">{[resource].name || 'N/A'}</dd>
+            </div>
+            <div className="d-item">
+              <dt className="d-label">Created At</dt>
+              <dd className="d-content">
+                {format(new Date([resource].created_at + 'z'), 'PPPpp')}
+              </dd>
+            </div>
+            {/* Add more fields as needed */}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+```
+
+### Key Patterns
+
+1. **React Query Preferred**: Use React Query hooks when available for automatic caching and refetching
+2. **Loader Pattern**: Always export a loader function that provides `apiUrl` and `nodeEnv`
+3. **Loading State**: Show `AppPreloader` when loading
+4. **Not Found Handling**: Show appropriate message when resource doesn't exist
+5. **Card Layout**: Use Card components for structured data display
+6. **Description List**: Use `d-list`, `d-item`, `d-label`, `d-content` classes for field display
+7. **Date Formatting**: Use `date-fns` format function with timezone handling (`+ 'z'`)
+8. **Edit Navigation**: Include Edit button that navigates to edit page
+
+### Notes
+
+- Prefer React Query hooks when available (better caching and error handling)
+- Use `useParams()` to get resource ID from URL
+- Token is obtained from `useApp()` context
+- Error handling is done automatically by React Query hooks (toast notifications)
+- For direct `fetchApi` pattern, use `useHandleApiError()` hook for error handling
+- Date formatting should handle timezone by appending `'z'` to ISO date strings
+
+### References
+
+- Contact detail: `app/routes/_main+/contacts+/$id+/_index.tsx` (uses fetchApi directly)
+- Waiting list detail: `app/routes/_main+/waiting-lists+/$id+/_index.tsx` (uses React Query hooks)
