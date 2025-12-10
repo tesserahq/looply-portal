@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import Header from '@/components/misc/Header'
-import SidebarPanel, { IMenuItemProps } from '@/components/misc/Sidebar/SidebarPanel'
-import SidebarPanelMin from '@/components/misc/Sidebar/SidebarPanelMin'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import { SidebarPanel, SidebarPanelMin, Header } from '@/components/layouts'
 import { useApp } from '@/context/AppContext'
-import '@/styles/customs/sidebar.css'
+import '@/styles/sidebar.css'
 import { cn } from '@/utils/misc'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import { BookUser, SquareUser, Users2 } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { BookUser, History, SquareUser, Users2 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { IMenuItemProps } from '@/components/layouts/sidebar/types'
 
 export function loader() {
   const hostUrl = process.env.HOST_URL
@@ -24,23 +23,31 @@ export default function Layout() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { isLoading } = useApp()
 
-  const menuItems: IMenuItemProps[] = [
-    {
-      title: 'Contacts',
-      path: `/contacts`,
-      icon: <SquareUser size={18} />,
-    },
-    {
-      title: 'Contact Lists',
-      path: `/contact-lists`,
-      icon: <BookUser size={18} />,
-    },
-    {
-      title: 'Waiting Lists',
-      path: `/waiting-lists`,
-      icon: <Users2 size={18} />,
-    },
-  ]
+  const menuItems: IMenuItemProps[] = useMemo(
+    () => [
+      {
+        title: 'Contacts',
+        path: `/contacts`,
+        icon: <SquareUser size={18} />,
+      },
+      {
+        title: 'Contact Lists',
+        path: `/contact-lists`,
+        icon: <BookUser size={18} />,
+      },
+      {
+        title: 'Waiting Lists',
+        path: `/waiting-lists`,
+        icon: <Users2 size={18} />,
+      },
+      {
+        title: 'Contact Interactions',
+        path: `/contact-interactions`,
+        icon: <History size={18} />,
+      },
+    ],
+    [],
+  )
 
   const onResize = useCallback(() => {
     if (containerRef.current) {

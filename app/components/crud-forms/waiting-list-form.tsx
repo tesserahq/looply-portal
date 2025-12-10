@@ -1,0 +1,88 @@
+import { useApp } from '@/context/AppContext'
+import { Button } from '@/modules/shadcn/ui/button'
+import {
+  WaitingListFormData,
+  WaitingListFormValue,
+  formValuesToWaitingListData,
+} from '@/resources/queries/waiting-lists'
+import { waitingListFormSchema } from '@/resources/queries/waiting-lists/waiting-list.schema'
+import { useNavigate } from '@remix-run/react'
+import { useState } from 'react'
+import { FormLayout } from '../form/form-layout'
+import { Form } from '../form'
+import { Loader2 } from 'lucide-react'
+
+interface WaitingListFormProps {
+  defaultValues: WaitingListFormValue
+  onSubmit: (data: WaitingListFormData) => Promise<void> | void
+  submitLabel?: string
+}
+
+export const WaitingListForm = ({
+  defaultValues,
+  onSubmit,
+  submitLabel = 'Save',
+}: WaitingListFormProps) => {
+  const navigate = useNavigate()
+  const { token } = useApp()
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  const title = defaultValues?.id ? 'Edit Waiting List' : 'New Waiting List'
+
+  // Handle form submission
+  const handleSubmit = async (data: WaitingListFormValue) => {
+    setIsSubmitting(true)
+
+    try {
+      const waitingListData = formValuesToWaitingListData(data)
+      await onSubmit(waitingListData)
+    } catch (error) {
+      // Error handling is done by parent component
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <Form
+      schema={waitingListFormSchema}
+      defaultValues={defaultValues}
+      onSubmit={handleSubmit}>
+      <input type="hidden" name="token" value={token!} />
+      {defaultValues?.id && <input type="hidden" name="id" value={defaultValues.id} />}
+      <FormLayout title={title}>
+        <Form.Input
+          field="name"
+          label="Name"
+          placeholder="Enter waiting list name"
+          required
+        />
+
+        <Form.Textarea
+          field="description"
+          label="Description"
+          placeholder="Enter description (optional)"
+        />
+
+        <div className="mt-5 flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => navigate('/waiting-lists')}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              submitLabel
+            )}
+          </Button>
+        </div>
+      </FormLayout>
+    </Form>
+  )
+}

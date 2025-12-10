@@ -26,7 +26,8 @@
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "@shadcn/*": ["./app/modules/shadcn/*"]
     },
 
     // Vite takes care of building everything, not tsc.

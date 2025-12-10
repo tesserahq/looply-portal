@@ -14,6 +14,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './app'),
+      '@shadcn': resolve(__dirname, './app/modules/shadcn'),
     },
   },
   plugins: [

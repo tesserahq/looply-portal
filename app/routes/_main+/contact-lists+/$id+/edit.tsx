@@ -1,23 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  useActionData,
-  useLoaderData,
-  useNavigate,
-  useNavigation,
-  useParams,
-} from '@remix-run/react'
-import { ActionFunctionArgs } from '@remix-run/node'
-import { redirectWithToast } from '@/utils/toast.server'
-import { fetchApi } from '@/libraries/fetch'
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import { IContactList } from '@/types/contact-list'
-import { useHandleApiError } from '@/hooks/useHandleApiError'
-import { useEffect, useState } from 'react'
-import {
-  ContactListForm,
-  contactListFormSchema,
-} from '@/components/form/contact-list-form'
+import { ContactListForm } from '@/components/crud-forms/contact-list-form'
+import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
+import {
+  useContactListDetail,
+  useUpdateContactList,
+} from '@/resources/hooks/contact-lists'
+import {
+  ContactListFormData,
+  contactListToFormValues,
+} from '@/resources/queries/contact-lists'
+import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -28,110 +20,44 @@ export function loader() {
 
 export default function ContactListEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const navigation = useNavigation()
-  const navigate = useNavigate()
-  const actionData = useActionData<typeof action>()
-  const handleApiError = useHandleApiError()
   const { token } = useApp()
-  const params = useParams()
-  const [contactList, setContactList] = useState<IContactList | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [errorFields, setErrorFields] = useState<any>()
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
 
-  const fetchContactList = async () => {
-    if (!token) return
-
-    try {
-      const data = await fetchApi(`${apiUrl}/contact-lists/${params.id}`, token, nodeEnv)
-
-      setContactList(data)
-    } catch (error: any) {
-      handleApiError(error)
-    } finally {
-      setIsLoading(false)
-    }
+  const config = {
+    apiUrl: apiUrl!,
+    nodeEnv,
+    token: token!,
   }
 
-  useEffect(() => {
-    if (token && params.id) {
-      fetchContactList()
-    }
-  }, [token, params.id])
+  const { data: contactList, isLoading } = useContactListDetail(config, id!)
 
-  useEffect(() => {
-    if (actionData?.errors) {
-      setErrorFields(actionData.errors)
-    }
-  }, [actionData])
+  // Contact list update mutation
+  const { mutateAsync: updateContactList } = useUpdateContactList(config, {
+    onSuccess: () => {
+      navigate(`/contact-lists/${id}`)
+    },
+  })
 
-  const isSubmitting = navigation.state === 'submitting'
+  const handleSubmit = async (data: ContactListFormData): Promise<void> => {
+    await updateContactList({ id: id!, updateData: data })
+  }
 
   if (isLoading) {
     return <AppPreloader />
   }
 
   if (!contactList) {
-    return (
-      <div className="flex h-full animate-slide-up items-center justify-center">
-        <div className="rounded-lg border bg-card p-6">
-          <p className="text-muted-foreground">Contact list not found</p>
-        </div>
-      </div>
-    )
+    return null
   }
+
+  const defaultValues = contactListToFormValues(contactList)
 
   return (
     <ContactListForm
-      initialData={contactList}
-      errorFields={errorFields}
-      isSubmitting={isSubmitting}
-      onCancel={() => navigate(`/contact-lists/${params.id}`)}
+      onSubmit={handleSubmit}
+      defaultValues={defaultValues}
+      submitLabel="Update"
     />
   )
-}
-
-export async function action({ request, params }: ActionFunctionArgs) {
-  const apiUrl = process.env.API_URL
-  const nodeEnv = process.env.NODE_ENV
-  const formData = await request.formData()
-  const { name, description, is_public, token } = Object.fromEntries(formData)
-
-  const validated = contactListFormSchema.safeParse({
-    name,
-    description,
-    is_public: is_public === 'true',
-  })
-
-  if (!validated.success) {
-    return Response.json({ errors: validated.error.flatten().fieldErrors })
-  }
-
-  try {
-    const response = await fetchApi(
-      `${apiUrl}/contact-lists/${params.id}`,
-      token.toString(),
-      nodeEnv,
-      {
-        method: 'PUT',
-        body: JSON.stringify({
-          name: name.toString(),
-          description: description?.toString() || '',
-          is_public: is_public === 'true',
-        }),
-      },
-    )
-
-    return redirectWithToast(`/contact-lists/${response.id}`, {
-      type: 'success',
-      title: 'Success',
-      description: 'Successfully updated contact list',
-    })
-  } catch (error: any) {
-    const convertError = JSON.parse(error?.message)
-    return redirectWithToast(`/contact-lists/${params.id}/edit`, {
-      type: 'error',
-      title: 'Error',
-      description: `${convertError.status} - ${convertError.error}`,
-    })
-  }
 }

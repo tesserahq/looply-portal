@@ -12,7 +12,8 @@
   },
   "aliases": {
     "components": "#components",
-    "utils": "#utils/misc.ts"
+    "utils": "#utils/misc.ts",
+    "ui": "@shadcn/ui"
   },
   "iconLibrary": "lucide"
 }

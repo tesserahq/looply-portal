@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from '@remix-run/react'
 import { useTranslation } from 'react-i18next'
 import { Languages } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@shadcn/ui/select'
 
 export function LanguageSwitcher() {
   const navigate = useNavigate()

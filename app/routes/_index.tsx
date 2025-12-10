@@ -1,5 +1,5 @@
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import { Button } from '@/components/ui/button'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import { Button } from '@shadcn/ui/button'
 import { SITE_CONFIG } from '@/constants/brand'
 import { useAuth0 } from '@auth0/auth0-react'
 import type { MetaFunction } from '@remix-run/node'
