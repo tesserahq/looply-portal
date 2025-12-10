@@ -15,12 +15,13 @@ import {
   useRemoveContactListMember,
   useRemoveAllContactListMembers,
   useAddContactListMembers,
+  useDeleteContactList,
 } from '@/resources/hooks/contact-lists'
 import { ContactListMemberType } from '@/resources/queries/contact-lists'
 import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Edit, Ellipsis, Trash2 } from 'lucide-react'
+import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 
 export function loader() {
@@ -37,6 +38,8 @@ export default function ContactListDetail() {
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteContactListModalRef =
+    useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const newMemberRef = useRef<React.ElementRef<typeof NewMemberContactList>>(null)
 
   const config = {
@@ -89,6 +92,13 @@ export default function ContactListDetail() {
     },
   })
 
+  const { mutate: deleteContactList } = useDeleteContactList(config, {
+    onSuccess: () => {
+      deleteContactListModalRef.current?.close()
+      navigate('/contact-lists')
+    },
+  })
+
   const handleDelete = useCallback(
     (member: ContactListMemberType) => {
       deleteModalRef.current?.open({
@@ -120,6 +130,19 @@ export default function ContactListDetail() {
     },
     [addMembers],
   )
+
+  const handleDeleteContactList = useCallback(() => {
+    if (!contactList) return
+
+    deleteContactListModalRef.current?.open({
+      title: 'Remove Contact List',
+      description: `This will remove "${contactList.name}" from your contact lists. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteContactListModalRef.current?.updateConfig({ isLoading: true })
+        await deleteContactList(contactListId)
+      },
+    })
+  }, [contactList, contactListId, deleteContactList])
 
   const columns: ColumnDef<ContactListMemberType>[] = useMemo(
     () => [
@@ -196,10 +219,10 @@ export default function ContactListDetail() {
             <Popover>
               <PopoverTrigger asChild>
                 <Button size="icon" variant="ghost" className="px-0">
-                  <Ellipsis size={18} />
+                  <EllipsisVertical size={18} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent side="left" className="w-44 p-2">
+              <PopoverContent align="start" side="left" className="w-40 p-2">
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
@@ -255,12 +278,29 @@ export default function ContactListDetail() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-3xl">Contact List Details</h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/contact-lists/${params.id}/edit`)}>
-              <Edit /> Edit
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <EllipsisVertical size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="left" className="w-40 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/contact-lists/${params.id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={handleDeleteContactList}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
@@ -331,6 +371,7 @@ export default function ContactListDetail() {
 
       <DeleteConfirmation ref={deleteModalRef} />
       <DeleteConfirmation ref={deleteAllModalRef} />
+      <DeleteConfirmation ref={deleteContactListModalRef} />
 
       <NewMemberContactList
         ref={newMemberRef}

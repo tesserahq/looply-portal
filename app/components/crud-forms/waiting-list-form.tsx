@@ -1,4 +1,3 @@
-import { useApp } from '@/context/AppContext'
 import { Button } from '@/modules/shadcn/ui/button'
 import {
   WaitingListFormData,
@@ -7,10 +6,10 @@ import {
 } from '@/resources/queries/waiting-lists'
 import { waitingListFormSchema } from '@/resources/queries/waiting-lists/waiting-list.schema'
 import { useNavigate } from '@remix-run/react'
-import { useState } from 'react'
-import { FormLayout } from '../form/form-layout'
-import { Form } from '../form'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { Form } from '../form'
+import { FormLayout } from '../form/form-layout'
 
 interface WaitingListFormProps {
   defaultValues: WaitingListFormValue
@@ -24,7 +23,6 @@ export const WaitingListForm = ({
   submitLabel = 'Save',
 }: WaitingListFormProps) => {
   const navigate = useNavigate()
-  const { token } = useApp()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const title = defaultValues?.id ? 'Edit Waiting List' : 'New Waiting List'
@@ -48,8 +46,6 @@ export const WaitingListForm = ({
       schema={waitingListFormSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}>
-      <input type="hidden" name="token" value={token!} />
-      {defaultValues?.id && <input type="hidden" name="id" value={defaultValues.id} />}
       <FormLayout title={title}>
         <Form.Input
           field="name"

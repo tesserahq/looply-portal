@@ -1,12 +1,17 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
+import DeleteConfirmation, {
+  type DeleteConfirmationHandle,
+} from '@/components/delete-confirmation/delete-confirmation'
 import { useApp } from '@/context/AppContext'
-import { useContactDetail } from '@/resources/hooks/contacts'
+import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
 import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { format } from 'date-fns'
-import { Edit, MapPin } from 'lucide-react'
+import { Edit, EllipsisVertical, MapPin, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useRef } from 'react'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -20,6 +25,7 @@ export default function ContactDetail() {
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
+  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
 
   const config = {
     apiUrl: apiUrl!,
@@ -30,6 +36,33 @@ export default function ContactDetail() {
   const { data: contact, isLoading } = useContactDetail(config, params.id!, {
     enabled: !!params.id && !!token,
   })
+
+  const { mutate: deleteContact, isPending: isDeleting } = useDeleteContact(config, {
+    onSuccess: () => {
+      deleteConfirmationRef.current?.close()
+      navigate('/contacts')
+    },
+  })
+
+  const handleDelete = useCallback(() => {
+    if (!params.id) return
+
+    deleteConfirmationRef.current?.open({
+      title: 'Remove Contact',
+      description: `This will remove "${contact?.email}" from your contacts. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+        await deleteContact(params.id!)
+      },
+      isLoading: false,
+    })
+  }, [params.id, contact?.email, deleteContact])
+
+  useEffect(() => {
+    if (isDeleting) {
+      deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+    }
+  }, [isDeleting])
 
   if (isLoading) {
     return <AppPreloader />
@@ -66,12 +99,29 @@ export default function ContactDetail() {
                     {contact.is_active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/contacts/${params.id}/edit`)}>
-                  <Edit /> Edit
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button size="icon" variant="ghost" className="px-0">
+                      <EllipsisVertical size={18} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" side="left" className="w-40 p-2">
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      onClick={() => navigate(`/contacts/${params.id}/edit`)}>
+                      <Edit size={18} />
+                      <span>Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={handleDelete}>
+                      <Trash2 size={18} />
+                      <span>Delete</span>
+                    </Button>
+                  </PopoverContent>
+                </Popover>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 px-6 pt-4">
@@ -201,6 +251,8 @@ export default function ContactDetail() {
           </Card>
         </div>
       </div>
+
+      <DeleteConfirmation ref={deleteConfirmationRef} />
     </div>
   )
 }

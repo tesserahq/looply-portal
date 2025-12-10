@@ -1,4 +1,3 @@
-import { useApp } from '@/context/AppContext'
 import { Button } from '@/modules/shadcn/ui/button'
 import {
   ContactListFormData,
@@ -24,7 +23,6 @@ export const ContactListForm = ({
   submitLabel = 'Save',
 }: ContactListFormProps) => {
   const navigate = useNavigate()
-  const { token } = useApp()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const title = defaultValues?.id ? 'Edit Contact List' : 'New Contact List'
@@ -48,8 +46,6 @@ export const ContactListForm = ({
       schema={contactListFormSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}>
-      <input type="hidden" name="token" value={token!} />
-      {defaultValues?.id && <input type="hidden" name="id" value={defaultValues.id} />}
       <FormLayout title={title}>
         <Form.Input
           field="name"

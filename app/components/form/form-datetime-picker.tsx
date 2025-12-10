@@ -114,7 +114,7 @@ export const FormDateTimePicker = ({
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex-1 justify-start text-left font-normal',
+                        'flex-1 justify-start rounded text-left font-normal',
                         !dateValue && 'text-muted-foreground',
                       )}
                       type="button">

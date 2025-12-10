@@ -151,7 +151,7 @@ export default function ContactLists() {
                   <Ellipsis size={18} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="start" side="right" className="w-44 p-2">
+              <PopoverContent align="start" side="right" className="w-40 p-2">
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"

@@ -1,12 +1,11 @@
-import { useApp } from '@/context/AppContext'
 import { Button } from '@/modules/shadcn/ui/button'
 import { Card, CardContent } from '@/modules/shadcn/ui/card'
 import {
   contactFormSchema,
   ContactFormValue,
 } from '@/resources/queries/contacts/contact.schema'
-import { formValuesToContactData } from '@/resources/queries/contacts/contact.utils'
 import { ContactFormData } from '@/resources/queries/contacts/contact.type'
+import { formValuesToContactData } from '@/resources/queries/contacts/contact.utils'
 import { useNavigate } from '@remix-run/react'
 import { Combobox, type ComboboxOption } from '@shadcn/ui/Combobox'
 import { Loader2 } from 'lucide-react'
@@ -90,7 +89,6 @@ export const ContactForm = ({
   submitLabel = 'Save',
 }: ContactFormProps) => {
   const navigate = useNavigate()
-  const { token } = useApp()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [selectedCountry, setSelectedCountry] = useReactState<ComboboxOption<Country>>()
   const [selectedState, setSelectedState] = useReactState<ComboboxOption<State>>()
@@ -239,8 +237,6 @@ export const ContactForm = ({
       schema={contactFormSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}>
-      <input type="hidden" name="token" value={token!} />
-      {defaultValues?.id && <input type="hidden" name="id" value={defaultValues.id} />}
       <FormLayout title={title}>
         <h2 className="mb-3 text-lg font-medium">General</h2>
         <Card className="shadow-none">

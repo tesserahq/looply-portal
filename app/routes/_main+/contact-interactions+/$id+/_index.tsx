@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DateTime } from '@/components/datetime'
-import EmptyContent from '@/components/empty-content/empty-content'
-import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,
 } from '@/components/delete-confirmation/delete-confirmation'
+import EmptyContent from '@/components/empty-content/empty-content'
+import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
 import {
   useContactInteractionDetail,
@@ -14,7 +14,8 @@ import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
-import { Edit } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 
 export function loader() {
@@ -47,7 +48,7 @@ export default function ContactInteractionDetail() {
       },
     })
 
-  const handleDeleteClick = useCallback(() => {
+  const handleDelete = useCallback(() => {
     if (!id) return
 
     deleteConfirmationRef.current?.open({
@@ -101,22 +102,29 @@ export default function ContactInteractionDetail() {
             <CardTitle className="text-xl font-bold lg:text-3xl">
               Contact Interaction Details
             </CardTitle>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/contact-interactions/${id}/edit`)}>
-                <Edit /> Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDeleteClick}
-                aria-label="Delete contact interaction"
-                tabIndex={0}>
-                Delete
-              </Button>
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <EllipsisVertical size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="left" className="w-40 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/contact-interactions/${id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={handleDelete}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
@@ -139,6 +147,16 @@ export default function ContactInteractionDetail() {
                 </Badge>
               </dd>
             </div>
+            {interaction.custom_action_description && (
+              <div className="d-item">
+                <dt className="d-label">Action Description</dt>
+                <dd className="d-content">
+                  <p className="whitespace-pre-wrap text-sm">
+                    {interaction.custom_action_description}
+                  </p>
+                </dd>
+              </div>
+            )}
             <div className="d-item">
               <dt className="d-label">Interaction Time</dt>
               <dd className="d-content">

@@ -21,6 +21,7 @@ import {
   useAddWaitingListMembers,
   useUpdateWaitingListMemberStatus,
   useBulkUpdateWaitingListMemberStatus,
+  useDeleteWaitingList,
 } from '@/resources/hooks/waiting-lists'
 import {
   WaitingListMemberType,
@@ -30,7 +31,7 @@ import { cn } from '@/utils/misc'
 import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { ColumnDef, useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Edit, Ellipsis, Trash2 } from 'lucide-react'
+import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { ContactType } from '@/resources/queries/contacts'
 
@@ -48,6 +49,7 @@ export default function WaitingListDetail() {
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteWaitingListModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const newMemberRef = useRef<React.ElementRef<typeof NewMemberWaitingList>>(null)
   const updateMemberRef =
     useRef<React.ElementRef<typeof UpdateMemberWaitingListStatus>>(null)
@@ -175,6 +177,13 @@ export default function WaitingListDetail() {
     },
   )
 
+  const { mutate: deleteWaitingList } = useDeleteWaitingList(config, {
+    onSuccess: () => {
+      deleteWaitingListModalRef.current?.close()
+      navigate('/waiting-lists')
+    },
+  })
+
   const handleDelete = useCallback(
     (member: WaitingListMemberType | ContactType) => {
       deleteModalRef.current?.open({
@@ -225,6 +234,19 @@ export default function WaitingListDetail() {
     setMemberStatus(status)
     setRowSelection({})
   }, [])
+
+  const handleDeleteWaitingList = useCallback(() => {
+    if (!waitingList) return
+
+    deleteWaitingListModalRef.current?.open({
+      title: 'Remove Waiting List',
+      description: `This will remove "${waitingList.name}" from your waiting lists. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteWaitingListModalRef.current?.updateConfig({ isLoading: true })
+        await deleteWaitingList(waitingListId)
+      },
+    })
+  }, [waitingList, waitingListId, deleteWaitingList])
 
   // Memoized columns definition with optimized cell renderers
   const columns: ColumnDef<WaitingListMemberType | ContactType>[] = useMemo(
@@ -347,10 +369,10 @@ export default function WaitingListDetail() {
                   className="px-0 hover:bg-transparent"
                   aria-label="Open actions"
                   tabIndex={0}>
-                  <Ellipsis size={18} />
+                  <EllipsisVertical size={18} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="start" side="left" className="w-44 space-y-1 p-2">
+              <PopoverContent align="start" side="left" className="w-40 space-y-1 p-2">
                 {isMember && status && (
                   <Button
                     variant="ghost"
@@ -464,12 +486,29 @@ export default function WaitingListDetail() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-3xl">Waiting List Details</h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/waiting-lists/${params.id}/edit`)}>
-              <Edit /> Edit
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="ghost" className="px-0">
+                  <EllipsisVertical size={18} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="left" className="w-40 p-2">
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/waiting-lists/${params.id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={handleDeleteWaitingList}>
+                  <Trash2 size={18} />
+                  <span>Delete</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
@@ -565,6 +604,7 @@ export default function WaitingListDetail() {
 
       <DeleteConfirmation ref={deleteModalRef} />
       <DeleteConfirmation ref={deleteAllModalRef} />
+      <DeleteConfirmation ref={deleteWaitingListModalRef} />
 
       <NewMemberWaitingList
         ref={newMemberRef}

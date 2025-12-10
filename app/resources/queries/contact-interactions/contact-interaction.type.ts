@@ -13,6 +13,7 @@ export type ContactInteractionType = {
   created_by_id: string
   created_at: string
   updated_at: string
+  custom_action_description?: string
 }
 
 /**
@@ -24,6 +25,7 @@ export type ContactInteractionFormData = {
   interaction_timestamp: string
   action: string
   action_timestamp: string
+  custom_action_description?: string
 }
 
 /**

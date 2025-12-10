@@ -20,6 +20,9 @@ export function contactInteractionToFormValues(
     created_by_id: contact.created_by_id,
     created_at: contact.created_at,
     updated_at: contact.updated_at,
+    ...(contact.custom_action_description && {
+      custom_action_description: contact.custom_action_description,
+    }),
   }
 }
 
@@ -35,5 +38,8 @@ export function formValuesToContactInteractionData(
     interaction_timestamp: formValues.interaction_timestamp,
     action: formValues.action,
     action_timestamp: formValues.action_timestamp,
+    ...(formValues.custom_action_description && {
+      custom_action_description: formValues.custom_action_description,
+    }),
   }
 }

@@ -12,7 +12,7 @@ import {
 import { ContactInteractionType } from '@/resources/queries/contact-interactions'
 import { ensureCanonicalPagination } from '@/utils/pagination.server'
 import type { LoaderFunctionArgs } from '@remix-run/node'
-import { useLoaderData, useNavigate } from '@remix-run/react'
+import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
@@ -81,12 +81,17 @@ export default function ContactInteractions() {
     () => [
       {
         accessorKey: 'note',
-        header: 'Note',
-        // size: 400,
+        header: 'Notes',
         cell: ({ row }) => {
-          const { note } = row.original
+          const { note, id } = row.original
           if (!note) return <span className="text-muted-foreground">-</span>
-          return <span className="line-clamp-2 text-sm">{note}</span>
+          return (
+            <div className="inline">
+              <Link to={`/contact-interactions/${id}`} className="button-link">
+                <span className="line-clamp-2 text-sm">{note}</span>
+              </Link>
+            </div>
+          )
         },
       },
       {
@@ -146,7 +151,7 @@ export default function ContactInteractions() {
                   <Ellipsis size={18} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="start" side="right" className="w-44 p-2">
+              <PopoverContent align="start" side="right" className="w-40 p-2">
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"

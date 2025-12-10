@@ -13,6 +13,7 @@ const baseContactInteractionSchema = z.object({
   interaction_timestamp: z.string().min(1, 'Interaction timestamp is required'),
   action: z.string().min(1, 'Action is required'),
   action_timestamp: z.string().min(1, 'Action timestamp is required'),
+  custom_action_description: z.string().optional(),
 })
 
 /**
@@ -75,6 +76,7 @@ export const contactInteractionFormSchema = z.object({
   interaction_timestamp: z.string().min(1, 'Interaction timestamp is required'),
   action: z.string().min(1, 'Action is required'),
   action_timestamp: z.string().min(1, 'Action timestamp is required'),
+  custom_action_description: z.string().optional(),
   created_by_id: z.string().optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
@@ -89,7 +91,7 @@ export const defaultContactInteractionFormValues: ContactInteractionFormValue = 
   id: '',
   contact_id: '',
   note: '',
-  interaction_timestamp: '',
+  interaction_timestamp: new Date().toISOString(),
   action: '',
   action_timestamp: '',
 }
