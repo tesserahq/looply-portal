@@ -225,7 +225,6 @@ export const ContactForm = ({
         city: selectedCity?.data?.name || data.city || '',
       }
       const contactData = formValuesToContactData(formDataWithLocation)
-      console.log('contactData', contactData)
 
       await onSubmit(contactData)
     } catch (error) {

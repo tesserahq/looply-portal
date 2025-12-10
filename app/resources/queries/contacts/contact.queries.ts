@@ -57,8 +57,6 @@ export async function createContact(config: ContactQueryConfig, data: CreateCont
     body: JSON.stringify(data),
   })
 
-  console.log('response create contact', response)
-
   return response as ContactType
 }
 

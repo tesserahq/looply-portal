@@ -7,7 +7,6 @@ import {
 import {
   ContactListMemberQueryConfig,
   AddContactListMembersData,
-  ContactListMemberType,
 } from '@/resources/queries/contact-lists/contact-list-member.type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -192,4 +191,3 @@ export function useRemoveAllContactListMembers(
     },
   })
 }
-

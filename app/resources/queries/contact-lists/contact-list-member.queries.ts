@@ -3,7 +3,6 @@ import {
   ContactListMemberQueryConfig,
   ContactListMembersResponse,
   AddContactListMembersData,
-  ContactListMemberType,
 } from './contact-list-member.type'
 
 /**
@@ -89,4 +88,3 @@ export async function removeAllContactListMembers(
 
   return response
 }
-
