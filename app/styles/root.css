@@ -351,3 +351,12 @@ nav.header .header-container {
 .page-title {
   @apply text-[1.85rem] font-bold dark:text-foreground;
 }
+
+input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(175deg);
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}

@@ -11,7 +11,7 @@ import { Button } from '@/modules/shadcn/ui/button'
 import { Calendar } from '@/modules/shadcn/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { Input } from '@/modules/shadcn/ui/input'
-import { CalendarIcon, Clock } from 'lucide-react'
+import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/utils/misc'
 import { useState } from 'react'
@@ -40,7 +40,7 @@ export const FormDateTimePicker = ({
   hideError = false,
   placeholder = 'Pick a date and time',
   dateFormat = 'PPP',
-  timeFormat = 'HH:mm',
+  timeFormat = 'hh:mm',
   disabled = false,
   rules,
 }: FormDateTimePickerProps) => {
@@ -137,7 +137,6 @@ export const FormDateTimePicker = ({
                   </PopoverContent>
                 </Popover>
                 <div className="relative flex-1">
-                  <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     type="time"
                     value={timeValue}
