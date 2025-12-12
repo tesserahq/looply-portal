@@ -1,22 +1,23 @@
-import { AppPreloader } from '@/components/loader/pre-loader'
 import { DataTable } from '@/components/data-table'
-import EmptyContent from '@/components/empty-content/empty-content'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
-import { Badge } from '@shadcn/ui/badge'
-import { Button } from '@shadcn/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import ContactInteractionShortcut from '@/components/dialog/contact-interaction-shorcut'
+import EmptyContent from '@/components/empty-content/empty-content'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import NewButton from '@/components/new-button/new-button'
 import { useApp } from '@/context/AppContext'
+import useDebounce from '@/hooks/useDebounce'
 import { useContacts, useDeleteContact } from '@/resources/hooks/contacts'
 import { ContactType } from '@/resources/queries/contacts/contact.type'
 import { ensureCanonicalPagination } from '@/utils/pagination.server'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData, useNavigate, useSearchParams } from '@remix-run/react'
-import type { ColumnDef } from '@tanstack/react-table'
-import { Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
-import { useCallback, useMemo, useRef, useState } from 'react'
-import NewButton from '@/components/new-button/new-button'
+import { Badge } from '@shadcn/ui/badge'
+import { Button } from '@shadcn/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@shadcn/ui/input-group'
-import useDebounce from '@/hooks/useDebounce'
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import type { ColumnDef } from '@tanstack/react-table'
+import { Contact, Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -37,8 +38,11 @@ export default function Contacts() {
   const { token } = useApp()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [search, setSearch] = useState<string>(searchParams.get('q') || '')
+  const [contactSearch, setContactSearch] = useState<string>(searchParams.get('q') || '')
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const contactInteractionRef =
+    useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
   const config = {
     nodeEnv,
@@ -46,14 +50,12 @@ export default function Contacts() {
     token: token!,
   }
 
-  const searchQuery = search && search.trim() !== '' ? search : undefined
-
   const { data, isLoading } = useContacts(
     config,
     {
       page,
       size,
-      q: searchQuery,
+      ...(debouncedSearch.length >= 3 && { q: debouncedSearch }),
     },
     {
       enabled: !!token,
@@ -80,24 +82,28 @@ export default function Contacts() {
     [deleteContact],
   )
 
-  const handleSearch = (searchValue: string) => {
-    setSearch(searchValue)
-    if (searchValue.trim() === '') {
-      searchParams.delete('q')
-      setSearchParams(searchParams)
-    } else {
-      searchParams.set('q', searchValue)
-      setSearchParams(searchParams)
-    }
+  const handleSearchChange = (search: string) => {
+    setContactSearch(search)
   }
 
-  // Debounced search - only triggers when user types (not on initial load)
+  // Debounce search query - only trigger API call when search is >= 3 characters
   useDebounce(
     () => {
-      // Search is handled by the query hook
+      if (contactSearch.length >= 3) {
+        setDebouncedSearch(contactSearch)
+        // setSearchParams({ q: contactSearch })
+        searchParams.set('q', contactSearch)
+        setSearchParams(searchParams)
+      } else {
+        // Clear search query if less than 3 characters
+        setDebouncedSearch('')
+        searchParams.delete('q')
+        setSearchParams(searchParams)
+        // setSearchParams({ q: '' })
+      }
     },
-    [search],
-    500,
+    [contactSearch],
+    300,
   )
 
   const hasSearchQuery = useMemo(() => {
@@ -220,6 +226,13 @@ export default function Contacts() {
                 </Button>
                 <Button
                   variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => contactInteractionRef.current?.onOpen(row.original)}>
+                  <Contact size={18} />
+                  <span>Interaction</span>
+                </Button>
+                <Button
+                  variant="ghost"
                   className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
                   onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
@@ -234,7 +247,7 @@ export default function Contacts() {
     [navigate, handleDelete],
   )
 
-  if (isLoading) {
+  if (isLoading && contactSearch === '') {
     return <AppPreloader />
   }
 
@@ -266,19 +279,19 @@ export default function Contacts() {
             <InputGroup className="max-w-96 bg-white dark:bg-card">
               <InputGroupInput
                 placeholder="Search contacts"
-                value={search}
-                onChange={(e) => handleSearch(e.target.value)}
+                value={contactSearch}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <InputGroupAddon>
                 <Search />
               </InputGroupAddon>
-              {search && (
+              {contactSearch && (
                 <InputGroupAddon align="inline-end">
                   <Button
                     variant="ghost"
                     size="icon"
                     className="hover:bg-transparent"
-                    onClick={() => setSearch('')}>
+                    onClick={() => handleSearchChange('')}>
                     <X />
                   </Button>
                 </InputGroupAddon>
@@ -311,6 +324,11 @@ export default function Contacts() {
       )}
 
       <DeleteConfirmation ref={deleteModalRef} />
+      <ContactInteractionShortcut
+        ref={contactInteractionRef}
+        apiUrl={apiUrl!}
+        nodeEnv={nodeEnv!}
+      />
     </div>
   )
 }

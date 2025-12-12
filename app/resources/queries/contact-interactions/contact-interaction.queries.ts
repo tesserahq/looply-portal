@@ -81,6 +81,7 @@ export async function createContactInteraction(
     interaction_timestamp: data.interaction_timestamp,
     action: data.action,
     action_timestamp: data.action_timestamp,
+    custom_action_description: data.custom_action_description,
   }
 
   const response = await fetchApi(
