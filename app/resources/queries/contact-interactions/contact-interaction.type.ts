@@ -8,11 +8,11 @@ export type ContactInteractionType = {
   contact_id: string
   note: string
   interaction_timestamp: string
-  action: string
-  action_timestamp: string
   created_by_id: string
   created_at: string
   updated_at: string
+  action_timestamp?: string
+  action?: string
   custom_action_description?: string
 }
 
@@ -24,7 +24,7 @@ export type ContactInteractionFormData = {
   note: string
   interaction_timestamp: string
   action: string
-  action_timestamp: string
+  action_timestamp?: string
   custom_action_description?: string
 }
 

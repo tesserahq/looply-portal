@@ -1,7 +1,5 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
-import DeleteConfirmation, {
-  type DeleteConfirmationHandle,
-} from '@/components/delete-confirmation/delete-confirmation'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { useApp } from '@/context/AppContext'
 import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
 import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
@@ -10,8 +8,9 @@ import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { format } from 'date-fns'
-import { Edit, EllipsisVertical, MapPin, Trash2 } from 'lucide-react'
+import { Contact, Edit, EllipsisVertical, MapPin, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
+import ContactInteractionShortcut from '@/components/dialog/contact-interaction-shorcut'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -25,7 +24,9 @@ export default function ContactDetail() {
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
-  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
+  const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const contactInteractionRef =
+    useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
   const config = {
     apiUrl: apiUrl!,
@@ -39,7 +40,7 @@ export default function ContactDetail() {
 
   const { mutate: deleteContact, isPending: isDeleting } = useDeleteContact(config, {
     onSuccess: () => {
-      deleteConfirmationRef.current?.close()
+      deleteModalRef.current?.close()
       navigate('/contacts')
     },
   })
@@ -47,11 +48,11 @@ export default function ContactDetail() {
   const handleDelete = useCallback(() => {
     if (!params.id) return
 
-    deleteConfirmationRef.current?.open({
+    deleteModalRef.current?.open({
       title: 'Remove Contact',
       description: `This will remove "${contact?.email}" from your contacts. This action cannot be undone.`,
       onDelete: async () => {
-        deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+        deleteModalRef.current?.updateConfig({ isLoading: true })
         await deleteContact(params.id!)
       },
       isLoading: false,
@@ -60,7 +61,7 @@ export default function ContactDetail() {
 
   useEffect(() => {
     if (isDeleting) {
-      deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+      deleteModalRef.current?.updateConfig({ isLoading: true })
     }
   }, [isDeleting])
 
@@ -95,9 +96,6 @@ export default function ContactDetail() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center justify-start gap-3">
                   <h1 className="text-xl font-bold lg:text-3xl">Contact Details</h1>
-                  <Badge variant="outline">
-                    {contact.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -115,6 +113,15 @@ export default function ContactDetail() {
                     </Button>
                     <Button
                       variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      onClick={() => {
+                        contactInteractionRef.current?.onOpen(contact)
+                      }}>
+                      <Contact size={18} />
+                      <span>Interaction</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
                       className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
                       onClick={handleDelete}>
                       <Trash2 size={18} />
@@ -129,6 +136,14 @@ export default function ContactDetail() {
                 <div className="d-item">
                   <dt className="d-label">Email</dt>
                   <dd className="d-content">{contact.email}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">State</dt>
+                  <dd className="d-content">
+                    <Badge variant={contact?.is_active ? 'active' : 'outline'}>
+                      {contact.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </dd>
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Full Name</dt>
@@ -252,7 +267,12 @@ export default function ContactDetail() {
         </div>
       </div>
 
-      <DeleteConfirmation ref={deleteConfirmationRef} />
+      <DeleteConfirmation ref={deleteModalRef} />
+      <ContactInteractionShortcut
+        ref={contactInteractionRef}
+        apiUrl={apiUrl!}
+        nodeEnv={nodeEnv}
+      />
     </div>
   )
 }

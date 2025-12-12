@@ -20,6 +20,8 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 import NewButton from '@/components/new-button/new-button'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/modules/shadcn/ui/tooltip'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -98,12 +100,24 @@ export default function ContactInteractions() {
         accessorKey: 'action',
         header: 'Action',
         cell: ({ row }) => {
-          const { action } = row.original
-          return (
-            <Badge variant="outline" className="capitalize">
-              {action || '-'}
-            </Badge>
-          )
+          const { action, custom_action_description } = row.original
+
+          if (action === 'custom') {
+            return (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge variant="outline">{action}</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span>{custom_action_description || '-'}</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )
+          }
+
+          return action ? <Badge variant="outline">{action}</Badge> : '-'
         },
       },
       {

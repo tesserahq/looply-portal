@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DateTime } from '@/components/datetime'
-import DeleteConfirmation, {
-  type DeleteConfirmationHandle,
-} from '@/components/delete-confirmation/delete-confirmation'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
@@ -30,7 +28,8 @@ export default function ContactInteractionDetail() {
   const { token } = useApp()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
+  const deleteConfirmationRef =
+    useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
 
   const config = {
     apiUrl: apiUrl!,
