@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext'
 import '@/styles/sidebar.css'
 import { cn } from '@/utils/misc'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import { BookUser, History, SquareUser, Users2 } from 'lucide-react'
+import { BookUser, Contact, SquareUser, Users2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { IMenuItemProps } from '@/components/layouts/sidebar/types'
 
@@ -43,7 +43,7 @@ export default function Layout() {
       {
         title: 'Contact Interactions',
         path: `/contact-interactions`,
-        icon: <History size={18} />,
+        icon: <Contact size={18} />,
       },
     ],
     [],

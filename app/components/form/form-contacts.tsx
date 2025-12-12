@@ -74,7 +74,7 @@ const ContactSelect = ({
       ...(debouncedSearch.length >= 3 && { q: debouncedSearch }),
     },
     {
-      enabled: open, // Only fetch when dialog is open
+      enabled: open || value !== '', // Only fetch when dialog is open or value is set
     },
   )
 
