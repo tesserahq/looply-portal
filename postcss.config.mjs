@@ -1,9 +1,6 @@
 export default {
   plugins: {
-    // Support for nested declarations.
-    // See: https://tailwindcss.com/docs/using-with-preprocessors#nesting
-    'tailwindcss/nesting': {},
-    tailwindcss: {},
-    autoprefixer: {},
+    // Tailwind CSS v4 requires @tailwindcss/postcss plugin
+    '@tailwindcss/postcss': {},
   },
 }
