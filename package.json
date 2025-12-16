@@ -76,7 +76,7 @@
     "remix-utils": "7.0.0-pre.4",
     "shiki": "^3.4.2",
     "sonner": "^1.7.2",
-    "tailwind-merge": "^2.6.0",
+    "tailwind-merge": "^3.0.0",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "4.19.0",
     "zod": "^4.0.0"
