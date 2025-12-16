@@ -34,7 +34,7 @@ export const ContactListForm = ({
     try {
       const contactListData = formValuesToContactListData(data)
       await onSubmit(contactListData)
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)
