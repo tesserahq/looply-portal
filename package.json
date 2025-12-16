@@ -75,7 +75,7 @@
     "remix-i18next": "^6.4.1",
     "remix-utils": "7.0.0-pre.4",
     "shiki": "^3.4.2",
-    "sonner": "^1.7.2",
+    "sonner": "^2.0.0",
     "tailwind-merge": "^3.0.0",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "4.19.0",
