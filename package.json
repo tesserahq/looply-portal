@@ -72,7 +72,7 @@
     "remark-gfm": "^4.0.1",
     "remix-auth-github": "^2.0.0",
     "remix-auth-totp": "^3.4.2",
-    "remix-i18next": "^6.4.1",
+    "remix-i18next": "^7.0.0",
     "remix-utils": "9.0.0",
     "shiki": "^3.4.2",
     "sonner": "^2.0.0",
