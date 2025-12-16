@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@config '../../tailwind.config.ts';
+@import 'tailwindcss';
 
 html,
 body {
@@ -139,7 +138,7 @@ body {
 
 /* Sidebar */
 .main-sidebar {
-  @apply fixed left-0 top-0 z-40 h-full w-[var(--main-sidebar-width)] shrink-0 -translate-x-full transform-gpu transition-transform duration-200 ease-in md:z-[60] md:translate-x-0;
+  @apply fixed top-0 left-0 z-40 h-full w-[var(--main-sidebar-width)] shrink-0 -translate-x-full transform-gpu transition-transform duration-200 ease-in md:z-[60] md:translate-x-0;
 }
 
 .is-sidebar-open .main-sidebar {
@@ -147,7 +146,7 @@ body {
 }
 
 .sidebar-panel {
-  @apply fixed left-0 top-[61px] z-30 h-full w-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))] -translate-x-full transform-gpu transition-transform delay-150 duration-200 ease-in dark:shadow-navy-900/60 md:animate-slide-right md:delay-0;
+  @apply dark:shadow-navy-900/60 md:animate-slide-right fixed top-[61px] left-0 z-30 h-full w-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))] -translate-x-full transform-gpu transition-transform delay-150 duration-200 ease-in md:delay-0;
 }
 
 .is-sidebar-open .sidebar-panel {
@@ -155,7 +154,7 @@ body {
 }
 
 .sidebar-panel-min {
-  @apply fixed top-[61px] z-40 h-full w-[var(--sidebar-panel-min-width)] shrink-0 -translate-x-full transform-gpu border-r border-solid border-gray-200 transition-transform duration-200 ease-in dark:border-gray-700 dark:shadow-navy-900/60 md:translate-x-[var(--main-sidebar-width)];
+  @apply dark:shadow-navy-900/60 fixed top-[61px] z-40 h-full w-[var(--sidebar-panel-min-width)] shrink-0 -translate-x-full transform-gpu border-r border-solid border-gray-200 transition-transform duration-200 ease-in md:translate-x-[var(--main-sidebar-width)] dark:border-gray-700;
 }
 
 .is-sidebar-open .sidebar-panel-min {
@@ -164,7 +163,7 @@ body {
 
 /* Header */
 nav.header {
-  @apply fixed right-0 top-0 z-20 flex h-[61px] w-full border-b border-border bg-white transition-all duration-200 dark:border-navy-700 dark:bg-background md:w-[calc(100%-var(--main-sidebar-width))];
+  @apply border-border dark:border-navy-700 dark:bg-background fixed top-0 right-0 z-20 flex h-[61px] w-full border-b bg-white transition-all duration-200 md:w-[calc(100%-var(--main-sidebar-width))];
 }
 
 nav.header:before {
@@ -172,7 +171,7 @@ nav.header:before {
 }
 
 nav.header .header-container {
-  @apply pl-3 pr-5 transition-[padding,width] duration-200 xl:pr-8;
+  @apply pr-5 pl-3 transition-[padding,width] duration-200 xl:pr-8;
 }
 
 /* .has-min-sidebar nav.header {
@@ -184,7 +183,7 @@ nav.header .header-container {
 } */
 
 .is-header-blur nav.header .header-container {
-  @apply backdrop-blur supports-[backdrop-filter]:bg-white dark:supports-[backdrop-filter]:bg-background;
+  @apply dark:supports-[backdrop-filter]:bg-background backdrop-blur supports-[backdrop-filter]:bg-white;
 }
 
 .is-header-not-sticky nav.header {
@@ -193,7 +192,7 @@ nav.header .header-container {
 
 /* Main content */
 .main-content {
-  @apply mt-[65px] bg-background px-3 pb-3 pt-6 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pl-11 lg:pr-8 print:m-0;
+  @apply bg-background mt-[65px] px-3 pt-6 pb-3 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pr-8 lg:pl-11 print:m-0;
 }
 
 .has-min-sidebar .main-content {
@@ -255,7 +254,7 @@ nav.header .header-container {
 
 /* Demo inline space */
 .inline-space > :not([hidden]) {
-  @apply mb-2.5 mr-2.5;
+  @apply mr-2.5 mb-2.5;
 }
 
 /* Scrollbar styles */
@@ -274,11 +273,11 @@ nav.header .header-container {
 
   .scrollbar-sm:hover::-webkit-scrollbar-thumb,
   .scrollbar-sm:focus-within::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-slate-300/80 dark:bg-navy-400;
+    @apply dark:bg-navy-400 rounded-full bg-slate-300/80;
   }
 
   .scrollbar-sm::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-navy-300;
+    @apply dark:bg-navy-300 bg-slate-400;
   }
 }
 
@@ -287,7 +286,7 @@ nav.header .header-container {
 }
 
 .d-list .d-item {
-  @apply flex items-center gap-1 border-b pb-2.5 dark:border-navy-400;
+  @apply dark:border-navy-400 flex items-center gap-1 border-b pb-2.5;
 }
 
 .d-list .d-item:last-child {
@@ -299,18 +298,18 @@ nav.header .header-container {
 }
 
 .d-list .d-item .d-label {
-  @apply min-w-32 max-w-48 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-secondary-foreground;
+  @apply text-secondary-foreground max-w-48 min-w-32 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap;
 }
 
 .d-list .d-item .d-content {
   word-break: break-all;
-  @apply line-clamp-1 flex items-center text-sm font-medium text-black dark:text-navy-50;
+  @apply dark:text-navy-50 line-clamp-1 flex items-center text-sm font-medium text-black;
 }
 
 /* app-preloader */
 .app-preloader .app-preloader-inner::after,
 .app-preloader .app-preloader-inner::before {
-  @apply absolute left-0 top-0 h-full w-full rounded-full bg-slate-300/[.25] content-[''] dark:bg-navy-300/50;
+  @apply dark:bg-navy-300/50 absolute top-0 left-0 h-full w-full rounded-full bg-slate-300/[.25] content-[''];
   animation: spinner-grow 3s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
 }
 
@@ -332,7 +331,7 @@ nav.header .header-container {
 }
 
 .button-link {
-  @apply font-medium hover:text-primary;
+  @apply hover:text-primary font-medium;
 }
 
 .no-scrollbar {
@@ -349,7 +348,7 @@ nav.header .header-container {
 }
 
 .page-title {
-  @apply text-[1.85rem] font-bold dark:text-foreground;
+  @apply dark:text-foreground text-[1.85rem] font-bold;
 }
 
 input[type='time']::-webkit-calendar-picker-indicator {

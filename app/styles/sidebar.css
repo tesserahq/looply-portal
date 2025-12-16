@@ -1,9 +1,11 @@
+@reference "./root.css";
+
 .sidebar .sidebar-panel {
   @apply border-r border-solid border-gray-200 dark:border-gray-700;
 }
 
 .sidebar .sidebar-header {
-  @apply flex h-[43px] w-full items-center pl-4 pr-4 pt-4 md:pr-1;
+  @apply flex h-[43px] w-full items-center pt-4 pr-4 pl-4 md:pr-1;
 }
 
 .sidebar .sidebar-header .avatar {
@@ -11,7 +13,7 @@
 }
 
 .sidebar .sidebar-header .brand-name {
-  @apply text-lg font-semibold tracking-wider text-slate-800 dark:text-navy-100;
+  @apply dark:text-navy-100 text-lg font-semibold tracking-wider text-slate-800;
 }
 
 .sidebar .sidebar-body {
@@ -19,27 +21,27 @@
 }
 
 .sidebar .sidebar-nav {
-  @apply space-y-1.5 px-2 font-inter text-sm;
+  @apply font-inter space-y-1.5 px-2 text-sm;
 }
 
 .sidebar .sidebar-nav li a {
-  @apply flex cursor-pointer items-center gap-2 space-x-2 px-3 py-2 font-medium tracking-wide text-navy-800 outline-none transition-all dark:text-navy-200;
+  @apply text-navy-800 dark:text-navy-200 flex cursor-pointer items-center gap-2 space-x-2 px-3 py-2 font-medium tracking-wide transition-all outline-none;
 }
 
 .sidebar .sidebar-nav li a:hover,
 .sidebar .sidebar-nav li a:focus {
-  @apply bg-slate-50 dark:bg-background;
+  @apply dark:bg-background bg-slate-50;
 }
 
 .sidebar .sidebar-nav li a.active,
 .sidebar .sidebar-nav li a:active,
 .sidebar .sidebar-nav li a.active:hover,
 .sidebar .sidebar-nav li a:active:hover {
-  @apply bg-accent font-semibold text-black dark:bg-accent dark:text-primary;
+  @apply bg-accent dark:bg-accent dark:text-primary font-semibold text-black;
 }
 
 .sidebar-switcher {
-  @apply flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm tracking-wide text-slate-800 outline-none transition-all dark:text-navy-100;
+  @apply dark:text-navy-100 flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm tracking-wide text-slate-800 transition-all outline-none;
 }
 
 /* @apply bg-primary/10 dark:hover:bg-primary dark:hover:text-slate-800; */
