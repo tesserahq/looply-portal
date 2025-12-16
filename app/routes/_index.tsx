@@ -32,7 +32,7 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/contacts" />
+    return <Navigate to="/overview" />
   }
 
   return (
