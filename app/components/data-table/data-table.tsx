@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        'relative flex flex-col overflow-hidden rounded border border-border bg-card',
+        'border-border bg-card relative flex flex-col overflow-hidden rounded border',
         fixed && 'h-[calc(100vh-10rem)]',
         hasFilter && 'h-[calc(100vh-13rem)]',
       )}>
@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className="py-3 font-semibold text-navy-800 dark:text-navy-100"
+                        className="text-navy-800 dark:text-navy-100 py-3 font-semibold"
                         style={{ width: header.column.columnDef.size }}>
                         {header.column.columnDef.header ? (
                           header.isPlaceholder ? null : (
@@ -125,11 +125,11 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="hover:bg-slate-50 dark:border-border dark:hover:bg-navy-600">
+                    className="dark:border-border dark:hover:bg-navy-600 hover:bg-slate-50">
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="py-1.5 ps-4 text-navy-800 dark:text-navy-100">
+                        className="text-navy-800 dark:text-navy-100 py-1.5 ps-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -148,7 +148,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       {meta?.size && (
-        <div className="sticky bottom-0 z-10 border-t border-input bg-card p-3 dark:bg-navy-800">
+        <div className="border-input bg-card dark:bg-navy-800 sticky bottom-0 z-10 border-t p-3">
           <Pagination meta={meta} />
         </div>
       )}

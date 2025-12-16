@@ -1,31 +1,123 @@
+import { DataTable } from '@/components/data-table'
+import { DateTime } from '@/components/datetime'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
+import ContactInteractionShortcut from '@/components/dialog/contact-interaction-shorcut'
+import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import DeleteConfirmation, {
-  type DeleteConfirmationHandle,
-} from '@/components/delete-confirmation/delete-confirmation'
+import NewButton from '@/components/new-button/new-button'
 import { useApp } from '@/context/AppContext'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/modules/shadcn/ui/tooltip'
+import { useContactInteractionsByContactId } from '@/resources/hooks/contact-interactions'
 import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
-import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { ContactInteractionType } from '@/resources/queries/contact-interactions'
+import { ensureCanonicalPagination } from '@/utils/pagination.server'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { Edit, EllipsisVertical, MapPin, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 
-export function loader() {
+const contactInteractionColumns: ColumnDef<ContactInteractionType>[] = [
+  {
+    accessorKey: 'note',
+    header: 'Notes',
+    cell: ({ row }) => {
+      const { note } = row.original
+      if (!note) return <span className="text-muted-foreground">-</span>
+      return (
+        <Link to={`/contact-interactions/${row.original.id}`} className="button-link">
+          <span className="line-clamp-2 text-sm">{note}</span>
+        </Link>
+      )
+    },
+  },
+  {
+    accessorKey: 'action',
+    header: 'Action',
+    size: 140,
+    cell: ({ row }) => {
+      const { action, custom_action_description } = row.original
+
+      if (action === 'custom') {
+        return (
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">
+                  <Badge variant="outline">{action}</Badge>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span>{custom_action_description || '-'}</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
+      }
+
+      return action ? <Badge variant="outline">{action}</Badge> : '-'
+    },
+  },
+  {
+    accessorKey: 'interaction_timestamp',
+    header: 'Interaction Time',
+    size: 150,
+    cell: ({ row }) => {
+      const { interaction_timestamp } = row.original
+      if (!interaction_timestamp) return <span className="text-muted-foreground">-</span>
+      return <DateTime date={interaction_timestamp} formatStr="PPpp" />
+    },
+  },
+  {
+    accessorKey: 'action_timestamp',
+    header: 'Action Time',
+    size: 150,
+    cell: ({ row }) => {
+      const { action_timestamp } = row.original
+      if (!action_timestamp) return <span className="text-muted-foreground">-</span>
+      return <DateTime date={action_timestamp} formatStr="PPpp" />
+    },
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Created At',
+    size: 150,
+    cell: ({ row }) => {
+      const { created_at } = row.original
+      if (!created_at) return <span className="text-muted-foreground">-</span>
+      return <DateTime date={created_at} />
+    },
+  },
+]
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const canonical = ensureCanonicalPagination(request, {
+    defaultSize: 25,
+    defaultPage: 1,
+  })
+
+  if (canonical instanceof Response) return canonical
+
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv }
+  return { apiUrl, nodeEnv, size: canonical.size, page: canonical.page }
 }
 
 export default function ContactDetail() {
-  const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
-  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
+  const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const contactInteractionRef =
+    useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
   const config = {
     apiUrl: apiUrl!,
@@ -37,9 +129,22 @@ export default function ContactDetail() {
     enabled: !!params.id && !!token,
   })
 
+  const { data: interactions, isLoading: isLoadingInteractions } =
+    useContactInteractionsByContactId(
+      config,
+      params.id!,
+      {
+        page,
+        size,
+      },
+      {
+        enabled: !!params.id && !!token,
+      },
+    )
+
   const { mutate: deleteContact, isPending: isDeleting } = useDeleteContact(config, {
     onSuccess: () => {
-      deleteConfirmationRef.current?.close()
+      deleteModalRef.current?.close()
       navigate('/contacts')
     },
   })
@@ -47,11 +152,11 @@ export default function ContactDetail() {
   const handleDelete = useCallback(() => {
     if (!params.id) return
 
-    deleteConfirmationRef.current?.open({
+    deleteModalRef.current?.open({
       title: 'Remove Contact',
       description: `This will remove "${contact?.email}" from your contacts. This action cannot be undone.`,
       onDelete: async () => {
-        deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+        deleteModalRef.current?.updateConfig({ isLoading: true })
         await deleteContact(params.id!)
       },
       isLoading: false,
@@ -60,7 +165,7 @@ export default function ContactDetail() {
 
   useEffect(() => {
     if (isDeleting) {
-      deleteConfirmationRef.current?.updateConfig({ isLoading: true })
+      deleteModalRef.current?.updateConfig({ isLoading: true })
     }
   }, [isDeleting])
 
@@ -70,7 +175,7 @@ export default function ContactDetail() {
 
   if (!contact) {
     return (
-      <div className="flex h-full animate-slide-up items-center justify-center">
+      <div className="animate-slide-up flex h-full items-center justify-center">
         <Card>
           <CardContent className="p-6">
             <p className="text-muted-foreground">Contact not found</p>
@@ -84,8 +189,10 @@ export default function ContactDetail() {
     .filter(Boolean)
     .join(' ')
 
+  const hasInteractions = Boolean(interactions?.items?.length)
+
   return (
-    <div className="flex h-full animate-slide-up flex-col gap-4">
+    <div className="animate-slide-up flex h-full flex-col gap-4">
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Main Contact Information */}
         <div className="space-y-5 lg:col-span-2">
@@ -95,9 +202,6 @@ export default function ContactDetail() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center justify-start gap-3">
                   <h1 className="text-xl font-bold lg:text-3xl">Contact Details</h1>
-                  <Badge variant="outline">
-                    {contact.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -115,7 +219,7 @@ export default function ContactDetail() {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                      className="hover:bg-destructive hover:text-destructive-foreground flex w-full justify-start gap-2"
                       onClick={handleDelete}>
                       <Trash2 size={18} />
                       <span>Delete</span>
@@ -129,6 +233,14 @@ export default function ContactDetail() {
                 <div className="d-item">
                   <dt className="d-label">Email</dt>
                   <dd className="d-content">{contact.email}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">State</dt>
+                  <dd className="d-content">
+                    <Badge variant={contact?.is_active ? 'active' : 'outline'}>
+                      {contact.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </dd>
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Full Name</dt>
@@ -201,6 +313,53 @@ export default function ContactDetail() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle>Interactions</CardTitle>
+                {hasInteractions && (
+                  <NewButton
+                    label="New Contact Interaction"
+                    onClick={() => {
+                      contactInteractionRef.current?.onOpen(contact)
+                    }}
+                  />
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {!hasInteractions && !isLoadingInteractions ? (
+                <div className="border-border rounded border border-dashed p-6">
+                  <EmptyContent
+                    image="/images/empty-contacts.svg"
+                    title="No interactions yet"
+                    description="Interactions for this contact will appear here once created">
+                    <Button
+                      variant="black"
+                      onClick={() => {
+                        contactInteractionRef.current?.onOpen(contact)
+                      }}>
+                      Create Interaction
+                    </Button>
+                  </EmptyContent>
+                </div>
+              ) : (
+                <DataTable
+                  columns={contactInteractionColumns}
+                  data={interactions?.items || []}
+                  meta={{
+                    page: interactions?.page || 1,
+                    pages: interactions?.pages || 1,
+                    size: interactions?.size || 1,
+                    total: interactions?.total || 0,
+                  }}
+                  fixed={false}
+                  isLoading={isLoadingInteractions}
+                />
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Address and Notes */}
@@ -218,7 +377,7 @@ export default function ContactDetail() {
               contact.country ||
               contact.zip_code ? (
                 <div className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 text-muted-foreground" size={20} />
+                  <MapPin className="text-muted-foreground mt-0.5" size={20} />
                   <div className="space-y-1">
                     {contact.address_line_1 && (
                       <p className="text-sm">{contact.address_line_1}</p>
@@ -240,19 +399,23 @@ export default function ContactDetail() {
           </Card>
 
           {/* Notes */}
-
           <Card>
             <CardHeader>
               <CardTitle>Notes</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="whitespace-pre-wrap text-sm">{contact.notes || 'N/A'}</p>
+              <p className="text-sm whitespace-pre-wrap">{contact.notes || 'N/A'}</p>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <DeleteConfirmation ref={deleteConfirmationRef} />
+      <DeleteConfirmation ref={deleteModalRef} />
+      <ContactInteractionShortcut
+        ref={contactInteractionRef}
+        apiUrl={apiUrl!}
+        nodeEnv={nodeEnv}
+      />
     </div>
   )
 }

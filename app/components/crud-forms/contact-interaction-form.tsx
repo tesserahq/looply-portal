@@ -76,7 +76,6 @@ export const ContactInteractionForm = ({
           field="action_timestamp"
           label="Next action on"
           placeholder="Pick date and time"
-          required
         />
 
         <Form.InteractionActions
@@ -85,7 +84,6 @@ export const ContactInteractionForm = ({
           apiUrl={apiUrl}
           token={token!}
           nodeEnv={nodeEnv}
-          required
         />
 
         <div className="mt-5 flex items-center justify-end gap-2">

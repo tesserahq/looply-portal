@@ -29,6 +29,33 @@ export async function fetchContactInteractions(
 }
 
 /**
+ * List interactions for a specific contact with pagination.
+ */
+export async function fetchContactInteractionsByContactId(
+  config: ContactInteractionQueryConfig,
+  contactId: string,
+  params: ContactInteractionQueryParams,
+) {
+  const { apiUrl, token, nodeEnv } = config
+  const { page, size } = params
+
+  const response = await fetchApi(
+    `${apiUrl}/contacts/${contactId}/interactions`,
+    token,
+    nodeEnv,
+    {
+      method: 'GET',
+      pagination: {
+        page,
+        size,
+      },
+    },
+  )
+
+  return response as IPaging<ContactInteractionType>
+}
+
+/**
  * Get a contact interaction by ID.
  */
 
@@ -81,6 +108,7 @@ export async function createContactInteraction(
     interaction_timestamp: data.interaction_timestamp,
     action: data.action,
     action_timestamp: data.action_timestamp,
+    custom_action_description: data.custom_action_description,
   }
 
   const response = await fetchApi(

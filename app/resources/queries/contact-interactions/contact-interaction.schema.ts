@@ -74,8 +74,8 @@ export const contactInteractionFormSchema = z.object({
   contact_id: z.string().min(1, 'Contact is required'),
   note: z.string().min(1, 'Note is required'),
   interaction_timestamp: z.string().min(1, 'Interaction timestamp is required'),
-  action: z.string().min(1, 'Action is required'),
-  action_timestamp: z.string().min(1, 'Action timestamp is required'),
+  action: z.string().optional(),
+  action_timestamp: z.string().optional(),
   custom_action_description: z.string().optional(),
   created_by_id: z.string().optional(),
   created_at: z.string().optional(),
@@ -94,6 +94,7 @@ export const defaultContactInteractionFormValues: ContactInteractionFormValue = 
   interaction_timestamp: new Date().toISOString(),
   action: '',
   action_timestamp: '',
+  custom_action_description: '',
 }
 
 // ============================================================================
@@ -118,7 +119,7 @@ export type BulkContactInteractionOperationInput = z.infer<
  */
 export const contactInteractionSchema = z.object({
   id: z.string(),
-  contact_id: z.string(),
+  contact_id: z.string().min(1, 'Contact is required'),
   note: z.string().min(1, 'Note is required'),
   interaction_timestamp: z.string(),
   action: z.string(),
