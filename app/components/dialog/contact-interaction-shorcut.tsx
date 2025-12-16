@@ -67,7 +67,7 @@ const ContactInteractionShortcut: React.ForwardRefRenderFunction<FuncProps, IPro
       const contactInteractionData = formValuesToContactInteractionData(data)
 
       await createContactInteraction(contactInteractionData)
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)
@@ -76,7 +76,7 @@ const ContactInteractionShortcut: React.ForwardRefRenderFunction<FuncProps, IPro
 
   const defaultValues = {
     ...defaultContactInteractionFormValues,
-    contact_id: contact?.id,
+    contact_id: contact?.id || '',
   }
 
   return (
@@ -121,7 +121,7 @@ const ContactInteractionShortcut: React.ForwardRefRenderFunction<FuncProps, IPro
               nodeEnv={nodeEnv}
             />
 
-            <div className="!mt-5 flex items-center justify-end gap-2">
+            <div className="mt-5! flex items-center justify-end gap-2">
               <Button variant="secondary" type="button" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
