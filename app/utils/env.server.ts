@@ -14,7 +14,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface ProcessEnv extends EnvSchema {
-      // Augment ProcessEnv with schema types
+      [key: string]: string | undefined
     }
   }
 }
