@@ -4,6 +4,7 @@ import {
   fetchContactInteractionActions,
   fetchContactInteractionDetail,
   fetchContactInteractions,
+  fetchContactInteractionsByContactId,
   updateContactInteraction,
 } from '@/resources/queries/contact-interactions/contact-interaction.queries'
 import {
@@ -38,6 +39,14 @@ export const contactInteractionQueryKeys = {
   lists: () => [...contactInteractionQueryKeys.all, 'list'] as const,
   list: (config: ContactInteractionQueryConfig) =>
     [...contactInteractionQueryKeys.lists(), config] as const,
+  byContactLists: () =>
+    [...contactInteractionQueryKeys.all, 'by-contact', 'list'] as const,
+  byContactList: (
+    config: ContactInteractionQueryConfig,
+    contactId: string,
+    params: ContactInteractionQueryParams,
+  ) =>
+    [...contactInteractionQueryKeys.byContactLists(), config, contactId, params] as const,
   details: () => [...contactInteractionQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...contactInteractionQueryKeys.details(), id] as const,
   actions: () => [...contactInteractionQueryKeys.all, 'action'] as const,
@@ -62,7 +71,7 @@ export function useContactInteractions(
   }
 
   return useQuery({
-    queryKey: contactInteractionQueryKeys.list(config),
+    queryKey: [...contactInteractionQueryKeys.list(config), params] as const,
     queryFn: async () => {
       try {
         return await fetchContactInteractions(config, params)
@@ -72,6 +81,43 @@ export function useContactInteractions(
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false,
+  })
+}
+
+/**
+ * Hook for fetching paginated contact interactions for a specific contact
+ * @config - Contact interaction query configuration
+ * @contactId - Contact ID
+ * @params - pagination params
+ * @options - query options
+ */
+export function useContactInteractionsByContactId(
+  config: ContactInteractionQueryConfig,
+  contactId: string,
+  params: ContactInteractionQueryParams,
+  options?: {
+    enabled?: boolean
+    staleTime?: number
+  },
+) {
+  const isEnabled =
+    options?.enabled !== false && Boolean(config.token) && Boolean(contactId) && !!params
+
+  return useQuery({
+    queryKey: contactInteractionQueryKeys.byContactList(config, contactId, params),
+    queryFn: async () => {
+      try {
+        return await fetchContactInteractionsByContactId(config, contactId, params)
+      } catch (error) {
+        throw new QueryError(
+          'Failed to fetch contact interactions for contact',
+          'FETCH_ERROR',
+          error,
+        )
+      }
+    },
+    staleTime: options?.staleTime || 5 * 60 * 1000,
+    enabled: isEnabled,
   })
 }
 
@@ -136,6 +182,9 @@ export function useCreateContactInteraction(
     onSuccess: (data) => {
       // Invalidate and refetch locations lists
       queryClient.invalidateQueries({ queryKey: contactInteractionQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: contactInteractionQueryKeys.byContactLists(),
+      })
 
       toast.success('Contact Interaction created successfully!')
 

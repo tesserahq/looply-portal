@@ -14,7 +14,7 @@ import { Loader2 } from 'lucide-react'
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { Form } from '../form'
 import { ContactInteractionType } from '@/resources/queries/contact-interactions/contact-interaction.type'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate, useParams } from '@remix-run/react'
 
 interface FuncProps {
   onOpen: (contact: ContactType) => void
@@ -31,6 +31,7 @@ const ContactInteractionShortcut: React.ForwardRefRenderFunction<FuncProps, IPro
   ref,
 ) => {
   const navigate = useNavigate()
+  const params = useParams<{ id: string }>()
   const [open, setOpen] = useState<boolean>(false)
   const [contact, setContact] = useState<ContactType | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -45,7 +46,11 @@ const ContactInteractionShortcut: React.ForwardRefRenderFunction<FuncProps, IPro
   // Mutation for create
   const { mutateAsync: createContactInteraction } = useCreateContactInteraction(config, {
     onSuccess: (interaction: ContactInteractionType) => {
-      navigate(`/contact-interactions/${interaction.id}`)
+      // if user created interaction from contact lists it will redirect to the interaction detail page
+      if (!params.id) {
+        navigate(`/contact-interactions/${interaction.id}`)
+      }
+
       setOpen(false)
     },
   })

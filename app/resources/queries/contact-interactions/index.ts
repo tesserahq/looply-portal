@@ -1,6 +1,7 @@
 // Query functions
 export {
   fetchContactInteractions,
+  fetchContactInteractionsByContactId,
   fetchContactInteractionDetail,
   fetchContactInteractionActions,
   createContactInteraction,
