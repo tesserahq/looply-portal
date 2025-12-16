@@ -34,7 +34,7 @@ export const WaitingListForm = ({
     try {
       const waitingListData = formValuesToWaitingListData(data)
       await onSubmit(waitingListData)
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)

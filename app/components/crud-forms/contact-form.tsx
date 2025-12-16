@@ -225,7 +225,7 @@ export const ContactForm = ({
       const contactData = formValuesToContactData(formDataWithLocation)
 
       await onSubmit(contactData)
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)

@@ -75,7 +75,7 @@ const UpdateMemberWaitingListStatus: React.ForwardRefRenderFunction<FuncProps, I
       setContact(undefined)
       setContacts([])
       setIsBulk(false)
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)

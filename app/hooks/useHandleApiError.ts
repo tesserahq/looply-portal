@@ -41,7 +41,7 @@ export const useHandleApiError = () => {
         // For other errors, just show the error message
         toast.error(`${errorData.status} - ${errorData.error}`)
         return false
-      } catch (parseError) {
+      } catch {
         // If we can't parse the error, show the original error message
         toast.error((error as Error).message || 'An unexpected error occurred')
         return false

@@ -41,7 +41,7 @@ export const ContactInteractionForm = ({
     try {
       const contactInteractionData = formValuesToContactInteractionData(data)
       await onSubmit(contactInteractionData)
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)

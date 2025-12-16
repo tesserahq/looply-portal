@@ -84,7 +84,7 @@ const NewMemberContactList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
     try {
       await onAddMembers(contactIds)
       setContactIds([])
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)
