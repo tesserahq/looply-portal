@@ -90,7 +90,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
       await onAddMembers(contactIds, memberStatus || undefined)
       setContactIds([])
       setMemberStatus('')
-    } catch (error) {
+    } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)
