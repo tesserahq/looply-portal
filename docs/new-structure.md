@@ -41,10 +41,7 @@ const form = useForm<any>({
 - **Example**: In `waiting-list-form.tsx`, the form is clean and declarative:
 
 ```typescript
-<Form
-  schema={waitingListFormSchema}
-  defaultValues={defaultValues}
-  onSubmit={handleSubmit}>
+<Form schema={waitingListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
   <Form.Input field="name" label="Name" required />
   <Form.Textarea field="description" label="Description" />
 </Form>

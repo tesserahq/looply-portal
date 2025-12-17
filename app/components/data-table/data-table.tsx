@@ -82,7 +82,9 @@ export function DataTable<TData, TValue>({
       <div className="flex-1 overflow-hidden">
         <div ref={scrollContainerRef} className="no-scrollbar h-full overflow-y-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 w-full bg-slate-100/20 backdrop-blur-md dark:bg-slate-800/50">
+            <TableHeader
+              className="sticky top-0 z-10 w-full bg-slate-100/20 backdrop-blur-md
+                dark:bg-slate-800/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-border dark:hover:bg-navy-700">
                   {headerGroup.headers.map((header) => {

@@ -42,10 +42,7 @@ export default function NewResourceShortcut() {
       <Separator orientation="vertical" className="-ml-1 hidden h-8" />
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-accent bg-accent border">
+          <Button variant="outline" size="icon" className="border-accent bg-accent border">
             <Plus />
           </Button>
         </PopoverTrigger>
@@ -63,7 +60,9 @@ export default function NewResourceShortcut() {
                   onClick={() => setOpen(false)}
                   aria-label={`Create new ${resource.name}`}
                   className="group flex items-center gap-1 rounded-lg transition-colors">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-lg
+                      transition-colors">
                     <Icon className="group-hover:text-primary h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
