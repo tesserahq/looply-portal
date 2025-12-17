@@ -11,8 +11,8 @@
     "lint:fix": "npx eslint \"{app,lib}/**/*.{ts,tsx}\" --fix",
     "check": "bun run format && bun run lint && bun run typecheck",
     "typecheck": "tsc",
-    "format": "prettier --write .",
-    "prepare": "lefthook install"
+    "format": "npx prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\" \"!**/locales/**\"",
+    "format:check": "npx prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\" \"!**/locales/**\""
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -110,6 +110,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.1.7",
     "lefthook": "^2.0.12",
     "lint-staged": "^16.0.0",
     "postcss": "^8.4.49",
