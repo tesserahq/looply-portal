@@ -4,13 +4,7 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
 import { Button } from '@/modules/shadcn/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/modules/shadcn/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/shadcn/ui/card'
 import { useStats } from '@/resources/hooks/stats'
 import { StatsContactInteractionType, StatsContactType } from '@/resources/queries/stats'
 import { Link, useLoaderData, useNavigate } from '@remix-run/react'
@@ -87,7 +81,7 @@ export default function Overview() {
         },
       },
     ],
-    [],
+    []
   )
 
   const recentContactsColumns: ColumnDef<StatsContactType>[] = useMemo(
@@ -125,7 +119,7 @@ export default function Overview() {
         },
       },
     ],
-    [],
+    []
   )
 
   const hasUpcomingInteractions = useMemo(() => {
@@ -151,9 +145,7 @@ export default function Overview() {
         <Card>
           <CardHeader>
             <CardDescription># of Contacts</CardDescription>
-            <CardTitle className="text-3xl font-semibold">
-              {data?.total_contacts}
-            </CardTitle>
+            <CardTitle className="text-3xl font-semibold">{data?.total_contacts}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -165,17 +157,13 @@ export default function Overview() {
         <Card>
           <CardHeader>
             <CardDescription># of Public Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">
-              {data?.total_public_list}
-            </CardTitle>
+            <CardTitle className="text-3xl font-semibold">{data?.total_public_list}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription># of Private Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">
-              {data?.total_private_list}
-            </CardTitle>
+            <CardTitle className="text-3xl font-semibold">{data?.total_private_list}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -190,10 +178,7 @@ export default function Overview() {
                 <CardTitle>Upcoming Interactions</CardTitle>
                 <CardDescription>Recent interactions that are scheduled</CardDescription>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/contact-interactions')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/contact-interactions')}>
                 View All
               </Button>
             </div>
