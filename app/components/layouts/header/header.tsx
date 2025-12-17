@@ -9,6 +9,7 @@ import { cn } from '@/utils/misc'
 import { Link, useSubmit } from '@remix-run/react'
 import { Button } from '@shadcn/ui/button'
 import { PanelLeft } from 'lucide-react'
+import NewResourceShortcut from '@/components/new-resources-shortcut/new-resources-shortcut'
 
 interface IHeaderProps {
   apiUrl: string
@@ -75,6 +76,7 @@ export function Header({ isExpanded, setIsExpanded, action, withSidebar }: IHead
 
             {/* Right content */}
             <div className="flex items-center space-x-1 lg:space-x-5">
+              <NewResourceShortcut />
               <ProfileMenu
                 selectedTheme={requestInfo.userPrefs.theme || 'system'}
                 onSetTheme={(theme) => onSetTheme(theme)}

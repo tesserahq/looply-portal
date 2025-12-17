@@ -52,6 +52,7 @@ export const ContactListForm = ({
           label="Name"
           placeholder="Enter contact list name"
           required
+          autoFocus
         />
 
         <Form.Textarea

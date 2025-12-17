@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext'
 import '@/styles/sidebar.css'
 import { cn } from '@/utils/misc'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import { BookUser, Contact, SquareUser, Users2 } from 'lucide-react'
+import { BookUser, Contact, FileChartLine, SquareUser, Users2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { IMenuItemProps } from '@/components/layouts/sidebar/types'
 
@@ -25,6 +25,11 @@ export default function Layout() {
 
   const menuItems: IMenuItemProps[] = useMemo(
     () => [
+      {
+        title: 'Overview',
+        path: '/overview',
+        icon: <FileChartLine size={18} />,
+      },
       {
         title: 'Contacts',
         path: `/contacts`,

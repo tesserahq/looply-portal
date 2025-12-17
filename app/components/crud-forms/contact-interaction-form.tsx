@@ -63,7 +63,7 @@ export const ContactInteractionForm = ({
           required
         />
 
-        <Form.Textarea field="note" label="Notes" required />
+        <Form.Textarea field="note" label="Notes" required autoFocus />
 
         <Form.DateTimePicker
           field="interaction_timestamp"
