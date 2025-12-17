@@ -149,7 +149,7 @@ if (viteDevServer) {
 // You may want to be more aggressive with this caching.
 app.use(express.static('build/client', { maxAge: '1h' }))
 
-app.get(['/img/*', '/favicons/*'], (req, res) => {
+app.use(['/img', '/favicons'], (req, res) => {
   // If we've gone beyond express.static for these, it means something is missing.
   // In this case, we'll simply send a 404 and skip calling other middleware.
   return res.status(404).send('Not found')
@@ -157,7 +157,7 @@ app.get(['/img/*', '/favicons/*'], (req, res) => {
 
 // Handle SSR requests.
 app.all(
-  '*',
+  /.*/,
   createRequestHandler({
     getLoadContext: (_, res) => ({
       cspNonce: res.locals.cspNonce,
