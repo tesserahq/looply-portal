@@ -11,14 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/modules/shadcn/ui/card'
-import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useStats } from '@/resources/hooks/stats'
 import { StatsContactInteractionType, StatsContactType } from '@/resources/queries/stats'
-import { useLoaderData, Link, useNavigate } from '@remix-run/react'
+import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 import { Badge } from '@shadcn/ui/badge'
-import { cn } from '@/utils/misc'
 import type { ColumnDef } from '@tanstack/react-table'
-import { BookUser, History, Plus, SquareUser, Users2 } from 'lucide-react'
 import { useMemo } from 'react'
 
 export function loader() {
@@ -39,32 +36,6 @@ export default function Overview() {
   } as const
 
   const { data, isLoading } = useStats(config)
-
-  const resourceNewActions = useMemo(
-    () => [
-      {
-        label: 'Contact',
-        icon: <SquareUser size={15} />,
-        path: '/contacts/new',
-      },
-      {
-        label: 'Contact List',
-        icon: <BookUser size={15} />,
-        path: '/contact-lists/new',
-      },
-      {
-        label: 'Waiting List',
-        icon: <Users2 size={15} />,
-        path: '/waiting-lists/new',
-      },
-      {
-        label: 'Contact Interaction',
-        icon: <History size={15} />,
-        path: '/contact-interactions/new',
-      },
-    ],
-    [],
-  )
 
   const upcomingInteractionsColumns: ColumnDef<StatsContactInteractionType>[] = useMemo(
     () => [
