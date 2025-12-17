@@ -89,7 +89,7 @@ export function DataTable<TData, TValue>({
       <div className="flex-1 overflow-hidden">
         <div ref={scrollContainerRef} className="no-scrollbar h-full overflow-y-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 w-full bg-slate-100/20 shadow-sm backdrop-blur-md dark:bg-slate-800/50">
+            <TableHeader className="sticky top-0 z-10 w-full bg-slate-100/20 backdrop-blur-md dark:bg-slate-800/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className="text-navy-800 dark:text-navy-100 py-3 font-semibold"
+                        className="text-navy-800 dark:text-navy-100 py-2 font-semibold"
                         style={{ width: header.column.columnDef.size }}>
                         {header.column.columnDef.header ? (
                           header.isPlaceholder ? null : (
@@ -129,7 +129,7 @@ export function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="text-navy-800 dark:text-navy-100 py-1.5 ps-4">
+                        className="text-navy-800 dark:text-navy-100 py-1 ps-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}

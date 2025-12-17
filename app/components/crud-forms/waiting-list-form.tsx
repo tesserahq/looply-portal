@@ -52,6 +52,7 @@ export const WaitingListForm = ({
           label="Name"
           placeholder="Enter waiting list name"
           required
+          autoFocus
         />
 
         <Form.Textarea

@@ -171,39 +171,12 @@ export default function Overview() {
 
   return (
     <div>
-      <div className="mb-4 flex animate-slide-up items-center justify-between">
+      <div className="animate-slide-up mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Overview</h1>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button>
-              <Plus size={18} />
-              New Resource
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-60 py-2">
-            {resourceNewActions.map((resource, index) => {
-              return (
-                <div
-                  key={resource.label}
-                  className={cn(
-                    'border-b py-1',
-                    resourceNewActions.length - 1 === index && 'border-none',
-                  )}>
-                  <Link
-                    to={resource.path}
-                    className="flex w-full flex-row items-center gap-2 rounded-sm px-3 py-2 hover:bg-muted">
-                    {resource.icon}
-                    <span>{`New ${resource.label}`}</span>
-                  </Link>
-                </div>
-              )
-            })}
-          </PopoverContent>
-        </Popover>
       </div>
 
       {/* Total Stats */}
-      <div className="grid animate-slide-up gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+      <div className="animate-slide-up grid gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
         <Card>
           <CardHeader>
             <CardDescription># of Contacts</CardDescription>
@@ -237,7 +210,7 @@ export default function Overview() {
       </div>
 
       {/* Tables Grid */}
-      <div className="mt-2 grid animate-slide-up gap-2 lg:mt-5 lg:grid-cols-2 lg:gap-5">
+      <div className="animate-slide-up mt-2 grid gap-2 lg:mt-5 lg:grid-cols-2 lg:gap-5">
         {/* Upcoming Interactions Table */}
         <Card>
           <CardHeader>
