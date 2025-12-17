@@ -44,17 +44,7 @@ export const WaitingListForm = ({
   return (
     <Form schema={waitingListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
-<<<<<<< HEAD
-        <Form.Input
-          field="name"
-          label="Name"
-          placeholder="Enter waiting list name"
-          required
-          autoFocus
-        />
-=======
         <Form.Input field="name" label="Name" placeholder="Enter waiting list name" required />
->>>>>>> a43ae31 (update dependency eslint to v9)
 
         <Form.Textarea
           field="description"

@@ -44,17 +44,7 @@ export const ContactListForm = ({
   return (
     <Form schema={contactListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
-<<<<<<< HEAD
-        <Form.Input
-          field="name"
-          label="Name"
-          placeholder="Enter contact list name"
-          required
-          autoFocus
-        />
-=======
         <Form.Input field="name" label="Name" placeholder="Enter contact list name" required />
->>>>>>> a43ae31 (update dependency eslint to v9)
 
         <Form.Textarea
           field="description"
