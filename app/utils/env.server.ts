@@ -1,4 +1,3 @@
-/* eslint-disable import/namespace */
 import { z } from 'zod'
 
 const schema = z.object({
@@ -11,7 +10,6 @@ const schema = z.object({
 type EnvSchema = z.infer<typeof schema>
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface ProcessEnv extends EnvSchema {
       [key: string]: string | undefined

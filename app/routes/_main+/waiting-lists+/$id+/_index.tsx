@@ -23,10 +23,7 @@ import {
   useBulkUpdateWaitingListMemberStatus,
   useDeleteWaitingList,
 } from '@/resources/hooks/waiting-lists'
-import {
-  WaitingListMemberType,
-  WaitingListStatusType,
-} from '@/resources/queries/waiting-lists'
+import { WaitingListMemberType, WaitingListStatusType } from '@/resources/queries/waiting-lists'
 import { cn } from '@/utils/misc'
 import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react'
 import { ColumnDef, useReactTable, getCoreRowModel } from '@tanstack/react-table'
@@ -51,8 +48,7 @@ export default function WaitingListDetail() {
   const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const deleteWaitingListModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const newMemberRef = useRef<React.ElementRef<typeof NewMemberWaitingList>>(null)
-  const updateMemberRef =
-    useRef<React.ElementRef<typeof UpdateMemberWaitingListStatus>>(null)
+  const updateMemberRef = useRef<React.ElementRef<typeof UpdateMemberWaitingListStatus>>(null)
   const [rowSelection, setRowSelection] = useState({})
   const [memberStatus, setMemberStatus] = useState<string>('all')
 
@@ -69,7 +65,7 @@ export default function WaitingListDetail() {
     waitingListId,
     {
       enabled: !!waitingListId && !!token,
-    },
+    }
   )
 
   const { data: allMembers = [], isLoading: isLoadingAllMembers } = useWaitingListMembers(
@@ -77,7 +73,7 @@ export default function WaitingListDetail() {
     waitingListId,
     {
       enabled: !!waitingListId && !!token && memberStatus === 'all',
-    },
+    }
   )
 
   const { data: membersByStatus = [], isLoading: isLoadingMembersByStatus } =
@@ -93,8 +89,7 @@ export default function WaitingListDetail() {
     memberStatus === 'all'
       ? allMembers
       : (membersByStatus as WaitingListMemberType[] | ContactType[])
-  const isLoadingMembers =
-    memberStatus === 'all' ? isLoadingAllMembers : isLoadingMembersByStatus
+  const isLoadingMembers = memberStatus === 'all' ? isLoadingAllMembers : isLoadingMembersByStatus
   const isLoading = isLoadingWaitingList || isLoadingMembers
 
   const memberStatuses: WaitingListStatusType[] = useMemo(() => {
@@ -110,7 +105,7 @@ export default function WaitingListDetail() {
     (member: WaitingListMemberType | ContactType): member is WaitingListMemberType => {
       return 'contact' in member && 'status' in member
     },
-    [],
+    []
   )
 
   // Helper to extract contact from member
@@ -118,7 +113,7 @@ export default function WaitingListDetail() {
     (member: WaitingListMemberType | ContactType): ContactType => {
       return isWaitingListMember(member) ? member.contact : member
     },
-    [isWaitingListMember],
+    [isWaitingListMember]
   )
 
   // Helper to get member ID for deletion
@@ -126,28 +121,20 @@ export default function WaitingListDetail() {
     (member: WaitingListMemberType | ContactType): string => {
       return isWaitingListMember(member) ? member.contact.id : member.id
     },
-    [isWaitingListMember],
+    [isWaitingListMember]
   )
 
-  const { mutateAsync: removeMember } = useRemoveWaitingListMember(
-    config,
-    waitingListId,
-    {
-      onSuccess: () => {
-        deleteModalRef.current?.close()
-      },
+  const { mutateAsync: removeMember } = useRemoveWaitingListMember(config, waitingListId, {
+    onSuccess: () => {
+      deleteModalRef.current?.close()
     },
-  )
+  })
 
-  const { mutateAsync: removeAllMembers } = useRemoveAllWaitingListMembers(
-    config,
-    waitingListId,
-    {
-      onSuccess: () => {
-        deleteAllModalRef.current?.close()
-      },
+  const { mutateAsync: removeAllMembers } = useRemoveAllWaitingListMembers(config, waitingListId, {
+    onSuccess: () => {
+      deleteAllModalRef.current?.close()
     },
-  )
+  })
 
   const { mutateAsync: addMembers } = useAddWaitingListMembers(config, waitingListId, {
     onSuccess: () => {
@@ -163,7 +150,7 @@ export default function WaitingListDetail() {
         updateMemberRef.current?.onClose()
         setRowSelection({})
       },
-    },
+    }
   )
 
   const { mutateAsync: bulkUpdateMemberStatus } = useBulkUpdateWaitingListMemberStatus(
@@ -174,7 +161,7 @@ export default function WaitingListDetail() {
         updateMemberRef.current?.onClose()
         setRowSelection({})
       },
-    },
+    }
   )
 
   const { mutate: deleteWaitingList } = useDeleteWaitingList(config, {
@@ -195,7 +182,7 @@ export default function WaitingListDetail() {
         },
       })
     },
-    [removeMember, getContactFromMember, getMemberId],
+    [removeMember, getContactFromMember, getMemberId]
   )
 
   const handleDeleteAll = useCallback(() => {
@@ -213,21 +200,21 @@ export default function WaitingListDetail() {
     async (contactIds: string[], status?: string) => {
       await addMembers({ contact_ids: contactIds, status })
     },
-    [addMembers],
+    [addMembers]
   )
 
   const handleUpdateStatus = useCallback(
     async (contactId: string, status: string) => {
       await updateMemberStatus({ memberId: contactId, data: { status } })
     },
-    [updateMemberStatus],
+    [updateMemberStatus]
   )
 
   const handleBulkUpdateStatus = useCallback(
     async (contactIds: string[], status: string) => {
       await bulkUpdateMemberStatus({ contact_ids: contactIds, status })
     },
-    [bulkUpdateMemberStatus],
+    [bulkUpdateMemberStatus]
   )
 
   const handleChangeStatus = useCallback((status: string) => {
@@ -328,9 +315,7 @@ export default function WaitingListDetail() {
         cell: ({ row }) => {
           const contact = getContactFromMember(row.original)
           const { contact_type } = contact
-          return (
-            <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
-          )
+          return <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
         },
       },
       {
@@ -343,9 +328,7 @@ export default function WaitingListDetail() {
           return (
             <div className="flex items-center gap-2">
               <span className="text-sm">{phone}</span>
-              {phone_type && (
-                <span className="text-xs text-muted-foreground">({phone_type})</span>
-              )}
+              {phone_type && <span className="text-muted-foreground text-xs">({phone_type})</span>}
             </div>
           )
         },
@@ -386,7 +369,8 @@ export default function WaitingListDetail() {
                 )}
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={() => handleDelete(member)}
                   aria-label="Delete member"
                   tabIndex={0}>
@@ -399,7 +383,7 @@ export default function WaitingListDetail() {
         },
       },
     ],
-    [memberStatus, isWaitingListMember, getContactFromMember, handleDelete, hasData],
+    [memberStatus, isWaitingListMember, getContactFromMember, handleDelete, hasData]
   )
 
   // Create table instance with row selection
@@ -421,7 +405,7 @@ export default function WaitingListDetail() {
   // Get selected contacts
   const selectedContacts = useMemo(() => {
     const selectedRowIds = Object.keys(rowSelection).filter(
-      (id) => rowSelection[id as keyof typeof rowSelection],
+      (id) => rowSelection[id as keyof typeof rowSelection]
     )
     return members
       .filter((member) => selectedRowIds.includes(getMemberId(member)))
@@ -450,7 +434,7 @@ export default function WaitingListDetail() {
         </Button>
       </EmptyContent>
     ),
-    [handleOpenNewMember],
+    [handleOpenNewMember]
   )
 
   const emptyContentByStatus = useMemo(
@@ -461,7 +445,7 @@ export default function WaitingListDetail() {
         description={`No members found for ${memberStatus}`}
       />
     ),
-    [memberStatus],
+    [memberStatus]
   )
 
   if (isLoading) {
@@ -470,7 +454,7 @@ export default function WaitingListDetail() {
 
   if (!waitingList) {
     return (
-      <div className="flex h-full animate-slide-up items-center justify-center">
+      <div className="animate-slide-up flex h-full items-center justify-center">
         <Card>
           <CardContent className="p-6">
             <p className="text-muted-foreground">Waiting list not found</p>
@@ -481,7 +465,7 @@ export default function WaitingListDetail() {
   }
 
   return (
-    <div className="mx-auto h-full max-w-screen-lg animate-slide-up">
+    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -502,7 +486,8 @@ export default function WaitingListDetail() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={handleDeleteWaitingList}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -565,10 +550,7 @@ export default function WaitingListDetail() {
           ) : (
             <div className="animate-slide-up">
               <Tabs
-                className={cn(
-                  'mb-3',
-                  memberStatus === 'all' && members.length === 0 && 'hidden',
-                )}
+                className={cn('mb-3', memberStatus === 'all' && members.length === 0 && 'hidden')}
                 defaultValue={memberStatus}
                 onValueChange={(value) => handleChangeStatus(value)}>
                 <TabsList>

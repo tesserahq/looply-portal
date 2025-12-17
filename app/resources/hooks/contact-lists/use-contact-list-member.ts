@@ -32,8 +32,7 @@ class QueryError extends Error {
 export const contactListMemberQueryKeys = {
   all: ['contact-list-members'] as const,
   lists: () => [...contactListMemberQueryKeys.all, 'list'] as const,
-  list: (contactListId: string) =>
-    [...contactListMemberQueryKeys.lists(), contactListId] as const,
+  list: (contactListId: string) => [...contactListMemberQueryKeys.lists(), contactListId] as const,
 }
 
 /**
@@ -48,7 +47,7 @@ export function useContactListMembers(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -78,7 +77,7 @@ export function useAddContactListMembers(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -119,7 +118,7 @@ export function useRemoveContactListMember(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -160,7 +159,7 @@ export function useRemoveAllContactListMembers(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 

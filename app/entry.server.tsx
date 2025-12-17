@@ -23,11 +23,9 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  loadContext: AppLoadContext,
+  loadContext: AppLoadContext
 ) {
-  const callbackName = isbot(request.headers.get('user-agent'))
-    ? 'onAllReady'
-    : 'onShellReady'
+  const callbackName = isbot(request.headers.get('user-agent')) ? 'onAllReady' : 'onShellReady'
 
   /**
    * Content Security Policy.
@@ -64,11 +62,7 @@ export default async function handleRequest(
     const { pipe, abort } = renderToPipeableStream(
       <NonceProvider value={nonce}>
         <I18nextProvider i18n={instance}>
-          <RemixServer
-            context={remixContext}
-            url={request.url}
-            abortDelay={ABORT_DELAY}
-          />
+          <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />
         </I18nextProvider>
       </NonceProvider>,
       {
@@ -83,7 +77,7 @@ export default async function handleRequest(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
-            }),
+            })
           )
 
           pipe(body)
@@ -98,7 +92,7 @@ export default async function handleRequest(
           }
         },
         nonce,
-      },
+      }
     )
 
     setTimeout(abort, ABORT_DELAY)

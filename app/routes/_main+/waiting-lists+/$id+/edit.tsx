@@ -1,14 +1,8 @@
 import { WaitingListForm } from '@/components/crud-forms/waiting-list-form'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
-import {
-  useWaitingListDetail,
-  useUpdateWaitingList,
-} from '@/resources/hooks/waiting-lists'
-import {
-  WaitingListFormData,
-  waitingListToFormValues,
-} from '@/resources/queries/waiting-lists'
+import { useWaitingListDetail, useUpdateWaitingList } from '@/resources/hooks/waiting-lists'
+import { WaitingListFormData, waitingListToFormValues } from '@/resources/queries/waiting-lists'
 import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
 
 export function loader() {
@@ -54,10 +48,6 @@ export default function WaitingListEdit() {
   const defaultValues = waitingListToFormValues(waitingList)
 
   return (
-    <WaitingListForm
-      onSubmit={handleSubmit}
-      defaultValues={defaultValues}
-      submitLabel="Update"
-    />
+    <WaitingListForm onSubmit={handleSubmit} defaultValues={defaultValues} submitLabel="Update" />
   )
 }

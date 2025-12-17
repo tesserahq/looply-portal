@@ -1,21 +1,12 @@
 import { Button } from '@/modules/shadcn/ui/button'
 import { Card, CardContent } from '@/modules/shadcn/ui/card'
-import {
-  contactFormSchema,
-  ContactFormValue,
-} from '@/resources/queries/contacts/contact.schema'
+import { contactFormSchema, ContactFormValue } from '@/resources/queries/contacts/contact.schema'
 import { ContactFormData } from '@/resources/queries/contacts/contact.type'
 import { formValuesToContactData } from '@/resources/queries/contacts/contact.utils'
 import { useNavigate } from '@remix-run/react'
 import { Combobox, type ComboboxOption } from '@shadcn/ui/Combobox'
 import { Loader2 } from 'lucide-react'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState as useReactState,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState as useReactState, useState } from 'react'
 import { GetCity, GetCountries, GetState } from 'react-country-state-city'
 import { City, Country, State } from 'react-country-state-city/dist/esm/types'
 import { Form } from '../form'
@@ -108,7 +99,7 @@ export const ContactForm = ({
         searchValue: `${country.name} ${country.iso2} ${country.phone_code}`,
         data: country,
       })),
-    [countries],
+    [countries]
   )
 
   const getCountries = useCallback(async () => {
@@ -139,10 +130,7 @@ export const ContactForm = ({
       return
     }
 
-    const values = await GetCity(
-      Number(selectedCountry?.data?.id),
-      Number(selectedState.data.id),
-    )
+    const values = await GetCity(Number(selectedCountry?.data?.id), Number(selectedState.data.id))
     const mappedCities: ComboboxOption<City>[] = values.map((city) => ({
       id: city.id.toString(),
       label: city.name,
@@ -183,12 +171,7 @@ export const ContactForm = ({
   }, [countries, defaultValues?.country, selectedCountry])
 
   useEffect(() => {
-    if (
-      selectedCountry?.data?.id &&
-      states.length > 0 &&
-      defaultValues?.state &&
-      !selectedState
-    ) {
+    if (selectedCountry?.data?.id && states.length > 0 && defaultValues?.state && !selectedState) {
       const state = states.find((s) => s.data?.name === defaultValues.state)
       if (state) {
         setSelectedState(state)
@@ -197,12 +180,7 @@ export const ContactForm = ({
   }, [states, selectedCountry?.data?.id, defaultValues?.state, selectedState])
 
   useEffect(() => {
-    if (
-      selectedState?.data?.id &&
-      cities.length > 0 &&
-      defaultValues?.city &&
-      !selectedCity
-    ) {
+    if (selectedState?.data?.id && cities.length > 0 && defaultValues?.city && !selectedCity) {
       const city = cities.find((c) => c.data?.name === defaultValues.city)
       if (city) {
         setSelectedCity(city)
@@ -233,10 +211,7 @@ export const ContactForm = ({
   }
 
   return (
-    <Form
-      schema={contactFormSchema}
-      defaultValues={defaultValues}
-      onSubmit={handleSubmit}>
+    <Form schema={contactFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
         <h2 className="mb-3 text-lg font-medium">General</h2>
         <Card className="shadow-none">
@@ -257,11 +232,7 @@ export const ContactForm = ({
 
             <Form.Input field="company" label="Company" />
             <Form.Input field="job" label="Job" />
-            <Form.Input
-              field="website"
-              label="Website"
-              placeholder="https://example.com"
-            />
+            <Form.Input field="website" label="Website" placeholder="https://example.com" />
 
             <div className="mb-3">
               <Form.Select
@@ -274,22 +245,14 @@ export const ContactForm = ({
               />
             </div>
 
-            <Form.Textarea
-              field="notes"
-              label="Notes"
-              placeholder="Enter notes (optional)"
-            />
+            <Form.Textarea field="notes" label="Notes" placeholder="Enter notes (optional)" />
           </CardContent>
         </Card>
 
-        <h2 className="mb-3 mt-5 text-lg font-medium">Contact Information</h2>
+        <h2 className="mt-5 mb-3 text-lg font-medium">Contact Information</h2>
         <Card className="shadow-none">
           <CardContent className="space-y-4 pt-4">
-            <Form.PhoneInput
-              field="phone"
-              label="Phone"
-              placeholder="Enter phone number"
-            />
+            <Form.PhoneInput field="phone" label="Phone" placeholder="Enter phone number" />
 
             <Form.Select
               field="phone_type"
@@ -302,7 +265,7 @@ export const ContactForm = ({
           </CardContent>
         </Card>
 
-        <h2 className="mb-3 mt-5 text-lg font-medium">Address</h2>
+        <h2 className="mt-5 mb-3 text-lg font-medium">Address</h2>
         <Card className="shadow-none">
           <CardContent className="space-y-4 pt-4">
             <div className="grid gap-4 lg:grid-cols-3">
@@ -313,9 +276,7 @@ export const ContactForm = ({
                 onChange={(_, option) => setSelectedCountry(option)}
                 renderOption={(option) => (
                   <div className="flex items-center gap-2">
-                    {option.data?.emoji && (
-                      <span className="text-base">{option.data.emoji}</span>
-                    )}
+                    {option.data?.emoji && <span className="text-base">{option.data.emoji}</span>}
                     <span className="font-medium">{option.label}</span>
                   </div>
                 )}
@@ -325,9 +286,7 @@ export const ContactForm = ({
                 options={states}
                 value={selectedState?.value}
                 disabled={!selectedCountry?.value}
-                onChange={(_, option) =>
-                  setSelectedState(option as ComboboxOption<State>)
-                }
+                onChange={(_, option) => setSelectedState(option as ComboboxOption<State>)}
               />
               <Combobox
                 label="City"

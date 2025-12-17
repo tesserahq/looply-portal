@@ -2,14 +2,7 @@
 
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@shadcn/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shadcn/ui/table'
 import { cn } from '@/utils/misc'
 import { useEffect, useRef, useState } from 'react'
 import { Pagination } from './data-pagination'
@@ -84,16 +77,20 @@ export function DataTable<TData, TValue>({
       className={cn(
         'border-border bg-card relative flex flex-col overflow-hidden rounded border',
         fixed && 'h-[calc(100vh-10rem)]',
-        hasFilter && 'h-[calc(100vh-13rem)]',
+        hasFilter && 'h-[calc(100vh-13rem)]'
       )}>
       <div className="flex-1 overflow-hidden">
         <div ref={scrollContainerRef} className="no-scrollbar h-full overflow-y-auto">
           <Table>
+<<<<<<< HEAD
             <TableHeader className="sticky top-0 z-10 w-full bg-slate-100/20 backdrop-blur-md dark:bg-slate-800/50">
+=======
+            <TableHeader
+              className="sticky top-0 z-10 w-full bg-slate-100/20 shadow-sm backdrop-blur-md
+                dark:bg-slate-800/50">
+>>>>>>> a43ae31 (update dependency eslint to v9)
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="border-border dark:hover:bg-navy-700">
+                <TableRow key={headerGroup.id} className="border-border dark:hover:bg-navy-700">
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
@@ -102,10 +99,7 @@ export function DataTable<TData, TValue>({
                         style={{ width: header.column.columnDef.size }}>
                         {header.column.columnDef.header ? (
                           header.isPlaceholder ? null : (
-                            flexRender(
-                              header.column.columnDef.header || '',
-                              header.getContext(),
-                            )
+                            flexRender(header.column.columnDef.header || '', header.getContext())
                           )
                         ) : (
                           <div className="w-10"></div>

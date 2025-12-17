@@ -29,4 +29,4 @@
 
 export const queryKeys = {
   // Add your query keys here when needed
-} as const;
+} as const

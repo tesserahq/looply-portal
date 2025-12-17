@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from '@/components/data-table'
 import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
@@ -76,7 +75,7 @@ export default function ContactInteractions() {
         },
       })
     },
-    [deleteContactInteraction],
+    [deleteContactInteraction]
   )
 
   const columns: ColumnDef<ContactInteractionType>[] = useMemo(
@@ -126,8 +125,7 @@ export default function ContactInteractions() {
         size: 180,
         cell: ({ row }) => {
           const { interaction_timestamp } = row.original
-          if (!interaction_timestamp)
-            return <span className="text-muted-foreground">-</span>
+          if (!interaction_timestamp) return <span className="text-muted-foreground">-</span>
           return <DateTime date={interaction_timestamp} formatStr="PPpp" />
         },
       },
@@ -182,7 +180,8 @@ export default function ContactInteractions() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -193,7 +192,7 @@ export default function ContactInteractions() {
         },
       },
     ],
-    [navigate],
+    [navigate]
   )
 
   if (isLoading) {
@@ -212,7 +211,7 @@ export default function ContactInteractions() {
   )
 
   return (
-    <div className="h-full animate-slide-up">
+    <div className="animate-slide-up h-full">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Contact Interactions</h1>
         <NewButton

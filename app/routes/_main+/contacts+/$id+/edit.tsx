@@ -50,11 +50,5 @@ export default function ContactEdit() {
 
   const defaultValues = contactToFormValues(contact)
 
-  return (
-    <ContactForm
-      onSubmit={handleSubmit}
-      defaultValues={defaultValues}
-      submitLabel="Update"
-    />
-  )
+  return <ContactForm onSubmit={handleSubmit} defaultValues={defaultValues} submitLabel="Update" />
 }

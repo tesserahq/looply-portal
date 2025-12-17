@@ -36,11 +36,13 @@ export default function Index() {
   }
 
   return (
-    <div className="flex min-h-screen w-full animate-slide-up flex-col items-center justify-center gap-10 bg-white dark:bg-background lg:flex-row">
+    <div
+      className="animate-slide-up dark:bg-background flex min-h-screen w-full flex-col items-center
+        justify-center gap-10 bg-white lg:flex-row">
       <img src="/images/login.png" alt="login" className="w-96 rounded-lg" />
       <div className="max-w-[400px] flex-col items-center lg:items-start">
         <h1 className="mt-3 text-3xl font-semibold dark:text-white">Welcome back!</h1>
-        <p className="mt-1 text-base opacity-70 dark:text-primary-foreground">
+        <p className="dark:text-primary-foreground mt-1 text-base opacity-70">
           Log in to access Looply and manage your contacts with powerful search and list
           organization.
         </p>

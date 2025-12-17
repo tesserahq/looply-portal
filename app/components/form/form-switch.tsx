@@ -10,7 +10,10 @@ import {
 import { Switch } from '@/modules/shadcn/ui/switch'
 import { ComponentProps } from 'react'
 
-interface FormSwitchProps extends Omit<ComponentProps<typeof Switch>, 'name' | 'checked' | 'onCheckedChange'> {
+interface FormSwitchProps extends Omit<
+  ComponentProps<typeof Switch>,
+  'name' | 'checked' | 'onCheckedChange'
+> {
   field: string
   label?: string
   description?: string
@@ -49,7 +52,7 @@ export const FormSwitch = ({
             {label && (
               <FormLabel
                 className={
-                  required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
+                  required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''
                 }>
                 {label}
               </FormLabel>
@@ -69,4 +72,3 @@ export const FormSwitch = ({
     />
   )
 }
-

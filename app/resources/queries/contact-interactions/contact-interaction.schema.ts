@@ -103,9 +103,7 @@ export const defaultContactInteractionFormValues: ContactInteractionFormValue = 
 
 export type CreateContactInteractionInput = z.infer<typeof createContactInteractionSchema>
 export type UpdateContactInteractionInput = z.infer<typeof updateContactInteractionSchema>
-export type ContactInteractionListParamsInput = z.infer<
-  typeof contactInteractionListParamsSchema
->
+export type ContactInteractionListParamsInput = z.infer<typeof contactInteractionListParamsSchema>
 export type BulkContactInteractionOperationInput = z.infer<
   typeof bulkContactInteractionOperationSchema
 >

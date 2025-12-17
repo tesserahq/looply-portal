@@ -1,11 +1,6 @@
 import { Plus } from 'lucide-react'
 import { Button } from '@shadcn/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@shadcn/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@shadcn/ui/tooltip'
 
 interface IProps {
   label: string

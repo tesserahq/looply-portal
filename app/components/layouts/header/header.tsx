@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ProfileMenu } from '@/components/profile-menu/profile-menu'
 import { Avatar, AvatarImage } from '@shadcn/ui/avatar'
 import Separator from '@shadcn/ui/separator'
@@ -32,7 +31,7 @@ export function Header({ isExpanded, setIsExpanded, action, withSidebar }: IHead
         action: THEME_PATH,
         navigate: false,
         fetcherKey: 'theme-fetcher',
-      },
+      }
     )
   }
 
@@ -43,7 +42,7 @@ export function Header({ isExpanded, setIsExpanded, action, withSidebar }: IHead
           <div
             className={cn(
               'flex w-full items-center justify-between space-x-5',
-              !withSidebar && 'xl:mx-10',
+              !withSidebar && 'xl:mx-10'
             )}>
             {/* Left content */}
             <div className="flex items-center gap-2">

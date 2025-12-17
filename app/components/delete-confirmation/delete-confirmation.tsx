@@ -36,7 +36,7 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
         title: '',
         description: '',
         onDelete: () => {},
-      },
+      }
     )
 
     useImperativeHandle(ref, () => ({
@@ -64,19 +64,23 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
 
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-md border-t-4 border-t-destructive">
+        <DialogContent className="border-t-destructive max-w-md border-t-4">
           <DialogHeader className="flex flex-col items-center">
-            <div className="-mt-16 flex h-16 w-16 items-center justify-center rounded-full bg-destructive p-3">
+            <div
+              className="bg-destructive -mt-16 flex h-16 w-16 items-center justify-center
+                rounded-full p-3">
               <Trash2 size={100} className="text-white" />
             </div>
             <DialogTitle className="hidden"></DialogTitle>
           </DialogHeader>
           <DialogDescription className="px-3" asChild>
             <div className="flex flex-col items-center">
-              <h1 className="text-center text-3xl font-semibold text-black dark:text-secondary-foreground">
+              <h1
+                className="dark:text-secondary-foreground text-center text-3xl font-semibold
+                  text-black">
                 {config.title}
               </h1>
-              <p className="mt-3 text-center text-base text-black dark:text-secondary-foreground">
+              <p className="dark:text-secondary-foreground mt-3 text-center text-base text-black">
                 {config.description}
               </p>
             </div>
@@ -109,7 +113,7 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
         </DialogContent>
       </Dialog>
     )
-  },
+  }
 )
 
 DeleteConfirmation.displayName = 'DeleteConfirmation'

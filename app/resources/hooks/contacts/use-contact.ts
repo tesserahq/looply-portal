@@ -53,7 +53,7 @@ export function useContacts(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -85,7 +85,7 @@ export function useContactDetail(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -113,7 +113,7 @@ export function useCreateContact(
   options?: {
     onSuccess?: (data: ContactType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -151,7 +151,7 @@ export function useUpdateContact(
   options?: {
     onSuccess?: (data: ContactType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -198,7 +198,7 @@ export function useDeleteContact(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 

@@ -53,7 +53,7 @@ export function useWaitingLists(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -85,7 +85,7 @@ export function useWaitingListDetail(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -97,11 +97,7 @@ export function useWaitingListDetail(
       try {
         return await fetchWaitingListDetail(waitingListId, config)
       } catch (error) {
-        throw new QueryError(
-          'Failed to fetch waiting list detail',
-          'FETCH_ERROR',
-          error,
-        )
+        throw new QueryError('Failed to fetch waiting list detail', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
@@ -117,7 +113,7 @@ export function useCreateWaitingList(
   options?: {
     onSuccess?: (data: WaitingListType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -155,7 +151,7 @@ export function useUpdateWaitingList(
   options?: {
     onSuccess?: (data: WaitingListType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -202,7 +198,7 @@ export function useDeleteWaitingList(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -234,4 +230,3 @@ export function useDeleteWaitingList(
     },
   })
 }
-

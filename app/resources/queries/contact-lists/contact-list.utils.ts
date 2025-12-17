@@ -4,9 +4,7 @@ import { ContactListFormData, ContactListType } from './contact-list.type'
 /**
  * Convert contact list data to form values
  */
-export function contactListToFormValues(
-  contactList: ContactListType,
-): ContactListFormValue {
+export function contactListToFormValues(contactList: ContactListType): ContactListFormValue {
   return {
     id: contactList.id,
     name: contactList.name,
@@ -21,9 +19,7 @@ export function contactListToFormValues(
 /**
  * Convert form values to contact list data (for submission)
  */
-export function formValuesToContactListData(
-  formValues: ContactListFormValue,
-): ContactListFormData {
+export function formValuesToContactListData(formValues: ContactListFormValue): ContactListFormData {
   return {
     name: formValues.name,
     description: formValues.description || '',

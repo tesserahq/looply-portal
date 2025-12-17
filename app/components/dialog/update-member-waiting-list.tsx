@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ContactType } from '@/resources/queries/contacts'
 import { WaitingListStatusType } from '@/resources/queries/waiting-lists'
 import { Button } from '@shadcn/ui/button'
@@ -28,7 +27,7 @@ interface IProps {
 
 const UpdateMemberWaitingListStatus: React.ForwardRefRenderFunction<FuncProps, IProps> = (
   { onUpdateStatus, onBulkUpdateStatus, memberStatuses }: IProps,
-  ref,
+  ref
 ) => {
   const [open, setOpen] = useState<boolean>(false)
   const [memberStatus, setMemberStatus] = useState<string>('')
@@ -66,7 +65,7 @@ const UpdateMemberWaitingListStatus: React.ForwardRefRenderFunction<FuncProps, I
       if (isBulk && contacts.length > 0) {
         await onBulkUpdateStatus(
           contacts.map((c) => c.id),
-          memberStatus,
+          memberStatus
         )
       } else if (contact) {
         await onUpdateStatus(contact.id, memberStatus)
@@ -112,8 +111,10 @@ const UpdateMemberWaitingListStatus: React.ForwardRefRenderFunction<FuncProps, I
                   {contacts.length > 1 ? 's' : ''}
                 </p>
                 {selectedEmails.length > 0 && (
-                  <div className="mt-3 max-h-32 overflow-y-auto rounded-md border border-border bg-muted/50 p-2">
-                    <p className="mb-1 text-xs font-semibold text-muted-foreground">
+                  <div
+                    className="border-border bg-muted/50 mt-3 max-h-32 overflow-y-auto rounded-md
+                      border p-2">
+                    <p className="text-muted-foreground mb-1 text-xs font-semibold">
                       Selected Members:
                     </p>
                     <ul className="space-y-1 text-xs">
@@ -153,9 +154,7 @@ const UpdateMemberWaitingListStatus: React.ForwardRefRenderFunction<FuncProps, I
                   <SelectItem key={status.value} value={status.value}>
                     <div className="flex flex-col items-start">
                       <p>{status.label}</p>
-                      <span className="text-xs text-muted-foreground">
-                        {status.description}
-                      </span>
+                      <span className="text-muted-foreground text-xs">{status.description}</span>
                     </div>
                   </SelectItem>
                 )
@@ -165,7 +164,7 @@ const UpdateMemberWaitingListStatus: React.ForwardRefRenderFunction<FuncProps, I
         </div>
 
         {/* FOOTER */}
-        <DialogFooter className="flex w-full items-center !justify-end">
+        <DialogFooter className="flex w-full items-center justify-end!">
           <Button variant="outline" onClick={onCloseDialog}>
             Cancel
           </Button>

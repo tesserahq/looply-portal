@@ -70,7 +70,7 @@ export default function ContactLists() {
         },
       })
     },
-    [deleteContactList],
+    [deleteContactList]
   )
 
   const columns: ColumnDef<ContactListType>[] = useMemo(
@@ -98,11 +98,7 @@ export default function ContactLists() {
         cell: ({ row }) => {
           const { description } = row.original
           if (!description) return <span className="text-muted-foreground">-</span>
-          return (
-            <span className="line-clamp-2 text-sm text-muted-foreground">
-              {description}
-            </span>
-          )
+          return <span className="text-muted-foreground line-clamp-2 text-sm">{description}</span>
         },
       },
       {
@@ -170,7 +166,8 @@ export default function ContactLists() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -181,7 +178,7 @@ export default function ContactLists() {
         },
       },
     ],
-    [navigate, handleDelete],
+    [navigate, handleDelete]
   )
 
   if (isLoading) {
@@ -200,13 +197,10 @@ export default function ContactLists() {
   )
 
   return (
-    <div className="h-full animate-slide-up">
+    <div className="animate-slide-up h-full">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Contact Lists</h1>
-        <NewButton
-          label="New Contact List"
-          onClick={() => navigate('/contact-lists/new')}
-        />
+        <NewButton label="New Contact List" onClick={() => navigate('/contact-lists/new')} />
       </div>
       {!hasData ? (
         emptyContent

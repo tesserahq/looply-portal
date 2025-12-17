@@ -4,9 +4,7 @@ import { WaitingListFormData, WaitingListType } from './waiting-list.type'
 /**
  * Convert waiting list data to form values
  */
-export function waitingListToFormValues(
-  waitingList: WaitingListType,
-): WaitingListFormValue {
+export function waitingListToFormValues(waitingList: WaitingListType): WaitingListFormValue {
   return {
     id: waitingList.id,
     name: waitingList.name,
@@ -20,12 +18,9 @@ export function waitingListToFormValues(
 /**
  * Convert form values to waiting list data (for submission)
  */
-export function formValuesToWaitingListData(
-  formValues: WaitingListFormValue,
-): WaitingListFormData {
+export function formValuesToWaitingListData(formValues: WaitingListFormValue): WaitingListFormData {
   return {
     name: formValues.name,
     description: formValues.description || '',
   }
 }
-

@@ -47,7 +47,7 @@ export const useHandleApiError = () => {
         return false
       }
     },
-    [handleTokenExpiration],
+    [handleTokenExpiration]
   )
 
   return handleApiError

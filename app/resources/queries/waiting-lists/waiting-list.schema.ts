@@ -30,9 +30,7 @@ export const waitingListListParamsSchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     search: z.string().max(100).optional(),
-    sortBy: z
-      .enum(['name', 'created_at', 'updated_at'])
-      .default('created_at'),
+    sortBy: z.enum(['name', 'created_at', 'updated_at']).default('created_at'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
   })
   .transform((params) => {
@@ -91,9 +89,7 @@ export const defaultWaitingListFormValues: WaitingListFormValue = {
 export type CreateWaitingListInput = z.infer<typeof createWaitingListSchema>
 export type UpdateWaitingListInput = z.infer<typeof updateWaitingListSchema>
 export type WaitingListListParamsInput = z.infer<typeof waitingListListParamsSchema>
-export type BulkWaitingListOperationInput = z.infer<
-  typeof bulkWaitingListOperationSchema
->
+export type BulkWaitingListOperationInput = z.infer<typeof bulkWaitingListOperationSchema>
 
 // ============================================================================
 // Legacy exports (for backward compatibility)
@@ -120,4 +116,3 @@ export type WaitingListSchema = z.infer<typeof waitingListSchema>
  * @deprecated Use defaultWaitingListFormValues instead
  */
 export const defaultWaitingList: WaitingListFormValue = defaultWaitingListFormValues
-

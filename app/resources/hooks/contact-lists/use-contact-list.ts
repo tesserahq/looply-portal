@@ -53,7 +53,7 @@ export function useContactLists(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -85,7 +85,7 @@ export function useContactListDetail(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -97,11 +97,7 @@ export function useContactListDetail(
       try {
         return await fetchContactListDetail(contactListId, config)
       } catch (error) {
-        throw new QueryError(
-          'Failed to fetch contact list detail',
-          'FETCH_ERROR',
-          error,
-        )
+        throw new QueryError('Failed to fetch contact list detail', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
@@ -117,7 +113,7 @@ export function useCreateContactList(
   options?: {
     onSuccess?: (data: ContactListType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -155,7 +151,7 @@ export function useUpdateContactList(
   options?: {
     onSuccess?: (data: ContactListType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -202,7 +198,7 @@ export function useDeleteContactList(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -234,4 +230,3 @@ export function useDeleteContactList(
     },
   })
 }
-

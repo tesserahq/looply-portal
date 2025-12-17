@@ -8,7 +8,7 @@ interface IProps {
 
 export function FormLayout({ title, children }: IProps) {
   return (
-    <div className="mx-auto w-full max-w-screen-md animate-slide-up">
+    <div className="animate-slide-up mx-auto w-full max-w-screen-md">
       <Card>
         <CardHeader>
           <CardTitle>{title}</CardTitle>

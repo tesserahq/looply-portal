@@ -37,7 +37,7 @@ export function formatDateTime(
   date: string | Date,
   formatStr: string = DEFAULT_FORMAT,
   timezone: string,
-  showTimezone: boolean = false,
+  showTimezone: boolean = false
 ): string {
   let timezoneValue = timezone
   if (!timezone) {
@@ -70,7 +70,7 @@ export default function DateTime({
     date,
     formatStr,
     timezoneValue ?? DEFAULT_TIMEZONE,
-    showTimezone,
+    showTimezone
   )
 
   return <time className={className}>{formattedDate}</time>

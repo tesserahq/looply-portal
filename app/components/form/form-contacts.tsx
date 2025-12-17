@@ -61,7 +61,7 @@ const ContactSelect = ({
       }
     },
     [contactSearch],
-    500,
+    500
   )
 
   // Get contacts with search query if >= 3 characters
@@ -75,7 +75,7 @@ const ContactSelect = ({
     },
     {
       enabled: open || value !== '', // Only fetch when dialog is open or value is set
-    },
+    }
   )
 
   const isLoading = externalLoading || isLoadingContacts
@@ -109,7 +109,7 @@ const ContactSelect = ({
       (contact) =>
         contact.email.toLowerCase().includes(searchLower) ||
         contact.name.toLowerCase().includes(searchLower) ||
-        contact.searchValue.toLowerCase().includes(searchLower),
+        contact.searchValue.toLowerCase().includes(searchLower)
     )
   }, [contactOptions, contactSearch])
 
@@ -154,7 +154,7 @@ const ContactSelect = ({
             <span className="truncate font-medium">{selectedContact.email}</span>
           </div>
         ) : (
-          <span className="truncate text-muted-foreground">{placeholder}</span>
+          <span className="text-muted-foreground truncate">{placeholder}</span>
         )}
         <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -169,21 +169,20 @@ const ContactSelect = ({
                 placeholder={searchPlaceholder}
                 value={contactSearch}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="h-12 border-0 bg-transparent outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="h-12 border-0 bg-transparent outline-none focus-visible:ring-0
+                  focus-visible:ring-offset-0"
                 autoFocus
               />
             </div>
 
             {/* Contacts List */}
-            <div className="max-h-[300px] overflow-y-auto overflow-x-hidden p-1">
+            <div className="max-h-[300px] overflow-x-hidden overflow-y-auto p-1">
               {isLoadingContacts || isLoading ? (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 size={30} className="shrink-0 animate-spin opacity-50" />
                 </div>
               ) : filteredContacts.length === 0 ? (
-                <div className="py-6 text-center text-sm text-muted-foreground">
-                  {emptyText}
-                </div>
+                <div className="text-muted-foreground py-6 text-center text-sm">{emptyText}</div>
               ) : (
                 <div className="space-y-1">
                   {filteredContacts.map((contact) => {
@@ -194,13 +193,15 @@ const ContactSelect = ({
                         key={contact.id}
                         onClick={() => handleSelect(contact.id)}
                         className={cn(
-                          'relative flex cursor-pointer select-none items-center gap-2 rounded-sm py-2 pe-2 ps-4 text-sm outline-none hover:bg-slate-300/20 dark:hover:bg-navy-300/20',
-                          isSelected && 'border border-primary bg-accent hover:bg-accent',
+                          `dark:hover:bg-navy-300/20 relative flex cursor-pointer items-center gap-2
+                            rounded-sm py-2 ps-4 pe-2 text-sm outline-none select-none
+                            hover:bg-slate-300/20`,
+                          isSelected && 'border-primary bg-accent hover:bg-accent border'
                         )}>
                         <div className="flex flex-1 flex-col truncate">
                           <span className="truncate font-medium">{contact.email}</span>
                           {contact.name !== contact.email && (
-                            <span className="truncate text-xs text-muted-foreground">
+                            <span className="text-muted-foreground truncate text-xs">
                               {contact.name}
                             </span>
                           )}
@@ -267,9 +268,7 @@ export const FormContacts = ({
         <FormItem>
           {label && (
             <FormLabel
-              className={
-                required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
-              }>
+              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
               {label}
             </FormLabel>
           )}

@@ -12,7 +12,7 @@ import { IPaging } from '@/resources/types'
  */
 export async function fetchContactLists(
   config: ContactListQueryConfig,
-  params: ContactListQueryParams,
+  params: ContactListQueryParams
 ) {
   const { apiUrl, token, nodeEnv } = config
   const { page, size } = params
@@ -29,15 +29,11 @@ export async function fetchContactLists(
  */
 export async function fetchContactListDetail(
   contactListId: string,
-  config: ContactListQueryConfig,
+  config: ContactListQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/contact-lists/${contactListId}`,
-    token,
-    nodeEnv,
-  )
+  const response = await fetchApi(`${apiUrl}/contact-lists/${contactListId}`, token, nodeEnv)
 
   return response as ContactListType
 }
@@ -45,10 +41,7 @@ export async function fetchContactListDetail(
 /**
  * Create a new contact list.
  */
-export async function createContactList(
-  config: ContactListQueryConfig,
-  data: ContactListFormData,
-) {
+export async function createContactList(config: ContactListQueryConfig, data: ContactListFormData) {
   const { apiUrl, token, nodeEnv } = config
 
   const payload = {
@@ -71,19 +64,14 @@ export async function createContactList(
 export async function updateContactList(
   config: ContactListQueryConfig,
   contactListId: string,
-  updateData: Partial<ContactListFormData>,
+  updateData: Partial<ContactListFormData>
 ) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/contact-lists/${contactListId}`,
-    token,
-    nodeEnv,
-    {
-      method: 'PUT',
-      body: JSON.stringify(updateData),
-    },
-  )
+  const response = await fetchApi(`${apiUrl}/contact-lists/${contactListId}`, token, nodeEnv, {
+    method: 'PUT',
+    body: JSON.stringify(updateData),
+  })
 
   return response as ContactListType
 }
@@ -91,20 +79,12 @@ export async function updateContactList(
 /**
  * Delete a contact list.
  */
-export async function deleteContactList(
-  config: ContactListQueryConfig,
-  contactListId: string,
-) {
+export async function deleteContactList(config: ContactListQueryConfig, contactListId: string) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/contact-lists/${contactListId}`,
-    token,
-    nodeEnv,
-    {
-      method: 'DELETE',
-    },
-  )
+  const response = await fetchApi(`${apiUrl}/contact-lists/${contactListId}`, token, nodeEnv, {
+    method: 'DELETE',
+  })
 
   return response
 }

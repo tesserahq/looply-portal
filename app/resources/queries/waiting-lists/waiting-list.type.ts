@@ -38,4 +38,3 @@ export interface WaitingListQueryParams {
   size?: number
   q?: string
 }
-

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DateTime } from '@/components/datetime'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
@@ -28,8 +27,7 @@ export default function ContactInteractionDetail() {
   const { token } = useApp()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const deleteConfirmationRef =
-    useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteConfirmationRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
 
   const config = {
     apiUrl: apiUrl!,
@@ -39,13 +37,15 @@ export default function ContactInteractionDetail() {
 
   const { data: interaction, isLoading, error } = useContactInteractionDetail(config, id!)
 
-  const { mutate: deleteContactInteraction, isPending: isDeleting } =
-    useDeleteContactInteraction(config, {
+  const { mutate: deleteContactInteraction, isPending: isDeleting } = useDeleteContactInteraction(
+    config,
+    {
       onSuccess: () => {
         deleteConfirmationRef.current?.close()
         navigate('/contact-interactions')
       },
-    })
+    }
+  )
 
   const handleDelete = useCallback(() => {
     if (!id) return
@@ -73,7 +73,7 @@ export default function ContactInteractionDetail() {
 
   if (!interaction) {
     return (
-      <div className="mx-auto w-full max-w-screen-lg animate-slide-up">
+      <div className="animate-slide-up mx-auto w-full max-w-screen-lg">
         <Card>
           <CardContent>
             <EmptyContent
@@ -94,7 +94,7 @@ export default function ContactInteractionDetail() {
   }
 
   return (
-    <div className="mx-auto h-full max-w-screen-lg animate-slide-up">
+    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -117,7 +117,8 @@ export default function ContactInteractionDetail() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={handleDelete}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -132,7 +133,7 @@ export default function ContactInteractionDetail() {
               <dt className="d-label">Note</dt>
               <dd className="d-content">
                 {interaction.note ? (
-                  <p className="whitespace-pre-wrap text-sm">{interaction.note}</p>
+                  <p className="text-sm whitespace-pre-wrap">{interaction.note}</p>
                 ) : (
                   <span className="text-muted-foreground">N/A</span>
                 )}
@@ -150,7 +151,7 @@ export default function ContactInteractionDetail() {
               <div className="d-item">
                 <dt className="d-label">Action Description</dt>
                 <dd className="d-content">
-                  <p className="whitespace-pre-wrap text-sm">
+                  <p className="text-sm whitespace-pre-wrap">
                     {interaction.custom_action_description}
                   </p>
                 </dd>
@@ -179,21 +180,13 @@ export default function ContactInteractionDetail() {
             <div className="d-item">
               <dt className="d-label">Created At</dt>
               <dd className="d-content">
-                {interaction.created_at ? (
-                  <DateTime date={interaction.created_at} />
-                ) : (
-                  'N/A'
-                )}
+                {interaction.created_at ? <DateTime date={interaction.created_at} /> : 'N/A'}
               </dd>
             </div>
             <div className="d-item">
               <dt className="d-label">Updated At</dt>
               <dd className="d-content">
-                {interaction.updated_at ? (
-                  <DateTime date={interaction.updated_at} />
-                ) : (
-                  'N/A'
-                )}
+                {interaction.updated_at ? <DateTime date={interaction.updated_at} /> : 'N/A'}
               </dd>
             </div>
           </div>

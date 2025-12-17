@@ -14,10 +14,7 @@ export type WaitingListStatus =
 /**
  * Get badge classes for waiting list status with transparency
  */
-export const getWaitingListStatusBadgeClasses = (
-  status: string,
-  className?: string,
-): string => {
+export const getWaitingListStatusBadgeClasses = (status: string, className?: string): string => {
   const statusLower = status.toLowerCase() as WaitingListStatus
 
   const statusClasses: Record<WaitingListStatus, string> = {

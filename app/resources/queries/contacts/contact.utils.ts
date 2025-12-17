@@ -35,7 +35,7 @@ export function contactToFormValues(contact: ContactType): ContactFormValue {
  * Convert form values to contact API data
  */
 export function formValuesToContactData(
-  formValues: ContactFormValue,
+  formValues: ContactFormValue
 ): Omit<ContactType, 'id' | 'created_by_id' | 'created_at' | 'updated_at'> {
   return {
     first_name: formValues.first_name,
@@ -58,4 +58,3 @@ export function formValuesToContactData(
     is_active: formValues.is_active ?? true,
   }
 }
-

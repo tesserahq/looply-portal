@@ -30,9 +30,8 @@ export const fetchApi = async (
   endpoint: string,
   token: string,
   node_env: NodeENVType,
-  options: ApiOptions = {},
+  options: ApiOptions = {}
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const headers: any = { 'Content-Type': 'application/json' }
 
   if (token) {
@@ -66,9 +65,7 @@ export const fetchApi = async (
 
     // Reconstruct preserving relative/absolute form
     const search = urlObj.search ? urlObj.search : ''
-    const pathname = endpoint.startsWith('http')
-      ? urlObj.toString()
-      : `${urlObj.pathname}${search}`
+    const pathname = endpoint.startsWith('http') ? urlObj.toString() : `${urlObj.pathname}${search}`
     url = endpoint.startsWith('http') ? urlObj.toString() : pathname
   }
 
@@ -88,7 +85,7 @@ export const fetchApi = async (
     }
 
     const curlSnippet = CurlGenerator(params)
-    // eslint-disable-next-line no-console
+
     console.log(curlSnippet)
   }
 
@@ -107,10 +104,8 @@ export const fetchApi = async (
       throw new TokenExpiredError(
         JSON.stringify({
           status: response.status,
-          error: json?.detail
-            ? json.detail
-            : json?.detail?.[0]?.msg || 'Token expired or invalid',
-        }),
+          error: json?.detail ? json.detail : json?.detail?.[0]?.msg || 'Token expired or invalid',
+        })
       )
     }
 
@@ -118,10 +113,8 @@ export const fetchApi = async (
       throw new UnauthorizedError(
         JSON.stringify({
           status: response.status,
-          error: json?.detail
-            ? json.detail
-            : json?.detail?.[0]?.msg || 'Unauthorized access',
-        }),
+          error: json?.detail ? json.detail : json?.detail?.[0]?.msg || 'Unauthorized access',
+        })
       )
     }
 
@@ -133,7 +126,7 @@ export const fetchApi = async (
             ? json.detail
             : json?.detail[0]?.msg
           : response.statusText,
-      }),
+      })
     )
   }
 

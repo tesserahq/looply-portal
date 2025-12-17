@@ -61,7 +61,7 @@ export function AppProvider({ children, identiesApiUrl, nodeEnv }: IProviderProp
       user: user || null,
       isLoading: loadingAuth0,
     }),
-    [user, token],
+    [user, token]
   )
 
   return <AppContext.Provider value={contextPayload}>{children}</AppContext.Provider>

@@ -28,7 +28,7 @@ interface IProps {
 
 const ContactInteractionShortcut: React.ForwardRefRenderFunction<FuncProps, IProps> = (
   { apiUrl, nodeEnv }: IProps,
-  ref,
+  ref
 ) => {
   const navigate = useNavigate()
   const params = useParams<{ id: string }>()

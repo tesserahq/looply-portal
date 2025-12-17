@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IPagingInfo } from '@/resources/types'
 import {
   PaginationComponent,
@@ -6,13 +5,7 @@ import {
   PaginationItem,
   PaginationEllipsis,
 } from '@shadcn/ui/pagination'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@shadcn/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import { useState } from 'react'
 import { useScopedParams } from '@/utils/scoped_params'
 import { useNavigate } from '@remix-run/react'
@@ -70,7 +63,7 @@ export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-1">
-        <p className="w-28 text-sm text-navy-800 dark:text-navy-200">Items per page:</p>
+        <p className="text-navy-800 dark:text-navy-200 w-28 text-sm">Items per page:</p>
         <div className="w-20">
           <Select value={row} onValueChange={onChange}>
             <SelectTrigger className="h-8">
@@ -88,7 +81,7 @@ export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
 
       <PaginationComponent className="justify-end">
         <PaginationContent>
-          <div className="mr-2 text-sm text-navy-800 dark:text-navy-200">
+          <div className="text-navy-800 dark:text-navy-200 mr-2 text-sm">
             {startRecord}-{endRecord} of {total.toLocaleString()}
           </div>
           {/* First page button */}
@@ -110,9 +103,7 @@ export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
           {/* First page number */}
           {showFirstPage && (
             <PaginationItem>
-              <Button
-                variant={1 === page ? 'default' : 'outline'}
-                onClick={() => onNavigate(1)}>
+              <Button variant={1 === page ? 'default' : 'outline'} onClick={() => onNavigate(1)}>
                 1
               </Button>
             </PaginationItem>

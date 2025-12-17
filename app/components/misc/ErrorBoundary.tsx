@@ -29,7 +29,9 @@ export function GenericErrorBoundary({
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center dark:text-primary-foreground">
+    <div
+      className="dark:text-primary-foreground flex h-full w-full flex-col items-center
+        justify-center">
       {isRouteErrorResponse(error)
         ? (statusHandlers?.[error.status] ?? defaultStatusHandler)({
             error,
@@ -42,12 +44,7 @@ export function GenericErrorBoundary({
 
 export function getErrorMessage(err: unknown) {
   if (typeof err === 'string') return err
-  if (
-    err &&
-    typeof err === 'object' &&
-    'message' in err &&
-    typeof err.message === 'string'
-  ) {
+  if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
     return err.message
   }
   console.error('Unable to get error message for error:', err)

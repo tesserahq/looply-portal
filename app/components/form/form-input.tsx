@@ -8,11 +8,7 @@ import {
   FormDescription,
 } from '@/modules/shadcn/ui/form'
 import { Input } from '@/modules/shadcn/ui/input'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/modules/shadcn/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/modules/shadcn/ui/input-group'
 import { ComponentProps } from 'react'
 
 interface FormInputProps extends Omit<ComponentProps<typeof Input>, 'name'> {
@@ -62,9 +58,7 @@ export const FormInput = ({
         <FormItem>
           {label && (
             <FormLabel
-              className={
-                required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
-              }>
+              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
               {label}
             </FormLabel>
           )}

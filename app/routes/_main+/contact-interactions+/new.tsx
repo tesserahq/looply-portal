@@ -27,7 +27,7 @@ export default function ContactInteractionNew() {
       onSuccess: (data: ContactInteractionType) => {
         navigate(`/contact-interactions/${data.id}`)
       },
-    },
+    }
   )
 
   const handleSubmit = async (data: ContactInteractionFormData): Promise<void> => {

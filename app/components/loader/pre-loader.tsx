@@ -4,8 +4,8 @@ export function AppPreloader({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'app-preloader grid h-full w-full place-content-center bg-background',
-        className,
+        'app-preloader bg-background grid h-full w-full place-content-center',
+        className
       )}>
       <div className="app-preloader-inner relative inline-block size-48"></div>
     </div>

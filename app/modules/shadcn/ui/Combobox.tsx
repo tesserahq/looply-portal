@@ -165,7 +165,7 @@ export function Combobox<T = unknown>({
 
   const selectedOption = React.useMemo(
     () => options.find((option) => option.value === value),
-    [options, value],
+    [options, value]
   )
 
   const handleOpenChange = React.useCallback(
@@ -173,15 +173,14 @@ export function Combobox<T = unknown>({
       setOpen(isOpen)
       onOpenChange?.(isOpen)
     },
-    [onOpenChange],
+    [onOpenChange]
   )
 
   const handleSelect = React.useCallback(
     (currentValue: string) => {
       const selected = options.find(
         (option) =>
-          (option.searchValue ?? option.label).toLowerCase() ===
-          currentValue.toLowerCase(),
+          (option.searchValue ?? option.label).toLowerCase() === currentValue.toLowerCase()
       )
 
       if (selected) {
@@ -189,7 +188,7 @@ export function Combobox<T = unknown>({
       }
       setOpen(false)
     },
-    [options, value, onChange],
+    [options, value, onChange]
   )
 
   return (
@@ -213,19 +212,15 @@ export function Combobox<T = unknown>({
                   <span className="truncate">{selectedOption.label}</span>
                 )
               ) : (
-                <span className="truncate text-muted-foreground">{placeholder}</span>
+                <span className="text-muted-foreground truncate">{placeholder}</span>
               )}
               <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           )}
         </PopoverTrigger>
-        <PopoverContent
-          className={cn('w-full p-0', !searchable && 'min-w-52')}
-          align="start">
+        <PopoverContent className={cn('w-full p-0', !searchable && 'min-w-52')} align="start">
           <Command>
-            {searchable && (
-              <CommandInput placeholder={searchPlaceholder} disabled={disabled} />
-            )}
+            {searchable && <CommandInput placeholder={searchPlaceholder} disabled={disabled} />}
             <CommandList>
               <CommandEmpty>{emptyText}</CommandEmpty>
               <CommandGroup>
@@ -244,15 +239,16 @@ export function Combobox<T = unknown>({
                       value={searchValue}
                       disabled={option.disabled}
                       className={cn(
-                        'cursor-pointer text-base capitalize hover:bg-slate-300/20 dark:hover:bg-navy-300/20',
+                        `dark:hover:bg-navy-300/20 cursor-pointer text-base capitalize
+                        hover:bg-slate-300/20`,
                         isSelected && 'bg-accent',
-                        option.disabled && 'cursor-not-allowed opacity-50',
+                        option.disabled && 'cursor-not-allowed opacity-50'
                       )}
                       onSelect={handleSelect}>
                       <CheckIcon
                         className={cn(
                           'mr-2 h-4 w-4 shrink-0',
-                          isSelected ? 'opacity-100' : 'opacity-0',
+                          isSelected ? 'opacity-100' : 'opacity-0'
                         )}
                       />
                       {OptionContent}

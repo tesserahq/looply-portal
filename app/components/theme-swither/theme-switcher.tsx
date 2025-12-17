@@ -28,7 +28,7 @@ export function ThemeSwitcher({
             action: THEME_PATH,
             navigate: false,
             fetcherKey: 'theme-fetcher',
-          },
+          }
         )
       }>
       <SelectTrigger className={triggerClass ?? ''}>
@@ -50,7 +50,7 @@ export function ThemeSwitcher({
           <SelectItem
             key={theme}
             value={theme}
-            className={`text-sm font-medium text-primary/60 ${mode === theme && 'text-primary'}`}>
+            className={`text-primary/60 text-sm font-medium ${mode === theme && 'text-primary'}`}>
             {theme && theme.charAt(0).toUpperCase() + theme.slice(1)}
           </SelectItem>
         ))}
@@ -68,11 +68,11 @@ export function ThemeSwitcherHome() {
       {themes.map((theme) => (
         <button key={theme} type="submit" name="theme" value={theme}>
           {theme === 'light' ? (
-            <Sun className="h-4 w-4 text-primary/80 hover:text-primary" />
+            <Sun className="text-primary/80 hover:text-primary h-4 w-4" />
           ) : theme === 'dark' ? (
-            <Moon className="h-4 w-4 text-primary/80 hover:text-primary" />
+            <Moon className="text-primary/80 hover:text-primary h-4 w-4" />
           ) : (
-            <Monitor className="h-4 w-4 text-primary/80 hover:text-primary" />
+            <Monitor className="text-primary/80 hover:text-primary h-4 w-4" />
           )}
         </button>
       ))}

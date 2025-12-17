@@ -8,7 +8,6 @@ import { getInitialNamespaces } from 'remix-i18next/client'
 import * as i18n from '@/modules/i18n/i18n'
 
 async function main() {
-  // eslint-disable-next-line import/no-named-as-default-member
   await i18next
     // Initialize `react-i18next`.
     .use(initReactI18next)
@@ -31,7 +30,7 @@ async function main() {
       document,
       <I18nextProvider i18n={i18next}>
         <RemixBrowser />
-      </I18nextProvider>,
+      </I18nextProvider>
     )
   })
 }

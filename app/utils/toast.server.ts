@@ -53,11 +53,7 @@ export async function createToastHeaders(toastInput: ToastInput) {
   return new Headers({ 'Set-Cookie': cookie })
 }
 
-export async function redirectWithToast(
-  url: string,
-  toast: ToastInput,
-  init?: ResponseInit,
-) {
+export async function redirectWithToast(url: string, toast: ToastInput, init?: ResponseInit) {
   return redirect(url, {
     ...init,
     headers: combineHeaders(init?.headers, await createToastHeaders(toast)),

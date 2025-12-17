@@ -42,11 +42,9 @@ export const WaitingListForm = ({
   }
 
   return (
-    <Form
-      schema={waitingListFormSchema}
-      defaultValues={defaultValues}
-      onSubmit={handleSubmit}>
+    <Form schema={waitingListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
+<<<<<<< HEAD
         <Form.Input
           field="name"
           label="Name"
@@ -54,6 +52,9 @@ export const WaitingListForm = ({
           required
           autoFocus
         />
+=======
+        <Form.Input field="name" label="Name" placeholder="Enter waiting list name" required />
+>>>>>>> a43ae31 (update dependency eslint to v9)
 
         <Form.Textarea
           field="description"
@@ -62,10 +63,7 @@ export const WaitingListForm = ({
         />
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={() => navigate('/waiting-lists')}>
+          <Button variant="secondary" type="button" onClick={() => navigate('/waiting-lists')}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>

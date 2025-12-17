@@ -15,10 +15,7 @@ export const formatDateAgo = (date: string) => {
     return 'Today'
   }
 
-  if (
-    differenceInHours(now, currentDate) > 0 &&
-    differenceInHours(now, currentDate) < 24
-  ) {
+  if (differenceInHours(now, currentDate) > 0 && differenceInHours(now, currentDate) < 24) {
     const days = differenceInHours(now, currentDate)
     return `${days} hour${days > 1 ? 's' : ''} ago`
   }
@@ -28,18 +25,12 @@ export const formatDateAgo = (date: string) => {
     return `${days} day${days > 1 ? 's' : ''} ago`
   }
 
-  if (
-    differenceInWeeks(now, currentDate) >= 0 &&
-    differenceInWeeks(now, currentDate) < 4
-  ) {
+  if (differenceInWeeks(now, currentDate) >= 0 && differenceInWeeks(now, currentDate) < 4) {
     const weeks = differenceInWeeks(now, currentDate)
     return `${weeks} week${weeks > 1 ? 's' : ''} ago`
   }
 
-  if (
-    differenceInMonths(now, currentDate) >= 0 &&
-    differenceInMonths(now, currentDate) < 12
-  ) {
+  if (differenceInMonths(now, currentDate) >= 0 && differenceInMonths(now, currentDate) < 12) {
     const months = differenceInMonths(now, currentDate)
     return `${months} month${months > 1 ? 's' : ''} ago`
   }
