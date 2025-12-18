@@ -23,8 +23,10 @@ export interface SelectOption {
   disabled?: boolean
 }
 
-interface FormSelectProps
-  extends Omit<ComponentProps<typeof Select>, 'name' | 'value' | 'onValueChange'> {
+interface FormSelectProps extends Omit<
+  ComponentProps<typeof Select>,
+  'name' | 'value' | 'onValueChange'
+> {
   field: string
   label?: string
   description?: string
@@ -67,9 +69,7 @@ export const FormSelect = ({
         <FormItem>
           {label && (
             <FormLabel
-              className={
-                required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
-              }>
+              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
               {label}
             </FormLabel>
           )}
@@ -89,10 +89,7 @@ export const FormSelect = ({
               </SelectTrigger>
               <SelectContent>
                 {options.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    disabled={option.disabled}>
+                  <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                     {option.label}
                   </SelectItem>
                 ))}

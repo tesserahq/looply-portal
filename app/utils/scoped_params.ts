@@ -8,7 +8,7 @@ export function getScopedParams(request: Request, scope: string = '') {
     : new URLSearchParams(
         Array.from(url.searchParams.entries())
           .filter(([key]) => key.startsWith(`${scope}:`))
-          .map(([key, value]) => [key.replace(`${scope}:`, ''), value]),
+          .map(([key, value]) => [key.replace(`${scope}:`, ''), value])
       )
 }
 

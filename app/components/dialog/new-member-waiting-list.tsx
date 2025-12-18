@@ -1,12 +1,6 @@
 import { Button } from '@shadcn/ui/button'
 import { Checkbox } from '@shadcn/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@shadcn/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@shadcn/ui/dialog'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@shadcn/ui/input-group'
 import { Label } from '@shadcn/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@shadcn/ui/select'
@@ -34,7 +28,7 @@ interface IProps {
 
 const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = (
   { onAddMembers, memberStatuses, apiUrl, nodeEnv }: IProps,
-  ref,
+  ref
 ) => {
   const navigate = useNavigate()
   const { token } = useApp()
@@ -56,7 +50,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
     { page: 1, size: 100, q: hasSearchQuery ? search : undefined },
     {
       enabled: open && !!token,
-    },
+    }
   )
 
   // Debounced search - only triggers when user types (not on initial load)
@@ -65,7 +59,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
       // Search is handled by the query hook
     },
     [search],
-    500,
+    500
   )
 
   useImperativeHandle(ref, () => ({
@@ -108,8 +102,8 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
 
   const emptyContent = (
     <div className="flex h-48 flex-col items-center justify-center">
-      <h1 className="text-xl font-semibold dark:text-foreground">No members found</h1>
-      <p className="mt-1 text-sm opacity-70 dark:text-foreground">
+      <h1 className="dark:text-foreground text-xl font-semibold">No members found</h1>
+      <p className="dark:text-foreground mt-1 text-sm opacity-70">
         Get started by creating your first contact
       </p>
       <Button variant="black" onClick={() => navigate('/contacts/new')} className="mt-3">
@@ -120,8 +114,8 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
 
   const emptySearchContent = (
     <div className="flex h-48 flex-col items-center justify-center">
-      <h1 className="text-xl font-semibold dark:text-foreground">No contacts found</h1>
-      <p className="mt-1 text-sm opacity-70 dark:text-foreground">
+      <h1 className="dark:text-foreground text-xl font-semibold">No contacts found</h1>
+      <p className="dark:text-foreground mt-1 text-sm opacity-70">
         Try adjusting your search criteria
       </p>
     </div>
@@ -141,7 +135,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
               <span
                 className={cn(
                   'capitalize',
-                  !memberStatus && 'normal-case text-muted-foreground opacity-50',
+                  !memberStatus && 'text-muted-foreground normal-case opacity-50'
                 )}>
                 {memberStatus || 'Select status'}
               </span>
@@ -153,9 +147,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col items-start">
                         <p>{status.label}</p>
-                        <span className="text-xs text-muted-foreground">
-                          {status.description}
-                        </span>
+                        <span className="text-muted-foreground text-xs">{status.description}</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -168,7 +160,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
         {(hasData || search !== null) && (
           <>
             <Label className="mb-0">Members</Label>
-            <InputGroup className="w-full animate-slide-up bg-white dark:bg-card">
+            <InputGroup className="animate-slide-up dark:bg-card w-full bg-white">
               <InputGroupInput
                 placeholder="Search members"
                 value={search}
@@ -196,19 +188,19 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
         {isLoading ? (
           <AppPreloader className="h-auto" />
         ) : (
-          <div className="flex animate-slide-up flex-col gap-1">
+          <div className="animate-slide-up flex flex-col gap-1">
             {!hasData && !search && emptyContent}
             {!hasData && search && emptySearchContent}
             {hasData &&
               contacts?.items.map((contact) => {
-                const fullName = [contact.first_name, contact.last_name]
-                  .filter(Boolean)
-                  .join(' ')
+                const fullName = [contact.first_name, contact.last_name].filter(Boolean).join(' ')
 
                 return (
                   <Label
                     key={contact.id}
-                    className="mb-1 flex items-start gap-3 rounded-lg border bg-card p-3 hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+                    className="bg-card hover:bg-accent/50 mb-1 flex items-start gap-3 rounded-lg
+                      border p-3 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50
+                      dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
                     <Checkbox
                       id="tools"
                       value={contact.id}
@@ -219,7 +211,10 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
 
                         setContactIds(filterContactIds)
                       }}
-                      className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                      className="data-[state=checked]:border-blue-600
+                        data-[state=checked]:bg-blue-600 data-[state=checked]:text-white
+                        dark:data-[state=checked]:border-blue-700
+                        dark:data-[state=checked]:bg-blue-700"
                     />
                     <div>
                       <Link
@@ -228,11 +223,9 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
                         {contact.email}
                       </Link>
                       <div className="mt-1 flex items-center gap-1">
-                        {fullName && (
-                          <p className="text-xs text-muted-foreground">{fullName} | </p>
-                        )}
+                        {fullName && <p className="text-muted-foreground text-xs">{fullName} | </p>}
                         {contact.phone && (
-                          <p className="text-xs text-muted-foreground">{contact.phone}</p>
+                          <p className="text-muted-foreground text-xs">{contact.phone}</p>
                         )}
                       </div>
                     </div>
@@ -243,7 +236,7 @@ const NewMemberWaitingList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
         )}
 
         {/* FOOTER */}
-        <DialogFooter className="flex w-full items-center !justify-between">
+        <DialogFooter className="flex w-full items-center justify-between!">
           <div>{contactIds.length > 0 && <span>{contactIds.length} Selected</span>}</div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={onCloseDialog}>

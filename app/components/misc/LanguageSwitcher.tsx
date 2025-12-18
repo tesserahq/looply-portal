@@ -29,10 +29,7 @@ export function LanguageSwitcher() {
       </SelectTrigger>
       <SelectContent>
         {langs.map(({ text, value }) => (
-          <SelectItem
-            key={value}
-            value={value}
-            className={`text-sm font-medium text-primary/60`}>
+          <SelectItem key={value} value={value} className={'text-primary/60 text-sm font-medium'}>
             {text}
           </SelectItem>
         ))}

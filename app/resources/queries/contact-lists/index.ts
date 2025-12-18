@@ -25,10 +25,7 @@ export {
 } from './contact-list.schema'
 
 // Utils
-export {
-  contactListToFormValues,
-  formValuesToContactListData,
-} from './contact-list.utils'
+export { contactListToFormValues, formValuesToContactListData } from './contact-list.utils'
 
 // Member query functions
 export {
@@ -45,4 +42,3 @@ export type {
   AddContactListMembersData,
   ContactListMemberQueryConfig,
 } from './contact-list-member.type'
-

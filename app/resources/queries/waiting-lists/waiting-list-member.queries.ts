@@ -14,14 +14,14 @@ import { ContactType } from '../contacts'
  */
 export async function fetchWaitingListMembers(
   waitingListId: string,
-  config: WaitingListMemberQueryConfig,
+  config: WaitingListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
   const response = await fetchApi(
     `${apiUrl}/waiting-lists/${waitingListId}/members`,
     token,
-    nodeEnv,
+    nodeEnv
   )
 
   return response as WaitingListMembersResponse
@@ -33,14 +33,14 @@ export async function fetchWaitingListMembers(
 export async function fetchWaitingListMembersByStatus(
   waitingListId: string,
   status: string,
-  config: WaitingListMemberQueryConfig,
+  config: WaitingListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
   const response = await fetchApi(
     `${apiUrl}/waiting-lists/${waitingListId}/members/by-status/${status}`,
     token,
-    nodeEnv,
+    nodeEnv
   )
 
   return response as WaitingListMembersResponse | { members: ContactType[] }
@@ -52,11 +52,7 @@ export async function fetchWaitingListMembersByStatus(
 export async function fetchWaitingListStatuses(config: WaitingListMemberQueryConfig) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/waiting-lists/member-statuses`,
-    token,
-    nodeEnv,
-  )
+  const response = await fetchApi(`${apiUrl}/waiting-lists/member-statuses`, token, nodeEnv)
 
   return response as WaitingListStatusesResponse
 }
@@ -67,7 +63,7 @@ export async function fetchWaitingListStatuses(config: WaitingListMemberQueryCon
 export async function addWaitingListMembers(
   waitingListId: string,
   config: WaitingListMemberQueryConfig,
-  data: AddWaitingListMembersData,
+  data: AddWaitingListMembersData
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -85,7 +81,7 @@ export async function addWaitingListMembers(
     {
       method: 'POST',
       body: JSON.stringify(payload),
-    },
+    }
   )
 
   return response
@@ -98,7 +94,7 @@ export async function updateWaitingListMemberStatus(
   waitingListId: string,
   memberId: string,
   config: WaitingListMemberQueryConfig,
-  data: UpdateWaitingListMemberStatusData,
+  data: UpdateWaitingListMemberStatusData
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -108,7 +104,7 @@ export async function updateWaitingListMemberStatus(
     nodeEnv,
     {
       method: 'PUT',
-    },
+    }
   )
 
   return response
@@ -120,7 +116,7 @@ export async function updateWaitingListMemberStatus(
 export async function bulkUpdateWaitingListMemberStatus(
   waitingListId: string,
   config: WaitingListMemberQueryConfig,
-  data: BulkUpdateWaitingListMemberStatusData,
+  data: BulkUpdateWaitingListMemberStatusData
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -131,7 +127,7 @@ export async function bulkUpdateWaitingListMemberStatus(
     {
       method: 'POST',
       body: JSON.stringify(data.contact_ids),
-    },
+    }
   )
 
   return response
@@ -143,7 +139,7 @@ export async function bulkUpdateWaitingListMemberStatus(
 export async function removeWaitingListMember(
   waitingListId: string,
   memberId: string,
-  config: WaitingListMemberQueryConfig,
+  config: WaitingListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -153,7 +149,7 @@ export async function removeWaitingListMember(
     nodeEnv,
     {
       method: 'DELETE',
-    },
+    }
   )
 
   return response
@@ -164,7 +160,7 @@ export async function removeWaitingListMember(
  */
 export async function removeAllWaitingListMembers(
   waitingListId: string,
-  config: WaitingListMemberQueryConfig,
+  config: WaitingListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -174,7 +170,7 @@ export async function removeAllWaitingListMembers(
     nodeEnv,
     {
       method: 'DELETE',
-    },
+    }
   )
 
   return response

@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 export function handleFetcherData(
   data: unknown,
   onSuccess?: (response: any) => void,
-  showToast = true,
+  showToast = true
 ) {
   if (!data || typeof data !== 'object') {
     // console.warn('Invalid fetcher data:', data)

@@ -39,8 +39,7 @@ class QueryError extends Error {
 export const waitingListMemberQueryKeys = {
   all: ['waiting-list-members'] as const,
   lists: () => [...waitingListMemberQueryKeys.all, 'list'] as const,
-  list: (waitingListId: string) =>
-    [...waitingListMemberQueryKeys.lists(), waitingListId] as const,
+  list: (waitingListId: string) => [...waitingListMemberQueryKeys.lists(), waitingListId] as const,
   listByStatus: (waitingListId: string, status: string) =>
     [...waitingListMemberQueryKeys.list(waitingListId), 'status', status] as const,
   statuses: () => [...waitingListMemberQueryKeys.all, 'statuses'] as const,
@@ -58,7 +57,7 @@ export function useWaitingListMembers(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -93,7 +92,7 @@ export function useWaitingListMembersByStatus(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -103,18 +102,10 @@ export function useWaitingListMembersByStatus(
     queryKey: waitingListMemberQueryKeys.listByStatus(waitingListId, status),
     queryFn: async () => {
       try {
-        const response = await fetchWaitingListMembersByStatus(
-          waitingListId,
-          status,
-          config,
-        )
+        const response = await fetchWaitingListMembersByStatus(waitingListId, status, config)
         return (response.members || []) as WaitingListMemberType[]
       } catch (error) {
-        throw new QueryError(
-          'Failed to fetch waiting list members by status',
-          'FETCH_ERROR',
-          error,
-        )
+        throw new QueryError('Failed to fetch waiting list members by status', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
@@ -132,7 +123,7 @@ export function useWaitingListStatuses(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -145,11 +136,7 @@ export function useWaitingListStatuses(
         const response = await fetchWaitingListStatuses(config)
         return response.items || []
       } catch (error) {
-        throw new QueryError(
-          'Failed to fetch waiting list statuses',
-          'FETCH_ERROR',
-          error,
-        )
+        throw new QueryError('Failed to fetch waiting list statuses', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
@@ -166,7 +153,7 @@ export function useAddWaitingListMembers(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -207,7 +194,7 @@ export function useUpdateWaitingListMemberStatus(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -254,7 +241,7 @@ export function useRemoveWaitingListMember(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -295,7 +282,7 @@ export function useRemoveAllWaitingListMembers(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -336,7 +323,7 @@ export function useBulkUpdateWaitingListMemberStatus(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 

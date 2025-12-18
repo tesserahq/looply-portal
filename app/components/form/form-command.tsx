@@ -48,7 +48,11 @@ const CommandDialog = ({
         <Command
           value={commandValue}
           onValueChange={onCommandValueChange}
-          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+          className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2
+            [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2
+            [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5
+            [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2
+            [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>
       </DialogContent>
@@ -94,8 +98,7 @@ const CommandSelect = ({
 
   const handleSelect = (currentValue: string) => {
     const selected = options.find(
-      (option) =>
-        (option.searchValue ?? option.label).toLowerCase() === currentValue.toLowerCase(),
+      (option) => (option.searchValue ?? option.label).toLowerCase() === currentValue.toLowerCase()
     )
 
     if (selected) {
@@ -122,7 +125,7 @@ const CommandSelect = ({
         ) : selectedOption ? (
           <span className="truncate">{selectedOption.label}</span>
         ) : (
-          <span className="truncate text-muted-foreground">{placeholder}</span>
+          <span className="text-muted-foreground truncate">{placeholder}</span>
         )}
         <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -132,9 +135,7 @@ const CommandSelect = ({
         commandValue={searchValue}
         onCommandValueChange={handleSearchChange}
         {...dialogProps}>
-        {searchable && (
-          <CommandInput placeholder={searchPlaceholder} disabled={isLoading} />
-        )}
+        {searchable && <CommandInput placeholder={searchPlaceholder} disabled={isLoading} />}
         <CommandList>
           <CommandEmpty>{emptyText}</CommandEmpty>
           <CommandGroup>
@@ -148,15 +149,16 @@ const CommandSelect = ({
                   value={optionSearchValue}
                   disabled={option.disabled}
                   className={cn(
-                    'cursor-pointer text-base capitalize hover:bg-slate-300/20 dark:hover:bg-navy-300/20',
+                    `dark:hover:bg-navy-300/20 cursor-pointer text-base capitalize
+                    hover:bg-slate-300/20`,
                     isSelected && 'bg-accent',
-                    option.disabled && 'cursor-not-allowed opacity-50',
+                    option.disabled && 'cursor-not-allowed opacity-50'
                   )}
                   onSelect={handleSelect}>
                   <CheckIcon
                     className={cn(
                       'mr-2 h-4 w-4 shrink-0',
-                      isSelected ? 'opacity-100' : 'opacity-0',
+                      isSelected ? 'opacity-100' : 'opacity-0'
                     )}
                   />
                   <span className="truncate">{option.label}</span>
@@ -170,11 +172,10 @@ const CommandSelect = ({
   )
 }
 
-interface FormCommandProps
-  extends Omit<
-    ComponentProps<typeof CommandDialog>,
-    'commandValue' | 'onCommandValueChange' | 'children'
-  > {
+interface FormCommandProps extends Omit<
+  ComponentProps<typeof CommandDialog>,
+  'commandValue' | 'onCommandValueChange' | 'children'
+> {
   field: string
   label?: string
   description?: string
@@ -227,9 +228,7 @@ export const FormCommand = ({
         <FormItem>
           {label && (
             <FormLabel
-              className={
-                required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
-              }>
+              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
               {label}
             </FormLabel>
           )}

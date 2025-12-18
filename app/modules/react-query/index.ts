@@ -4,8 +4,8 @@
  */
 
 // Configuration
-export { queryClient } from './config/client';
-export { ReactQueryProvider } from './config/provider';
+export { queryClient } from './config/client'
+export { ReactQueryProvider } from './config/provider'
 
 // Utilities
-export { queryKeys } from './utils/query-keys';
+export { queryKeys } from './utils/query-keys'

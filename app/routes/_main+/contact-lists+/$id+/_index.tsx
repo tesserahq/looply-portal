@@ -38,8 +38,7 @@ export default function ContactListDetail() {
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
-  const deleteContactListModalRef =
-    useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteContactListModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const newMemberRef = useRef<React.ElementRef<typeof NewMemberContactList>>(null)
 
   const config = {
@@ -55,7 +54,7 @@ export default function ContactListDetail() {
     contactListId,
     {
       enabled: !!contactListId && !!token,
-    },
+    }
   )
 
   const { data: members = [], isLoading: isLoadingMembers } = useContactListMembers(
@@ -63,28 +62,20 @@ export default function ContactListDetail() {
     contactListId,
     {
       enabled: !!contactListId && !!token,
-    },
+    }
   )
 
-  const { mutateAsync: removeMember } = useRemoveContactListMember(
-    config,
-    contactListId,
-    {
-      onSuccess: () => {
-        deleteModalRef.current?.close()
-      },
+  const { mutateAsync: removeMember } = useRemoveContactListMember(config, contactListId, {
+    onSuccess: () => {
+      deleteModalRef.current?.close()
     },
-  )
+  })
 
-  const { mutateAsync: removeAllMembers } = useRemoveAllContactListMembers(
-    config,
-    contactListId,
-    {
-      onSuccess: () => {
-        deleteAllModalRef.current?.close()
-      },
+  const { mutateAsync: removeAllMembers } = useRemoveAllContactListMembers(config, contactListId, {
+    onSuccess: () => {
+      deleteAllModalRef.current?.close()
     },
-  )
+  })
 
   const { mutateAsync: addMembers } = useAddContactListMembers(config, contactListId, {
     onSuccess: () => {
@@ -110,7 +101,7 @@ export default function ContactListDetail() {
         },
       })
     },
-    [removeMember],
+    [removeMember]
   )
 
   const handleDeleteAll = useCallback(() => {
@@ -128,7 +119,7 @@ export default function ContactListDetail() {
     async (contactIds: string[]) => {
       await addMembers({ contact_ids: contactIds })
     },
-    [addMembers],
+    [addMembers]
   )
 
   const handleDeleteContactList = useCallback(() => {
@@ -167,11 +158,7 @@ export default function ContactListDetail() {
         header: 'State',
         size: 100,
         cell: ({ row }) => {
-          return (
-            <Badge variant="outline">
-              {row.original.is_active ? 'Active' : 'Inactive'}
-            </Badge>
-          )
+          return <Badge variant="outline">{row.original.is_active ? 'Active' : 'Inactive'}</Badge>
         },
       },
       {
@@ -189,9 +176,7 @@ export default function ContactListDetail() {
         header: 'Contact Type',
         cell: ({ row }) => {
           const { contact_type } = row.original
-          return (
-            <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
-          )
+          return <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
         },
       },
       {
@@ -203,9 +188,7 @@ export default function ContactListDetail() {
           return (
             <div className="flex items-center gap-2">
               <span className="text-sm">{phone}</span>
-              {phone_type && (
-                <span className="text-xs text-muted-foreground">({phone_type})</span>
-              )}
+              {phone_type && <span className="text-muted-foreground text-xs">({phone_type})</span>}
             </div>
           )
         },
@@ -225,7 +208,8 @@ export default function ContactListDetail() {
               <PopoverContent align="start" side="left" className="w-40 p-2">
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -236,7 +220,7 @@ export default function ContactListDetail() {
         },
       },
     ],
-    [handleDelete],
+    [handleDelete]
   )
 
   const hasData = useMemo(() => {
@@ -262,7 +246,7 @@ export default function ContactListDetail() {
 
   if (!contactList) {
     return (
-      <div className="flex h-full animate-slide-up items-center justify-center">
+      <div className="animate-slide-up flex h-full items-center justify-center">
         <Card>
           <CardContent className="p-6">
             <p className="text-muted-foreground">Contact list not found</p>
@@ -273,7 +257,7 @@ export default function ContactListDetail() {
   }
 
   return (
-    <div className="mx-auto h-full max-w-screen-lg animate-slide-up">
+    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -294,7 +278,8 @@ export default function ContactListDetail() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={handleDeleteContactList}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -342,10 +327,7 @@ export default function ContactListDetail() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-2xl">Members</h1>
             {hasData && (
-              <NewButton
-                label="New Members"
-                onClick={() => newMemberRef.current?.onOpen()}
-              />
+              <NewButton label="New Members" onClick={() => newMemberRef.current?.onOpen()} />
             )}
           </div>
         </CardHeader>

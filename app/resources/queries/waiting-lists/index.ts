@@ -25,10 +25,7 @@ export {
 } from './waiting-list.schema'
 
 // Utils
-export {
-  waitingListToFormValues,
-  formValuesToWaitingListData,
-} from './waiting-list.utils'
+export { waitingListToFormValues, formValuesToWaitingListData } from './waiting-list.utils'
 
 // Member query functions
 export {
@@ -53,4 +50,3 @@ export type {
   BulkUpdateWaitingListMemberStatusData,
   WaitingListMemberQueryConfig,
 } from './waiting-list-member.type'
-

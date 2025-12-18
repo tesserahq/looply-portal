@@ -49,9 +49,7 @@ export const FormTextarea = ({
         <FormItem>
           {label && (
             <FormLabel
-              className={
-                required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
-              }>
+              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
               {label}
             </FormLabel>
           )}

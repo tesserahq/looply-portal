@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { SidebarPanel, SidebarPanelMin, Header } from '@/components/layouts'
 import { useApp } from '@/context/AppContext'
@@ -51,7 +50,7 @@ export default function Layout() {
         icon: <Contact size={18} />,
       },
     ],
-    [],
+    []
   )
 
   const onResize = useCallback(() => {

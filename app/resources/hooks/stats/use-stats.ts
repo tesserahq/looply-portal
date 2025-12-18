@@ -35,7 +35,7 @@ export function useStats(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')

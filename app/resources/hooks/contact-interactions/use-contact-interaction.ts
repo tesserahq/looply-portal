@@ -39,14 +39,12 @@ export const contactInteractionQueryKeys = {
   lists: () => [...contactInteractionQueryKeys.all, 'list'] as const,
   list: (config: ContactInteractionQueryConfig) =>
     [...contactInteractionQueryKeys.lists(), config] as const,
-  byContactLists: () =>
-    [...contactInteractionQueryKeys.all, 'by-contact', 'list'] as const,
+  byContactLists: () => [...contactInteractionQueryKeys.all, 'by-contact', 'list'] as const,
   byContactList: (
     config: ContactInteractionQueryConfig,
     contactId: string,
-    params: ContactInteractionQueryParams,
-  ) =>
-    [...contactInteractionQueryKeys.byContactLists(), config, contactId, params] as const,
+    params: ContactInteractionQueryParams
+  ) => [...contactInteractionQueryKeys.byContactLists(), config, contactId, params] as const,
   details: () => [...contactInteractionQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...contactInteractionQueryKeys.details(), id] as const,
   actions: () => [...contactInteractionQueryKeys.all, 'action'] as const,
@@ -64,7 +62,7 @@ export function useContactInteractions(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -98,7 +96,7 @@ export function useContactInteractionsByContactId(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   const isEnabled =
     options?.enabled !== false && Boolean(config.token) && Boolean(contactId) && !!params
@@ -112,7 +110,7 @@ export function useContactInteractionsByContactId(
         throw new QueryError(
           'Failed to fetch contact interactions for contact',
           'FETCH_ERROR',
-          error,
+          error
         )
       }
     },
@@ -133,7 +131,7 @@ export function useContactInteractionDetail(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -145,11 +143,7 @@ export function useContactInteractionDetail(
       try {
         return await fetchContactInteractionDetail(interactionId, config)
       } catch (error) {
-        throw new QueryError(
-          'Failed to fetch contact interaction detail',
-          'FETCH_ERROR',
-          error,
-        )
+        throw new QueryError('Failed to fetch contact interaction detail', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
@@ -165,7 +159,7 @@ export function useCreateContactInteraction(
   options?: {
     onSuccess?: (data: ContactInteractionType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -174,9 +168,7 @@ export function useCreateContactInteraction(
   }
 
   return useMutation({
-    mutationFn: async (
-      data: ContactInteractionFormData,
-    ): Promise<ContactInteractionType> => {
+    mutationFn: async (data: ContactInteractionFormData): Promise<ContactInteractionType> => {
       return await createContactInteraction(config, data)
     },
     onSuccess: (data) => {
@@ -208,7 +200,7 @@ export function useUpdateContactInteraction(
   options?: {
     onSuccess?: (data: ContactInteractionType) => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -255,7 +247,7 @@ export function useDeleteContactInteraction(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
-  },
+  }
 ) {
   const queryClient = useQueryClient()
 
@@ -296,7 +288,7 @@ export function useContactInteractionActions(
   options?: {
     enabled?: boolean
     staleTime?: number
-  },
+  }
 ) {
   if (!config.token) {
     throw new QueryError('Token is required', 'TOKEN_REQUIRED')
@@ -308,11 +300,7 @@ export function useContactInteractionActions(
       try {
         return await fetchContactInteractionActions(config)
       } catch (error) {
-        throw new QueryError(
-          'Failed to fetch contact interaction actions',
-          'FETCH_ERROR',
-          error,
-        )
+        throw new QueryError('Failed to fetch contact interaction actions', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes

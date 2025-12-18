@@ -1,14 +1,11 @@
 import { ContactInteractionFormValue } from './contact-interaction.schema'
-import {
-  ContactInteractionFormData,
-  ContactInteractionType,
-} from './contact-interaction.type'
+import { ContactInteractionFormData, ContactInteractionType } from './contact-interaction.type'
 
 /**
  * Convert contact interaction data to form values
  */
 export function contactInteractionToFormValues(
-  interaction: ContactInteractionType,
+  interaction: ContactInteractionType
 ): ContactInteractionFormValue {
   return {
     id: interaction.id,
@@ -30,7 +27,7 @@ export function contactInteractionToFormValues(
  * Convert form values to location data (for submission)
  */
 export function formValuesToContactInteractionData(
-  formValues: ContactInteractionFormValue,
+  formValues: ContactInteractionFormValue
 ): ContactInteractionFormData {
   return {
     contact_id: formValues.contact_id,

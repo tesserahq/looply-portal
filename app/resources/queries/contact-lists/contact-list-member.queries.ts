@@ -10,14 +10,14 @@ import {
  */
 export async function fetchContactListMembers(
   contactListId: string,
-  config: ContactListMemberQueryConfig,
+  config: ContactListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
   const response = await fetchApi(
     `${apiUrl}/contact-lists/${contactListId}/members`,
     token,
-    nodeEnv,
+    nodeEnv
   )
 
   return response as ContactListMembersResponse
@@ -29,7 +29,7 @@ export async function fetchContactListMembers(
 export async function addContactListMembers(
   contactListId: string,
   config: ContactListMemberQueryConfig,
-  data: AddContactListMembersData,
+  data: AddContactListMembersData
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -40,7 +40,7 @@ export async function addContactListMembers(
     {
       method: 'POST',
       body: JSON.stringify(data),
-    },
+    }
   )
 
   return response
@@ -52,7 +52,7 @@ export async function addContactListMembers(
 export async function removeContactListMember(
   contactListId: string,
   memberId: string,
-  config: ContactListMemberQueryConfig,
+  config: ContactListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -62,7 +62,7 @@ export async function removeContactListMember(
     nodeEnv,
     {
       method: 'DELETE',
-    },
+    }
   )
 
   return response
@@ -73,7 +73,7 @@ export async function removeContactListMember(
  */
 export async function removeAllContactListMembers(
   contactListId: string,
-  config: ContactListMemberQueryConfig,
+  config: ContactListMemberQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -83,7 +83,7 @@ export async function removeAllContactListMembers(
     nodeEnv,
     {
       method: 'DELETE',
-    },
+    }
   )
 
   return response

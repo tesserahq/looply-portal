@@ -16,11 +16,7 @@ const baseContactSchema = z.object({
   contact_type: z.string().optional(),
   phone_type: z.string().optional(),
   phone: z.string().optional(),
-  email: z
-    .string()
-    .email('Invalid email address')
-    .min(1, 'Email is required')
-    .or(z.literal('')),
+  email: z.string().email('Invalid email address').min(1, 'Email is required').or(z.literal('')),
   website: z.string().url('Invalid website URL').optional().or(z.literal('')),
   address_line_1: z.string().optional(),
   address_line_2: z.string().optional(),
@@ -69,7 +65,7 @@ export const contactFormSchema = z.object({
       },
       {
         message: 'Please enter a valid phone number',
-      },
+      }
     ),
   email: z
     .string()
@@ -84,7 +80,7 @@ export const contactFormSchema = z.object({
       },
       {
         message: 'Must have the @ sign and no spaces',
-      },
+      }
     ),
   website: z
     .string()
@@ -103,7 +99,7 @@ export const contactFormSchema = z.object({
       },
       {
         message: 'Please enter a valid URL',
-      },
+      }
     ),
   address_line_1: z.string().optional(),
   address_line_2: z.string().optional(),

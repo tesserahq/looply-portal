@@ -12,16 +12,14 @@ import { IPaging } from '@/resources/types'
  */
 export async function fetchWaitingLists(
   config: WaitingListQueryConfig,
-  params: WaitingListQueryParams,
+  params: WaitingListQueryParams
 ) {
   const { apiUrl, token, nodeEnv } = config
   const { page, size, q } = params
 
   // Determine endpoint and params based on search query
   const hasSearchQuery = q && q.trim() !== ''
-  const endpoint = hasSearchQuery
-    ? `${apiUrl}/waiting-lists/search`
-    : `${apiUrl}/waiting-lists`
+  const endpoint = hasSearchQuery ? `${apiUrl}/waiting-lists/search` : `${apiUrl}/waiting-lists`
   const queryParams = hasSearchQuery ? { page, size, q } : { page, size }
 
   const response = await fetchApi(endpoint, token, nodeEnv, {
@@ -36,15 +34,11 @@ export async function fetchWaitingLists(
  */
 export async function fetchWaitingListDetail(
   waitingListId: string,
-  config: WaitingListQueryConfig,
+  config: WaitingListQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/waiting-lists/${waitingListId}`,
-    token,
-    nodeEnv,
-  )
+  const response = await fetchApi(`${apiUrl}/waiting-lists/${waitingListId}`, token, nodeEnv)
 
   return response as WaitingListType
 }
@@ -52,10 +46,7 @@ export async function fetchWaitingListDetail(
 /**
  * Create a new waiting list.
  */
-export async function createWaitingList(
-  config: WaitingListQueryConfig,
-  data: WaitingListFormData,
-) {
+export async function createWaitingList(config: WaitingListQueryConfig, data: WaitingListFormData) {
   const { apiUrl, token, nodeEnv } = config
 
   const payload = {
@@ -77,19 +68,14 @@ export async function createWaitingList(
 export async function updateWaitingList(
   config: WaitingListQueryConfig,
   waitingListId: string,
-  updateData: Partial<WaitingListFormData>,
+  updateData: Partial<WaitingListFormData>
 ) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/waiting-lists/${waitingListId}`,
-    token,
-    nodeEnv,
-    {
-      method: 'PUT',
-      body: JSON.stringify(updateData),
-    },
-  )
+  const response = await fetchApi(`${apiUrl}/waiting-lists/${waitingListId}`, token, nodeEnv, {
+    method: 'PUT',
+    body: JSON.stringify(updateData),
+  })
 
   return response as WaitingListType
 }
@@ -97,21 +83,12 @@ export async function updateWaitingList(
 /**
  * Delete a waiting list.
  */
-export async function deleteWaitingList(
-  config: WaitingListQueryConfig,
-  waitingListId: string,
-) {
+export async function deleteWaitingList(config: WaitingListQueryConfig, waitingListId: string) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/waiting-lists/${waitingListId}`,
-    token,
-    nodeEnv,
-    {
-      method: 'DELETE',
-    },
-  )
+  const response = await fetchApi(`${apiUrl}/waiting-lists/${waitingListId}`, token, nodeEnv, {
+    method: 'DELETE',
+  })
 
   return response
 }
-

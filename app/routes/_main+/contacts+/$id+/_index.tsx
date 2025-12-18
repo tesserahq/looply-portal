@@ -116,8 +116,7 @@ export default function ContactDetail() {
   const navigate = useNavigate()
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
-  const contactInteractionRef =
-    useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
+  const contactInteractionRef = useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
   const config = {
     apiUrl: apiUrl!,
@@ -139,7 +138,7 @@ export default function ContactDetail() {
       },
       {
         enabled: !!params.id && !!token,
-      },
+      }
     )
 
   const { mutate: deleteContact, isPending: isDeleting } = useDeleteContact(config, {
@@ -219,7 +218,8 @@ export default function ContactDetail() {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="hover:bg-destructive hover:text-destructive-foreground flex w-full justify-start gap-2"
+                      className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                        justify-start gap-2"
                       onClick={handleDelete}>
                       <Trash2 size={18} />
                       <span>Delete</span>
@@ -253,9 +253,7 @@ export default function ContactDetail() {
                       <div className="flex items-center gap-1">
                         <span className="text-sm">{contact.phone}</span>
                         {contact.phone_type && (
-                          <span className="text-muted-foreground">
-                            ({contact.phone_type})
-                          </span>
+                          <span className="text-muted-foreground">({contact.phone_type})</span>
                         )}
                       </div>
                     ) : (
@@ -294,9 +292,7 @@ export default function ContactDetail() {
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Contact Type</dt>
-                  <dd className="d-content capitalize">
-                    {contact.contact_type || 'N/A'}
-                  </dd>
+                  <dd className="d-content capitalize">{contact.contact_type || 'N/A'}</dd>
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Created At</dt>
@@ -379,12 +375,8 @@ export default function ContactDetail() {
                 <div className="flex items-start gap-3">
                   <MapPin className="text-muted-foreground mt-0.5" size={20} />
                   <div className="space-y-1">
-                    {contact.address_line_1 && (
-                      <p className="text-sm">{contact.address_line_1}</p>
-                    )}
-                    {contact.address_line_2 && (
-                      <p className="text-sm">{contact.address_line_2}</p>
-                    )}
+                    {contact.address_line_1 && <p className="text-sm">{contact.address_line_1}</p>}
+                    {contact.address_line_2 && <p className="text-sm">{contact.address_line_2}</p>}
                     <p className="text-sm">
                       {[contact.city, contact.state, contact.country, contact.zip_code]
                         .filter(Boolean)
@@ -411,11 +403,7 @@ export default function ContactDetail() {
       </div>
 
       <DeleteConfirmation ref={deleteModalRef} />
-      <ContactInteractionShortcut
-        ref={contactInteractionRef}
-        apiUrl={apiUrl!}
-        nodeEnv={nodeEnv}
-      />
+      <ContactInteractionShortcut ref={contactInteractionRef} apiUrl={apiUrl!} nodeEnv={nodeEnv} />
     </div>
   )
 }

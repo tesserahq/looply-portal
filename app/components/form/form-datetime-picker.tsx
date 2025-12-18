@@ -99,9 +99,7 @@ export const FormDateTimePicker = ({
             {label && (
               <FormLabel
                 className={
-                  required
-                    ? 'after:ml-0.5 after:text-destructive after:content-["*"]'
-                    : ''
+                  required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''
                 }>
                 {label}
               </FormLabel>
@@ -115,15 +113,11 @@ export const FormDateTimePicker = ({
                       variant="outline"
                       className={cn(
                         'flex-1 justify-start rounded text-left font-normal',
-                        !dateValue && 'text-muted-foreground',
+                        !dateValue && 'text-muted-foreground'
                       )}
                       type="button">
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateValue ? (
-                        format(dateValue, dateFormat)
-                      ) : (
-                        <span>{placeholder}</span>
-                      )}
+                      {dateValue ? format(dateValue, dateFormat) : <span>{placeholder}</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">

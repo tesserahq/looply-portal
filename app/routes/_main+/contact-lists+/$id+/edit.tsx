@@ -1,14 +1,8 @@
 import { ContactListForm } from '@/components/crud-forms/contact-list-form'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
-import {
-  useContactListDetail,
-  useUpdateContactList,
-} from '@/resources/hooks/contact-lists'
-import {
-  ContactListFormData,
-  contactListToFormValues,
-} from '@/resources/queries/contact-lists'
+import { useContactListDetail, useUpdateContactList } from '@/resources/hooks/contact-lists'
+import { ContactListFormData, contactListToFormValues } from '@/resources/queries/contact-lists'
 import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
 
 export function loader() {
@@ -54,10 +48,6 @@ export default function ContactListEdit() {
   const defaultValues = contactListToFormValues(contactList)
 
   return (
-    <ContactListForm
-      onSubmit={handleSubmit}
-      defaultValues={defaultValues}
-      submitLabel="Update"
-    />
+    <ContactListForm onSubmit={handleSubmit} defaultValues={defaultValues} submitLabel="Update" />
   )
 }

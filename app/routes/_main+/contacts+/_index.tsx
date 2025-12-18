@@ -41,8 +41,7 @@ export default function Contacts() {
   const [contactSearch, setContactSearch] = useState<string>(searchParams.get('q') || '')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
-  const contactInteractionRef =
-    useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
+  const contactInteractionRef = useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
   const config = {
     nodeEnv,
@@ -59,7 +58,7 @@ export default function Contacts() {
     },
     {
       enabled: !!token,
-    },
+    }
   )
 
   const { mutate: deleteContact } = useDeleteContact(config, {
@@ -79,7 +78,7 @@ export default function Contacts() {
         },
       })
     },
-    [deleteContact],
+    [deleteContact]
   )
 
   const handleSearchChange = (search: string) => {
@@ -103,7 +102,7 @@ export default function Contacts() {
       }
     },
     [contactSearch],
-    300,
+    300
   )
 
   const hasSearchQuery = useMemo(() => {
@@ -136,11 +135,7 @@ export default function Contacts() {
         header: 'State',
         size: 100,
         cell: ({ row }) => {
-          return (
-            <Badge variant="active">
-              {row.original.is_active ? 'Active' : 'Inactive'}
-            </Badge>
-          )
+          return <Badge variant="active">{row.original.is_active ? 'Active' : 'Inactive'}</Badge>
         },
       },
       {
@@ -157,9 +152,7 @@ export default function Contacts() {
         header: 'Contact Type',
         cell: ({ row }) => {
           const { contact_type } = row.original
-          return (
-            <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
-          )
+          return <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
         },
       },
       {
@@ -171,9 +164,7 @@ export default function Contacts() {
           return (
             <div className="flex items-center gap-2">
               <span className="text-sm">{phone}</span>
-              {phone_type && (
-                <span className="text-xs text-muted-foreground">({phone_type})</span>
-              )}
+              {phone_type && <span className="text-muted-foreground text-xs">({phone_type})</span>}
             </div>
           )
         },
@@ -233,7 +224,8 @@ export default function Contacts() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                    justify-start gap-2"
                   onClick={() => handleDelete(row.original)}>
                   <Trash2 size={18} />
                   <span>Delete</span>
@@ -244,7 +236,7 @@ export default function Contacts() {
         },
       },
     ],
-    [navigate, handleDelete],
+    [navigate, handleDelete]
   )
 
   if (isLoading && contactSearch === '') {
@@ -271,12 +263,12 @@ export default function Contacts() {
   )
 
   return (
-    <div className="h-full animate-slide-up">
+    <div className="animate-slide-up h-full">
       <div className="mb-5 flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
         {(hasSearchQuery || hasData) && (
           <div className="flex items-center justify-between">
-            <InputGroup className="max-w-96 bg-white dark:bg-card">
+            <InputGroup className="dark:bg-card max-w-96 bg-white">
               <InputGroupInput
                 placeholder="Search contacts"
                 value={contactSearch}
@@ -324,11 +316,7 @@ export default function Contacts() {
       )}
 
       <DeleteConfirmation ref={deleteModalRef} />
-      <ContactInteractionShortcut
-        ref={contactInteractionRef}
-        apiUrl={apiUrl!}
-        nodeEnv={nodeEnv!}
-      />
+      <ContactInteractionShortcut ref={contactInteractionRef} apiUrl={apiUrl!} nodeEnv={nodeEnv!} />
     </div>
   )
 }

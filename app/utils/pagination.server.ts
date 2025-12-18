@@ -21,7 +21,7 @@ export type CanonicalPaginationResult = Response | { size: number; page: number 
 
 export function ensureCanonicalPagination(
   request: Request,
-  { defaultSize = 100, defaultPage = 1 }: CanonicalDefaults = {},
+  { defaultSize = 100, defaultPage = 1 }: CanonicalDefaults = {}
 ): CanonicalPaginationResult {
   const url = new URL(request.url)
 

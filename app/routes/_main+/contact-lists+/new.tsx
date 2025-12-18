@@ -24,17 +24,12 @@ export default function ContactListNew() {
       onSuccess: (data: ContactListType) => {
         navigate(`/contact-lists/${data.id}`)
       },
-    },
+    }
   )
 
   const handleSubmit = async (data: ContactListFormData): Promise<void> => {
     await createContactList(data)
   }
 
-  return (
-    <ContactListForm
-      onSubmit={handleSubmit}
-      defaultValues={defaultContactListFormValues}
-    />
-  )
+  return <ContactListForm onSubmit={handleSubmit} defaultValues={defaultContactListFormValues} />
 }

@@ -53,9 +53,7 @@ export const FormPhoneInput = forwardRef<HTMLInputElement, FormPhoneInputProps>(
             {label && (
               <FormLabel
                 className={
-                  required
-                    ? 'after:ml-0.5 after:text-destructive after:content-["*"]'
-                    : ''
+                  required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''
                 }>
                 {label}
               </FormLabel>
@@ -84,7 +82,7 @@ export const FormPhoneInput = forwardRef<HTMLInputElement, FormPhoneInputProps>(
                     className: cn(
                       'flex h-10 w-full rounded-md border border-input bg-transparent py-2 pl-3 pr-3 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:text-primary-foreground md:text-sm',
                       form.formState.errors[field] && 'border-destructive',
-                      className,
+                      className
                     ),
                   }}
                 />
@@ -92,13 +90,13 @@ export const FormPhoneInput = forwardRef<HTMLInputElement, FormPhoneInputProps>(
             </FormControl>
             <FormMessage />
             {phoneError && !form.formState.errors[field] && (
-              <p className="text-sm font-medium text-destructive">{phoneError}</p>
+              <p className="text-destructive text-sm font-medium">{phoneError}</p>
             )}
           </FormItem>
         )}
       />
     )
-  },
+  }
 )
 
 FormPhoneInput.displayName = 'FormPhoneInput'

@@ -13,7 +13,7 @@ import { IPaging } from '@/resources/types'
  */
 export async function fetchContactInteractions(
   config: ContactInteractionQueryConfig,
-  params: ContactInteractionQueryParams,
+  params: ContactInteractionQueryParams
 ) {
   const { apiUrl, token, nodeEnv } = config
   const { page, size } = params
@@ -34,23 +34,18 @@ export async function fetchContactInteractions(
 export async function fetchContactInteractionsByContactId(
   config: ContactInteractionQueryConfig,
   contactId: string,
-  params: ContactInteractionQueryParams,
+  params: ContactInteractionQueryParams
 ) {
   const { apiUrl, token, nodeEnv } = config
   const { page, size } = params
 
-  const response = await fetchApi(
-    `${apiUrl}/contacts/${contactId}/interactions`,
-    token,
-    nodeEnv,
-    {
-      method: 'GET',
-      pagination: {
-        page,
-        size,
-      },
+  const response = await fetchApi(`${apiUrl}/contacts/${contactId}/interactions`, token, nodeEnv, {
+    method: 'GET',
+    pagination: {
+      page,
+      size,
     },
-  )
+  })
 
   return response as IPaging<ContactInteractionType>
 }
@@ -61,15 +56,11 @@ export async function fetchContactInteractionsByContactId(
 
 export async function fetchContactInteractionDetail(
   interactionId: string,
-  config: ContactInteractionQueryConfig,
+  config: ContactInteractionQueryConfig
 ) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/contact-interactions/${interactionId}`,
-    token,
-    nodeEnv,
-  )
+  const response = await fetchApi(`${apiUrl}/contact-interactions/${interactionId}`, token, nodeEnv)
 
   return response as ContactInteractionType
 }
@@ -77,19 +68,12 @@ export async function fetchContactInteractionDetail(
 /**
  * Get all available actions for contact interactions.
  */
-export async function fetchContactInteractionActions(
-  config: ContactInteractionQueryConfig,
-) {
+export async function fetchContactInteractionActions(config: ContactInteractionQueryConfig) {
   const { apiUrl, token, nodeEnv } = config
 
-  const response = await fetchApi(
-    `${apiUrl}/contact-interactions/actions`,
-    token,
-    nodeEnv,
-    {
-      method: 'GET',
-    },
-  )
+  const response = await fetchApi(`${apiUrl}/contact-interactions/actions`, token, nodeEnv, {
+    method: 'GET',
+  })
 
   return response as IPaging<ContactInteractionActionType>
 }
@@ -99,7 +83,7 @@ export async function fetchContactInteractionActions(
  */
 export async function createContactInteraction(
   config: ContactInteractionQueryConfig,
-  data: ContactInteractionFormData,
+  data: ContactInteractionFormData
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -118,7 +102,7 @@ export async function createContactInteraction(
     {
       method: 'POST',
       body: JSON.stringify(payload),
-    },
+    }
   )
 
   return response
@@ -130,7 +114,7 @@ export async function createContactInteraction(
 export async function updateContactInteraction(
   config: ContactInteractionQueryConfig,
   interactionId: string,
-  updateData: Partial<ContactInteractionFormData>,
+  updateData: Partial<ContactInteractionFormData>
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -141,7 +125,7 @@ export async function updateContactInteraction(
     {
       method: 'PUT',
       body: JSON.stringify(updateData),
-    },
+    }
   )
 
   return response
@@ -152,7 +136,7 @@ export async function updateContactInteraction(
  */
 export async function deleteContactInteraction(
   config: ContactInteractionQueryConfig,
-  interactionId: string,
+  interactionId: string
 ) {
   const { apiUrl, token, nodeEnv } = config
 
@@ -162,7 +146,7 @@ export async function deleteContactInteraction(
     nodeEnv,
     {
       method: 'DELETE',
-    },
+    }
   )
 
   return response

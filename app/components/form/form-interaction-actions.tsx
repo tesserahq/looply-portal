@@ -23,8 +23,10 @@ import { ContactInteractionActionType } from '@/resources/queries/contact-intera
 import { NodeENVType } from '@/libraries/fetch'
 import { type SelectOption } from './form-select'
 
-interface FormInteractionActionsProps
-  extends Omit<ComponentProps<typeof Select>, 'name' | 'value' | 'onValueChange'> {
+interface FormInteractionActionsProps extends Omit<
+  ComponentProps<typeof Select>,
+  'name' | 'value' | 'onValueChange'
+> {
   field: string
   label?: string
   description?: string
@@ -120,9 +122,7 @@ export const FormInteractionActions = ({
             {label && (
               <FormLabel
                 className={
-                  required
-                    ? 'after:ml-0.5 after:text-destructive after:content-["*"]'
-                    : ''
+                  required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''
                 }>
                 {label}
               </FormLabel>
@@ -143,10 +143,7 @@ export const FormInteractionActions = ({
                 </SelectTrigger>
                 <SelectContent>
                   {actionOptions.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                      disabled={option.disabled}>
+                    <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                       {option.label}
                     </SelectItem>
                   ))}

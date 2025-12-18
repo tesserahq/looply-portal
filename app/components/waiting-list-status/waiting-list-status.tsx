@@ -7,11 +7,7 @@ interface StatusBadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   status: string
 }
 
-export const WaitingListStatusBadge = ({
-  status,
-  className,
-  ...props
-}: StatusBadgeProps) => {
+export const WaitingListStatusBadge = ({ status, className, ...props }: StatusBadgeProps) => {
   const badgeClasses = getWaitingListStatusBadgeClasses(status, className)
   const formattedStatus = formatWaitingListStatus(status)
 

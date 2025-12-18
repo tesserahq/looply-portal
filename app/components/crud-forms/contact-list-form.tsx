@@ -42,18 +42,9 @@ export const ContactListForm = ({
   }
 
   return (
-    <Form
-      schema={contactListFormSchema}
-      defaultValues={defaultValues}
-      onSubmit={handleSubmit}>
+    <Form schema={contactListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
-        <Form.Input
-          field="name"
-          label="Name"
-          placeholder="Enter contact list name"
-          required
-          autoFocus
-        />
+        <Form.Input field="name" label="Name" placeholder="Enter contact list name" required />
 
         <Form.Textarea
           field="description"
@@ -64,10 +55,7 @@ export const ContactListForm = ({
         <Form.Switch field="is_public" label="Public" />
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={() => navigate('/contact-lists')}>
+          <Button variant="secondary" type="button" onClick={() => navigate('/contact-lists')}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>

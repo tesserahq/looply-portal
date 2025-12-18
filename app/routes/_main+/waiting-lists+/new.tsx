@@ -24,17 +24,12 @@ export default function WaitingListNew() {
       onSuccess: (data: WaitingListType) => {
         navigate(`/waiting-lists/${data.id}`)
       },
-    },
+    }
   )
 
   const handleSubmit = async (data: WaitingListFormData): Promise<void> => {
     await createWaitingList(data)
   }
 
-  return (
-    <WaitingListForm
-      onSubmit={handleSubmit}
-      defaultValues={defaultWaitingListFormValues}
-    />
-  )
+  return <WaitingListForm onSubmit={handleSubmit} defaultValues={defaultWaitingListFormValues} />
 }

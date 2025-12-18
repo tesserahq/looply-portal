@@ -12,10 +12,7 @@ import { IPaging } from '@/resources/types/pagination'
  * List all contacts with pagination.
  * Uses /contacts endpoint for listing and /contacts/search for search queries.
  */
-export async function fetchContacts(
-  config: ContactQueryConfig,
-  params: ContactQueryParams,
-) {
+export async function fetchContacts(config: ContactQueryConfig, params: ContactQueryParams) {
   const { apiUrl, token, nodeEnv } = config
   const { page, size, q } = params
 
@@ -66,7 +63,7 @@ export async function createContact(config: ContactQueryConfig, data: CreateCont
 export async function updateContact(
   contactId: string,
   config: ContactQueryConfig,
-  data: UpdateContactData,
+  data: UpdateContactData
 ) {
   const { apiUrl, token, nodeEnv } = config
 

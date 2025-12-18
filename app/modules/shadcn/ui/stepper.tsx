@@ -23,7 +23,7 @@ const Step: React.FC<StepProps> = ({ title, description, isCompleted, isActive }
               ? 'border-primary bg-primary text-primary-foreground'
               : isActive
                 ? 'border-primary'
-                : 'border-muted',
+                : 'border-muted'
           )}>
           {isCompleted ? (
             <Check className="h-4 w-4" />
@@ -36,11 +36,11 @@ const Step: React.FC<StepProps> = ({ title, description, isCompleted, isActive }
         <p
           className={cn(
             'text-sm font-medium',
-            isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground',
+            isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground'
           )}>
           {title}
         </p>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        {description && <p className="text-muted-foreground text-sm">{description}</p>}
       </div>
     </div>
   )
@@ -55,7 +55,8 @@ interface StepperProps {
 export function Stepper({ steps, currentStep, onStepChange }: StepperProps) {
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      <div
+        className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         {steps.map((step, index) => (
           <React.Fragment key={step.title}>
             <Step
@@ -65,7 +66,7 @@ export function Stepper({ steps, currentStep, onStepChange }: StepperProps) {
               isActive={index === currentStep}
             />
             {index < steps.length - 1 && (
-              <ChevronRight className="hidden text-muted-foreground md:block" />
+              <ChevronRight className="text-muted-foreground hidden md:block" />
             )}
           </React.Fragment>
         ))}

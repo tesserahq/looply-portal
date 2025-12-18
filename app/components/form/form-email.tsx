@@ -59,9 +59,7 @@ export const FormEmail = ({
         <FormItem>
           {label && (
             <FormLabel
-              className={
-                required ? 'after:ml-0.5 after:text-destructive after:content-["*"]' : ''
-              }>
+              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
               {label}
             </FormLabel>
           )}
@@ -74,10 +72,7 @@ export const FormEmail = ({
               placeholder={placeholder}
               autoFocus={autoFocus}
               disabled={disabled}
-              className={cn(
-                form.formState.errors[field] && 'border-destructive',
-                className,
-              )}
+              className={cn(form.formState.errors[field] && 'border-destructive', className)}
             />
           </FormControl>
           <FormMessage />

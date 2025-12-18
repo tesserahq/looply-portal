@@ -7,13 +7,12 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils/misc'
 
 const labelVariants = cva(
-  'font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 inline-block mb-3 dark:text-foreground',
+  'font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 inline-block mb-3 dark:text-foreground'
 )
 
 const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
-    VariantProps<typeof labelVariants>
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
 >(({ className, ...props }, ref) => (
   <LabelPrimitive.Root ref={ref} className={cn(labelVariants(), className)} {...props} />
 ))

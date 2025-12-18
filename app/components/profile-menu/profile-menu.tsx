@@ -1,18 +1,8 @@
 import * as React from 'react'
 import { LogOut, Monitor, Moon, Sun, UserCog } from 'lucide-react'
 import { Avatar, AvatarImage } from '@shadcn/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@shadcn/ui/dropdown'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@shadcn/ui/select'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@shadcn/ui/dropdown'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import { cn } from '@/utils/misc'
 import { useNavigate } from '@remix-run/react'
 import { useApp } from '@/context/AppContext'
@@ -43,7 +33,9 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
 
   if (!user) {
     return (
-      <div className="relative flex size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-slate-300">
+      <div
+        className="relative flex size-10 shrink-0 overflow-hidden rounded-full ring-1
+          ring-slate-300">
         <img src="/images/default-avatar.jpg" alt="default-avatar" />
       </div>
     )
@@ -56,10 +48,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
           <div className="relative">
             <Avatar>
               <AvatarImage
-                className={cn(
-                  'transition-all duration-500',
-                  loaded ? 'opacity-100' : 'opacity-0',
-                )}
+                className={cn('transition-all duration-500', loaded ? 'opacity-100' : 'opacity-0')}
                 src={user.avatar_url || '/images/default-avatar.jpg'}
                 loading="lazy"
                 alt="test"
@@ -85,15 +74,14 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
               {user && (
                 <h1 className="max-w-40 truncate font-semibold">{`${user?.first_name} ${user?.last_name}`}</h1>
               )}
-              <p className="max-w-40 truncate text-sm text-muted-foreground">
-                {user?.email}
-              </p>
+              <p className="text-muted-foreground max-w-40 truncate text-sm">{user?.email}</p>
             </div>
           </div>
           <div className="mb-3 flex flex-row items-center gap-4">
             <span>Theme</span>
             <Select value={selectedTheme} onValueChange={onUpdateTheme}>
-              <SelectTrigger className="h-9 w-full items-center justify-between rounded border text-sm">
+              <SelectTrigger
+                className="h-9 w-full items-center justify-between rounded border text-sm">
                 <SelectValue placeholder="Theme" />
               </SelectTrigger>
               <SelectContent className="max-h-48 overflow-y-auto rounded-md border shadow-md">
@@ -129,7 +117,8 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
           <div className="flex flex-col gap-1">
             <div className="border-y py-1">
               <button
-                className="flex w-full flex-row items-center gap-2 rounded-sm px-3 py-2 hover:bg-muted"
+                className="hover:bg-muted flex w-full flex-row items-center gap-2 rounded-sm px-3
+                  py-2"
                 onClick={() => {}}>
                 <UserCog size={16} />
                 <span>Your Profile</span>
@@ -140,7 +129,8 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
                 return (
                   <div key={menu.label} className="border-b pb-1">
                     <button
-                      className="flex w-full flex-row items-center gap-2 rounded-sm px-3 py-2 hover:bg-muted"
+                      className="hover:bg-muted flex w-full flex-row items-center gap-2 rounded-sm
+                        px-3 py-2"
                       onClick={menu.onClick}>
                       {menu.icon}
                       <span>{menu.label}</span>
@@ -149,7 +139,8 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
                 )
               })}
             <button
-              className="flex w-full flex-row items-center gap-2 rounded-sm px-3 py-2 transition-all duration-200 hover:bg-destructive hover:text-white"
+              className="hover:bg-destructive flex w-full flex-row items-center gap-2 rounded-sm
+                px-3 py-2 transition-all duration-200 hover:text-white"
               onClick={() => navigate('/logout', { replace: true })}>
               <LogOut size={16} />
               Logout

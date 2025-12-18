@@ -42,18 +42,9 @@ export const WaitingListForm = ({
   }
 
   return (
-    <Form
-      schema={waitingListFormSchema}
-      defaultValues={defaultValues}
-      onSubmit={handleSubmit}>
+    <Form schema={waitingListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
-        <Form.Input
-          field="name"
-          label="Name"
-          placeholder="Enter waiting list name"
-          required
-          autoFocus
-        />
+        <Form.Input field="name" label="Name" placeholder="Enter waiting list name" required />
 
         <Form.Textarea
           field="description"
@@ -62,10 +53,7 @@ export const WaitingListForm = ({
         />
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={() => navigate('/waiting-lists')}>
+          <Button variant="secondary" type="button" onClick={() => navigate('/waiting-lists')}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>

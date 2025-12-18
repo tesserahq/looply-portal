@@ -104,9 +104,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       headers: combineHeaders(
         { 'Set-Cookie': await localeCookie.serialize(locale) },
         toastHeaders,
-        csrfCookieHeader ? { 'Set-Cookie': csrfCookieHeader } : null,
+        csrfCookieHeader ? { 'Set-Cookie': csrfCookieHeader } : null
       ),
-    },
+    }
   )
 }
 
@@ -205,9 +205,7 @@ export function ErrorBoundary() {
     <Document nonce={nonce} theme={theme}>
       <GenericErrorBoundary
         statusHandlers={{
-          403: ({ error }) => (
-            <p>You are not allowed to do that: {error?.data.message}</p>
-          ),
+          403: ({ error }) => <p>You are not allowed to do that: {error?.data.message}</p>,
         }}
       />
     </Document>

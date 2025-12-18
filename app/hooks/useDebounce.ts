@@ -3,7 +3,7 @@ import { useEffect, useCallback, DependencyList } from 'react'
 export default function useDebounce(
   effect: () => void,
   dependencies: DependencyList,
-  delay: number,
+  delay: number
 ): void {
   const callback = useCallback(effect, dependencies)
 
