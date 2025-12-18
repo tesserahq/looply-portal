@@ -70,7 +70,7 @@
     "react-phone-number-input": "^3.4.13",
     "react-resizable-panels": "^3.0.2",
     "remark-gfm": "^4.0.1",
-    "remix-i18next": "^6.4.1",
+    "remix-i18next": "^7.0.0",
     "remix-utils": "7.7.0",
     "shiki": "^3.4.2",
     "sonner": "^2.0.0",
