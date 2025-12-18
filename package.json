@@ -12,7 +12,8 @@
     "check": "bun run format && bun run lint && bun run typecheck",
     "typecheck": "tsc",
     "format": "npx prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\" \"!**/locales/**\"",
-    "format:check": "npx prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\" \"!**/locales/**\""
+    "format:check": "npx prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\" \"!**/locales/**\"",
+    "postinstall": "node -e \"const fs=require('node:fs'); const {execSync}=require('node:child_process'); if(!fs.existsSync('.git')) process.exit(0); try{execSync('lefthook install',{stdio:'inherit'});}catch(e){process.exit(e.status ?? 1);}\""
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -110,9 +111,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "husky": "^9.1.7",
     "lefthook": "^2.0.12",
-    "lint-staged": "^16.0.0",
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-classnames": "^0.8.6",
