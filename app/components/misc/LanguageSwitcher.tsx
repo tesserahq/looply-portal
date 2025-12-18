@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Languages } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@shadcn/ui/select'
 
-export function LanguageSwitcher() {
+export const LanguageSwitcher = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname.replace(/\/$/, '')
@@ -15,12 +15,17 @@ export function LanguageSwitcher() {
     { text: 'English', value: 'en' },
     { text: 'Spanish', value: 'es' },
   ]
+
   const formatLanguage = (lng: string) => {
     return langs.find((lang) => lang.value === lng)?.text
   }
 
+  const handleValueChange = (value: string) => {
+    navigate(`${pathname}?lng=${value}`)
+  }
+
   return (
-    <Select onValueChange={(value: string) => navigate(`${pathname}?lng=${value}`)}>
+    <Select onValueChange={handleValueChange}>
       <SelectTrigger>
         <div className="flex items-center gap-2">
           <Languages className="size-[14px]" />
@@ -29,7 +34,7 @@ export function LanguageSwitcher() {
       </SelectTrigger>
       <SelectContent>
         {langs.map(({ text, value }) => (
-          <SelectItem key={value} value={value} className={'text-primary/60 text-sm font-medium'}>
+          <SelectItem key={value} value={value} className="text-primary/60 text-sm font-medium">
             {text}
           </SelectItem>
         ))}
