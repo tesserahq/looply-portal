@@ -1,5 +1,5 @@
 {
-  "name": "chroma",
+  "name": "looply-portal",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -113,7 +113,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-classnames": "^0.8.6",
     "prettier-plugin-tailwindcss": "^0.7.0",
-    "remix-flat-routes": "^0.6.5",
+    "remix-flat-routes": "^0.8.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.50.0",
