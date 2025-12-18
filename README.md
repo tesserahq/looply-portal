@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="140px" src="./public/images/logo-full.png">
+  <img width="200px" src="./public/images/logo-full.png">
   
   <h2 align="center">Looply Portal</h2>
   <p align="center">
@@ -82,8 +82,8 @@
 
 ### Prerequisites
 
-- **Node.js**: Version 20.0.0 or higher
-- **Package Manager**: bun 1.2.13
+- **Node.js**: Version 22.21.1
+- **Package Manager**: bun 1.3.5
 
 ### Installation
 
@@ -109,6 +109,8 @@
    HOST_URL=http://localhost:3000
    NODE_ENV=development
    API_URL=https://api.example.com
+   IDENTIES_API_URL=https://example.com/api
+   IDENTIES_HOST=https://example.com/api
    ```
 
 3. **Run the development server**
@@ -125,14 +127,19 @@
 
    Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
 
-### Available Scripts
+### Run with docker
 
-- `dev` - Start the development server
-- `build` - Build the application for production
-- `start` - Start the production server
-- `lint` - Run ESLint for code linting
-- `typecheck` - Run TypeScript type checking
-- `format` - Format code with Prettier
+1. Build the image
+
+   ```bash
+   docker build -t looply-portal .
+   ```
+
+2. Run the container
+
+   ```bash
+   docker run -p 3000:3000 looply-portal:latest
+   ```
 
 ### Production Build
 
@@ -146,6 +153,15 @@
    ```bash
    bun run start
    ```
+
+### Available Scripts
+
+- `dev` - Start the development server
+- `build` - Build the application for production
+- `start` - Start the production server
+- `lint` - Run ESLint for code linting
+- `typecheck` - Run TypeScript type checking
+- `format` - Format code with Prettier
 
 ### Development Notes
 
