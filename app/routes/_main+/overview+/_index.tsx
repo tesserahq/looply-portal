@@ -115,7 +115,7 @@ export default function Overview() {
         cell: ({ row }) => {
           const { created_at } = row.original
           if (!created_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={created_at} formatStr="PPpp" />
+          return <DateTime date={created_at + 'Z'} formatStr="PPpp" />
         },
       },
     ],
