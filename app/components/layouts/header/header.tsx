@@ -9,10 +9,12 @@ import { Link, useSubmit } from '@remix-run/react'
 import { Button } from '@shadcn/ui/button'
 import { PanelLeft } from 'lucide-react'
 import NewResourceShortcut from '@/components/new-resources-shortcut/new-resources-shortcut'
+import AppMenus, { IAppMenusProps } from '@/components/app-menus/app-menus'
 
 interface IHeaderProps {
   apiUrl: string
   nodeEnv: NodeENVType
+  appHostUrls: IAppMenusProps
   action?: React.ReactNode
   withSidebar?: boolean
   isExpanded?: boolean
@@ -20,7 +22,13 @@ interface IHeaderProps {
   hostUrl?: string
 }
 
-export function Header({ isExpanded, setIsExpanded, action, withSidebar }: IHeaderProps) {
+export function Header({
+  isExpanded,
+  setIsExpanded,
+  action,
+  withSidebar,
+  appHostUrls,
+}: IHeaderProps) {
   const requestInfo = useRequestInfo()
   const submit = useSubmit()
   const onSetTheme = (theme: string) => {
@@ -75,6 +83,7 @@ export function Header({ isExpanded, setIsExpanded, action, withSidebar }: IHead
 
             {/* Right content */}
             <div className="flex items-center space-x-1 lg:space-x-5">
+              <AppMenus appHostUrls={appHostUrls} />
               <NewResourceShortcut />
               <ProfileMenu
                 selectedTheme={requestInfo.userPrefs.theme || 'system'}

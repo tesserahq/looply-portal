@@ -292,7 +292,7 @@ export default function Contacts() {
             <div className="flex items-center gap-2">
               <NewButton
                 label="Import Contacts"
-                onClick={() => navigate('import')}
+                onClick={() => navigate('imports')}
                 variant="outline"
                 name="Import"
                 icon={<Import />}
