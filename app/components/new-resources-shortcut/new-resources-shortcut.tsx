@@ -4,6 +4,11 @@ import { Link } from '@remix-run/react'
 import { BookUser, Contact, Plus, SquareUser, Users2 } from 'lucide-react'
 import { useState } from 'react'
 import Separator from '@shadcn/ui/separator'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/modules/shadcn/ui/dropdown'
 
 type ResourceType = {
   id: 'contacts' | 'contact-lists' | 'waiting-lists' | 'contact-interactions'
@@ -40,14 +45,14 @@ export default function NewResourceShortcut() {
   return (
     <>
       <Separator orientation="vertical" className="-ml-1 hidden h-8" />
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" className="border-accent bg-accent border">
             <Plus />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[250px]" align="end" side="bottom" sideOffset={8}>
-          <h3 className="text-muted-foreground mb-3 text-xs font-medium uppercase">
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[250px]" align="end" side="bottom" sideOffset={8}>
+          <h3 className="text-muted-foreground m-3 mb-2 text-xs font-medium uppercase">
             Create New Resources
           </h3>
           <div className="flex flex-col">
@@ -74,8 +79,8 @@ export default function NewResourceShortcut() {
               )
             })}
           </div>
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   )
 }

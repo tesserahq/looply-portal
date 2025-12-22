@@ -12,12 +12,18 @@ export function loader() {
   const hostUrl = process.env.HOST_URL
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
+  // app host urls
+  const quoreHostUrl = process.env.QUORE_HOST_URL
+  const custosHostUrl = process.env.CUSTOS_HOST_URL
+  const vaultaHostUrl = process.env.VAULTA_HOST_URL
+  const identiesHostUrl = process.env.IDENTIES_HOST_URL
 
-  return { hostUrl, apiUrl, nodeEnv }
+  return { hostUrl, apiUrl, nodeEnv, quoreHostUrl, custosHostUrl, vaultaHostUrl, identiesHostUrl }
 }
 
 export default function Layout() {
-  const { hostUrl, apiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { hostUrl, apiUrl, nodeEnv, quoreHostUrl, custosHostUrl, vaultaHostUrl, identiesHostUrl } =
+    useLoaderData<typeof loader>()
   const [isExpanded, setIsExpanded] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
   const { isLoading } = useApp()
@@ -93,6 +99,12 @@ export default function Layout() {
           hostUrl={hostUrl}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
+          appHostUrls={{
+            quoreHostUrl: quoreHostUrl!,
+            custosHostUrl: custosHostUrl!,
+            vaultaHostUrl: vaultaHostUrl!,
+            identiesHostUrl: identiesHostUrl!,
+          }}
         />
 
         <main className="main-content w-full">

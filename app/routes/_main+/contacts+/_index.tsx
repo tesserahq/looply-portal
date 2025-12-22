@@ -16,7 +16,7 @@ import { Button } from '@shadcn/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@shadcn/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Contact, Edit, Ellipsis, EyeIcon, Search, Trash2, X } from 'lucide-react'
+import { Contact, Edit, Ellipsis, EyeIcon, Import, Search, Trash2, X } from 'lucide-react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -289,7 +289,16 @@ export default function Contacts() {
                 </InputGroupAddon>
               )}
             </InputGroup>
-            <NewButton label="New Contact" onClick={() => navigate('/contacts/new')} />
+            <div className="flex items-center gap-2">
+              <NewButton
+                label="Import Contacts"
+                onClick={() => navigate('imports')}
+                variant="outline"
+                name="Import"
+                icon={<Import />}
+              />
+              <NewButton label="New Contact" onClick={() => navigate('/contacts/new')} />
+            </div>
           </div>
         )}
       </div>

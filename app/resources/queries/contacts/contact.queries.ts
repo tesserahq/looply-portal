@@ -58,6 +58,20 @@ export async function createContact(config: ContactQueryConfig, data: CreateCont
 }
 
 /**
+ * Create multiple contacts in batch.
+ */
+export async function createBatchContacts(config: ContactQueryConfig, data: CreateContactData[]) {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(`${apiUrl}/contacts/batch`, token, nodeEnv, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+  return response as ContactType[]
+}
+
+/**
  * Update an existing contact.
  */
 export async function updateContact(

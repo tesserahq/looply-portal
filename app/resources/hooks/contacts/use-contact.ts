@@ -2,6 +2,7 @@ import {
   fetchContacts,
   fetchContactDetail,
   createContact,
+  createBatchContacts,
   updateContact,
   deleteContact,
 } from '@/resources/queries/contacts/contact.queries'
@@ -135,6 +136,44 @@ export function useCreateContact(
     },
     onError: (error: QueryError) => {
       toast.error('Failed to create contact', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for creating multiple contacts in batch
+ */
+export function useCreateBatchContacts(
+  config: ContactQueryConfig,
+  options?: {
+    onSuccess?: (data: ContactType[]) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  if (!config.token) {
+    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+  }
+
+  return useMutation({
+    mutationFn: async (data: ContactFormData[]): Promise<ContactType[]> => {
+      return await createBatchContacts(config, data)
+    },
+    onSuccess: (data) => {
+      // Invalidate and refetch contacts lists
+      queryClient.invalidateQueries({ queryKey: contactQueryKeys.lists() })
+
+      toast.success(`${data.length} contacts created successfully!`)
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to create contacts', {
         description: error?.message || 'Please try again.',
       })
 
