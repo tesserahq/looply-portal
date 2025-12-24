@@ -1,4 +1,4 @@
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 
 export function AppPreloader({ className }: { className?: string }) {
   return (

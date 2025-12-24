@@ -1,5 +1,5 @@
-import { cn } from '@/utils/misc'
-import { Link, useLocation } from '@remix-run/react'
+import { cn } from '@shadcn/lib/utils'
+import { Link, useLocation } from 'react-router'
 import { ISidebarPanelProps } from './types'
 
 export function SidebarPanel({ menuItems }: ISidebarPanelProps) {

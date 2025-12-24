@@ -59,7 +59,7 @@ import DeleteConfirmation from '@/components/delete-confirmation/delete-confirma
 import { useApp } from '@/context/AppContext'
 import { use[Resource]s, useDelete[Resource] } from '@/resources/hooks/[resource-name]'
 import { [Resource]Type } from '@/resources/queries/[resource-name]'
-import { ensureCanonicalPagination } from '@/utils/pagination.server'
+import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData, useNavigate, useSearchParams } from '@remix-run/react'
 import { Button } from '@shadcn/ui/button'

@@ -1,15 +1,11 @@
-import type { AppLoadContext, EntryContext } from '@remix-run/node'
+import { NonceProvider } from '@/hooks/useNonce'
+import { initEnvs } from '@/utils/config/env.config'
+import { createReadableStreamFromReadable } from '@react-router/node'
 import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
-import { RemixServer } from '@remix-run/react'
-import { createReadableStreamFromReadable } from '@remix-run/node'
-import { renderToPipeableStream } from 'react-dom/server'
-import { createInstance } from 'i18next'
-import { I18nextProvider, initReactI18next } from 'react-i18next'
-import { initEnvs } from '@/utils/env.server'
-import { NonceProvider } from '@/hooks/useNonce'
-import i18nServer from '@/modules/i18n/i18n.server'
-import * as i18n from '@/modules/i18n/i18n'
+import { renderToPipeableStream } from 'react-dom/server.node'
+import type { AppLoadContext, EntryContext } from 'react-router'
+import { ServerRouter } from 'react-router'
 
 /**
  * Environment Variables.
@@ -22,7 +18,7 @@ export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext,
+  reactRouterContext: EntryContext,
   loadContext: AppLoadContext
 ) {
   const callbackName = isbot(request.headers.get('user-agent')) ? 'onAllReady' : 'onShellReady'
@@ -43,27 +39,11 @@ export default async function handleRequest(
   )
   */
 
-  /**
-   * Internationalization (i18n).
-   */
-  const instance = createInstance()
-  const lng = await i18nServer.getLocale(request)
-  const ns = i18nServer.getRouteNamespaces(remixContext)
-
-  await instance.use(initReactI18next).init({
-    ...i18n,
-    lng,
-    ns,
-    resources: i18n.resources,
-  })
-
   return new Promise((resolve, reject) => {
     let shellRendered = false
     const { pipe, abort } = renderToPipeableStream(
       <NonceProvider value={nonce}>
-        <I18nextProvider i18n={instance}>
-          <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />
-        </I18nextProvider>
+        <ServerRouter context={reactRouterContext} url={request.url} />
       </NonceProvider>,
       {
         [callbackName]: () => {

@@ -13,7 +13,7 @@ import {
 } from '@/modules/shadcn/ui/form'
 import { Input } from '@/modules/shadcn/ui/input'
 import { useContacts } from '@/resources/hooks/contacts'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { type DialogProps } from '@radix-ui/react-dialog'
 import { ChevronsUpDownIcon, Loader2, Search } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'

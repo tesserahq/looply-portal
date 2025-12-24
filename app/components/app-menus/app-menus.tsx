@@ -6,8 +6,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/modules/shadcn/ui/dropdown'
-import { cn } from '@/utils/misc'
-import { Link } from '@remix-run/react'
+import { cn } from '@shadcn/lib/utils'
+import { Link } from 'react-router'
 import { Grip } from 'lucide-react'
 import { useMemo, useState } from 'react'
 

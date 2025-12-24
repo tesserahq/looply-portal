@@ -7,8 +7,8 @@ import {
 } from '@shadcn/ui/pagination'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import { useState } from 'react'
-import { useScopedParams } from '@/utils/scoped_params'
-import { useNavigate } from '@remix-run/react'
+import { useScopedParams } from '@/utils/helpers/params.helper'
+import { useNavigate } from 'react-router'
 import { Button } from '@shadcn/ui/button'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 

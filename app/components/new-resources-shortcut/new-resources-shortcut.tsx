@@ -1,6 +1,6 @@
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router'
 import { BookUser, Contact, Plus, SquareUser, Users2 } from 'lucide-react'
 import { useState } from 'react'
 import Separator from '@shadcn/ui/separator'

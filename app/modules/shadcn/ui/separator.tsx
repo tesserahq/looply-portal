@@ -1,4 +1,4 @@
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 
 interface IProps {
   className?: string

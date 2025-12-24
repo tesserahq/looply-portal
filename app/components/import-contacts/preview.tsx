@@ -8,8 +8,8 @@ import {
   TableRow,
 } from '@/modules/shadcn/ui/table'
 import { ContactFormData } from '@/resources/queries/contacts/contact.type'
-import { CONTACT_PROPERTIES } from '@/routes/_main+/contacts+/imports'
-import { cn } from '@/utils/misc'
+import { CONTACT_PROPERTIES } from '@/routes/main/contacts/imports'
+import { cn } from '@shadcn/lib/utils'
 import { Loader2 } from 'lucide-react'
 
 interface IProps {

@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react'
 
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { Button } from '@shadcn/ui/button'
 import {
   Command,

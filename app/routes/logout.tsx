@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData } from 'react-router'
 import { useEffect } from 'react'
 
 export function loader() {

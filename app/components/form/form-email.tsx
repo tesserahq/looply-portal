@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@shadcn/ui/form'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 
 interface FormEmailProps {
   field: string

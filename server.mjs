@@ -1,15 +1,11 @@
-import { createRequestHandler } from '@remix-run/express'
-import { installGlobals } from '@remix-run/node'
+import 'dotenv/config'
+import { createRequestHandler } from '@react-router/express'
 import crypto from 'crypto'
 import express from 'express'
 import compression from 'compression'
 import morgan from 'morgan'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-
-// Info about Single Fetch and `installGlobals`:
-// https://remix.run/docs/en/main/guides/single-fetch#enabling-single-fetch
-installGlobals({ nativeFetch: true })
 
 const PORT = process.env.PORT || 3000
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
@@ -22,12 +18,10 @@ const viteDevServer =
           server: {
             middlewareMode: true,
             hmr: {
-              port: process.env.VITE_HMR_PORT
-                ? parseInt(process.env.VITE_HMR_PORT)
-                : undefined,
+              port: process.env.VITE_HMR_PORT ? parseInt(process.env.VITE_HMR_PORT) : undefined,
             },
           },
-        }),
+        })
       )
 
 const app = express()
@@ -60,9 +54,7 @@ app.use(
       reportOnly: true,
       directives: {
         // Controls allowed endpoints for fetch, XHR, WebSockets, etc.
-        'connect-src': [NODE_ENV === 'development' ? 'ws:' : null, "'self'"].filter(
-          Boolean,
-        ),
+        'connect-src': [NODE_ENV === 'development' ? 'ws:' : null, "'self'"].filter(Boolean),
         // Defines which origins can serve fonts to your site.
         'font-src': ["'self'"],
         // Specifies origins allowed to be embedded as frames.
@@ -70,18 +62,14 @@ app.use(
         // Determines allowed sources for images.
         'img-src': ["'self'", 'data:'],
         // Sets restrictions on sources for <script> elements.
-        'script-src': [
-          "'strict-dynamic'",
-          "'self'",
-          (_, res) => `'nonce-${res.locals.cspNonce}'`,
-        ],
+        'script-src': ["'strict-dynamic'", "'self'", (_, res) => `'nonce-${res.locals.cspNonce}'`],
         // Controls allowed sources for inline JavaScript event handlers.
         'script-src-attr': [(_, res) => `'nonce-${res.locals.cspNonce}'`],
         // Enforces that requests are made over HTTPS.
         'upgrade-insecure-requests': null,
       },
     },
-  }),
+  })
 )
 
 /**
@@ -140,10 +128,7 @@ app.use((req, res, next) => {
 if (viteDevServer) {
   app.use(viteDevServer.middlewares)
 } else {
-  app.use(
-    '/assets',
-    express.static('build/client/assets', { immutable: true, maxAge: '1y' }),
-  )
+  app.use('/assets', express.static('build/client/assets', { immutable: true, maxAge: '1y' }))
 }
 // Everything else (like favicon.ico) is cached for an hour.
 // You may want to be more aggressive with this caching.
@@ -164,15 +149,13 @@ app.all(
     }),
 
     build: viteDevServer
-      ? () => viteDevServer.ssrLoadModule('virtual:remix/server-build')
+      ? () => viteDevServer.ssrLoadModule('virtual:react-router/server-build')
       : await import('./build/server/index.js'),
-  }),
+  })
 )
 
 if (process.env.TRUST_PROXY) {
   app.set('trust proxy', 1 /* number of proxies between user and server */)
 }
 
-app.listen(PORT, '0.0.0.0', () =>
-  console.log(`Express server listening at http://0.0.0.0:${PORT}`),
-)
+app.listen(PORT, '0.0.0.0', () => console.log(`Express server listening at http://0.0.0.0:${PORT}`))

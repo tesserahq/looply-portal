@@ -12,7 +12,7 @@ import { Calendar } from '@/modules/shadcn/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 
 interface FormDatePickerProps {
   field: string
