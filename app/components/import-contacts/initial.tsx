@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from '@/modules/shadcn/ui/button'
 import { cn } from '@shadcn/lib/utils'
-import { AlertCircle, FileCheck, Import, Loader2, XCircle } from 'lucide-react'
+import { AlertCircle, File, FileCheck, FileDown, Import, Loader2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import CSVReader, { IFileInfo } from 'react-csv-reader'
 
@@ -40,7 +40,14 @@ export function ImportContactsInitial({ onFileLoaded, onError, maxFileSize }: IP
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setIsDragging(false)
+    // Only set isDragging to false if we're actually leaving the drop zone
+    // (not just moving over a child element)
+    const currentTarget = e.currentTarget as HTMLElement
+    const relatedTarget = e.relatedTarget as HTMLElement | null
+
+    if (!currentTarget.contains(relatedTarget)) {
+      setIsDragging(false)
+    }
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -109,76 +116,98 @@ export function ImportContactsInitial({ onFileLoaded, onError, maxFileSize }: IP
   }
 
   return (
-    <div
-      className={cn(
-        `flex flex-col items-center justify-center gap-4 p-12 border-2 border-dashed rounded-lg
-        cursor-pointer transition-colors`,
-        isDragging
-          ? 'border-primary bg-primary/10'
-          : 'border-muted-foreground/30 hover:border-primary/50',
-        error && 'border-destructive bg-destructive/5',
-        isProcessing && 'border-primary bg-primary/5'
-      )}
-      onDragEnter={handleDragEnter}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      onClick={() => {
-        const input = document.getElementById(csvReaderInputId) as HTMLInputElement
-        input?.click()
-      }}
-      tabIndex={0}
-      role="button"
-      aria-label="Upload CSV file"
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
+    <>
+      <div
+        className={cn(
+          `flex flex-col items-center justify-center gap-4 p-12 border-2 border-dashed rounded-lg
+          cursor-pointer transition-colors group`,
+          isDragging
+            ? 'border-primary bg-primary/10'
+            : 'border-muted-foreground/30 hover:border-primary',
+          error && 'border-destructive bg-destructive/5',
+          isProcessing && 'border-primary bg-primary/5'
+        )}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => {
           const input = document.getElementById(csvReaderInputId) as HTMLInputElement
           input?.click()
-        }
-      }}>
-      {isProcessing || isLoading ? (
-        <ImportProcessing uploadProgress={uploadProgress} isProcessing={isProcessing} />
-      ) : error ? (
-        <ImportError
-          error={error}
-          onTryAgain={() => {
-            setError(null)
-            setIsLoading(false)
-            setIsProcessing(false)
-            setUploadProgress(0)
-          }}
-        />
-      ) : (
-        <ImportUpload isDragging={isDragging} />
-      )}
+        }}
+        tabIndex={0}
+        role="button"
+        aria-label="Upload CSV file"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            const input = document.getElementById(csvReaderInputId) as HTMLInputElement
+            input?.click()
+          }
+        }}>
+        {isProcessing || isLoading ? (
+          <ImportProcessing uploadProgress={uploadProgress} isProcessing={isProcessing} />
+        ) : error ? (
+          <ImportError
+            error={error}
+            onTryAgain={() => {
+              setError(null)
+              setIsLoading(false)
+              setIsProcessing(false)
+              setUploadProgress(0)
+            }}
+          />
+        ) : (
+          <ImportUpload isDragging={isDragging} />
+        )}
 
-      <CSVReader
-        cssClass="hidden"
-        label=""
-        onFileLoaded={handleFileLoaded}
-        onError={handleError}
-        parserOptions={parseOptions}
-        inputId={csvReaderInputId}
-      />
-    </div>
+        <CSVReader
+          cssClass="hidden"
+          label=""
+          onFileLoaded={handleFileLoaded}
+          onError={handleError}
+          parserOptions={parseOptions}
+          inputId={csvReaderInputId}
+        />
+      </div>
+
+      {!isProcessing && !isLoading && (
+        <a
+          href="/sample.csv"
+          download
+          className="flex mt-3 items-center justify-center gap-2 p-3 border-2 border-dashed
+            border-muted-foreground/30 rounded-lg cursor-pointer transition-colors
+            hover:border-primary group">
+          <FileDown className="h-5 w-5 group-hover:text-primary" />
+          <p className="font-semibold group-hover:text-primary">Download our sample CSV</p>
+        </a>
+      )}
+    </>
   )
 }
 
 export function ImportUpload({ isDragging }: { isDragging: boolean }) {
   return (
-    <div className="group flex flex-col items-center">
+    <div className="flex flex-col items-center">
       <Import
-        className="h-16 w-16 mb-2 text-muted-foreground transition-all duration-200
-          group-hover:text-primary group-hover:scale-110 group-hover:animate-bounce duration-500"
+        className={cn(
+          'h-16 w-16 mb-2 text-muted-foreground group-hover:text-primary',
+          isDragging && 'transition-all duration-500 scale-110 animate-bounce text-primary'
+        )}
       />
       <div className="text-center space-y-2">
-        <h3 className="text-xl font-semibold transition-colors group-hover:text-primary">
+        <h3
+          className={cn(
+            'text-xl font-semibold transition-colors group-hover:text-primary',
+            isDragging && 'text-primary'
+          )}>
           {isDragging ? 'Drop your CSV file here' : 'Drag and drop your CSV file'}
         </h3>
         <p className="text-sm text-muted-foreground">
           or{' '}
-          <span className="text-primary font-medium underline decoration-2 underline-offset-2">
+          <span
+            className="text-primary font-medium underline decoration-2 underline-offset-2
+              group-hover:text-primary">
             browse
           </span>{' '}
           for a file
