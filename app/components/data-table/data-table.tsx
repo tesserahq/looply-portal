@@ -3,7 +3,7 @@
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shadcn/ui/table'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { useEffect, useRef, useState } from 'react'
 import { Pagination } from './data-pagination'
 import { TableCellSkeletons } from './data-table-skeleton'

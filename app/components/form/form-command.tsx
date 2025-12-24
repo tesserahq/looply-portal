@@ -19,7 +19,7 @@ import { Dialog, DialogContent } from '@/modules/shadcn/ui/dialog'
 import { Button } from '@/modules/shadcn/ui/button'
 import { CheckIcon, ChevronsUpDownIcon, Loader2 } from 'lucide-react'
 import { ComponentProps, useState, type ReactNode } from 'react'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { type DialogProps } from '@radix-ui/react-dialog'
 
 export interface CommandOption {

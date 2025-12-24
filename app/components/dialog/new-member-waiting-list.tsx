@@ -7,11 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@shadcn/ui/sel
 import { useApp } from '@/context/AppContext'
 import useDebounce from '@/hooks/useDebounce'
 import { useContacts } from '@/resources/hooks/contacts'
-import { Link, useNavigate } from '@remix-run/react'
+import { Link, useNavigate } from 'react-router'
 import { Search, X } from 'lucide-react'
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react'
 import { AppPreloader } from '../loader/pre-loader'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { WaitingListStatusType } from '@/resources/queries/waiting-lists/waiting-list-member.type'
 
 interface FuncProps {

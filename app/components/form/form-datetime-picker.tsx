@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/pop
 import { Input } from '@/modules/shadcn/ui/input'
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { useState } from 'react'
 
 interface FormDateTimePickerProps {

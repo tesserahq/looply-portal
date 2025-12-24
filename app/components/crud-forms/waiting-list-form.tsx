@@ -5,7 +5,7 @@ import {
   formValuesToWaitingListData,
 } from '@/resources/queries/waiting-lists'
 import { waitingListFormSchema } from '@/resources/queries/waiting-lists/waiting-list.schema'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate } from 'react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Form } from '../form'
@@ -44,7 +44,13 @@ export const WaitingListForm = ({
   return (
     <Form schema={waitingListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
-        <Form.Input field="name" label="Name" placeholder="Enter waiting list name" required />
+        <Form.Input
+          field="name"
+          label="Name"
+          placeholder="Enter waiting list name"
+          required
+          autoFocus
+        />
 
         <Form.Textarea
           field="description"

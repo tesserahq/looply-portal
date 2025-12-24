@@ -1,5 +1,5 @@
 import { Auth0Provider } from '@auth0/auth0-react'
-import type { LinksFunction, LoaderFunctionArgs, TypedResponse } from '@remix-run/node'
+import type { LinksFunction, LoaderFunctionArgs } from 'react-router'
 import {
   data,
   Links,
@@ -9,8 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-} from '@remix-run/react'
-import { useChangeLanguage } from 'remix-i18next/react'
+} from 'react-router'
 import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
 // Import global CSS styles for the application
@@ -22,35 +21,41 @@ import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-countr
 import { ClientHintCheck } from '@/components/misc/ClientHints'
 import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
 import { Toaster } from '@shadcn/ui/sonner'
-import { SITE_CONFIG } from '@/constants/brand'
+import { SITE_CONFIG } from '@/utils/config/site.config'
 import { getHints } from '@/hooks/useHints'
 import { useNonce } from '@/hooks/useNonce'
 import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
 import { useToast } from '@/hooks/useToast'
 import i18nServer, { localeCookie } from '@/modules/i18n/i18n.server'
-import { csrf } from '@/utils/csrf.server'
-import { combineHeaders, getDomainUrl } from '@/utils/misc.server'
-import { getToastSession } from '@/utils/toast.server'
+import { csrf } from '@/utils/cookies/csrf.server'
+import { combineHeaders, getDomainUrl } from '@/utils/helpers/misc.helper'
+import { getToastSession } from '@/utils/cookies/toast.server'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
-import { ProgressBar } from './components/loader/progress-bar'
-import { AppProvider } from './context/AppContext'
-import { ReactQueryProvider } from './modules/react-query'
+import { ProgressBar } from '@/components/loader/progress-bar'
+import { AppProvider } from '@/context/AppContext'
+import { ReactQueryProvider } from '@/modules/react-query'
+import { metaObject } from '@/utils/helpers/meta.helper'
 
 library.add(fab)
 
-export const handle = { i18n: ['translation'] }
+export const meta: MetaFunction<typeof loader> = ({ data, location }) => {
+  // Get the current page title from the pathname
+  const getPageTitle = () => {
+    const path = location.pathname
+    // Remove leading slash and convert to title case
+    if (path === '/') return 'Home'
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [
-    {
-      title: data ? `${SITE_CONFIG.siteTitle}` : `Error | ${SITE_CONFIG.siteTitle}`,
-    },
-    {
-      name: 'description',
-      content: SITE_CONFIG.siteDescription,
-    },
-  ]
+    const pageName = path.split('/').pop() || ''
+    return pageName
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
+  const pageTitle = getPageTitle()
+
+  return metaObject(data ? pageTitle : 'Error')
 }
 
 export const links: LinksFunction = () => {
@@ -61,10 +66,7 @@ export const links: LinksFunction = () => {
   ]
 }
 
-export type LoaderData = Exclude<
-  Awaited<ReturnType<typeof loader>>,
-  Response | TypedResponse<unknown>
->
+export type LoaderData = Exclude<Awaited<ReturnType<typeof loader>>, Response>
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = null
@@ -113,7 +115,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 function Document({
   children,
   nonce,
-  lang = 'en',
   dir = 'ltr',
   theme = 'light',
 }: {
@@ -125,7 +126,7 @@ function Document({
 }) {
   return (
     <html
-      lang={lang}
+      lang="en"
       dir={dir}
       className={`${theme} overflow-x-hidden`}
       style={{ colorScheme: theme }}>
@@ -153,7 +154,6 @@ function Document({
 
 export default function AppWithProviders() {
   const {
-    locale,
     toast,
     csrfToken,
     clientID,
@@ -168,13 +168,11 @@ export default function AppWithProviders() {
   const nonce = useNonce()
   const theme = useTheme()
 
-  useChangeLanguage(locale)
-
   // Renders toast (if any).
   useToast(toast)
 
   return (
-    <Document nonce={nonce} theme={theme} lang={locale ?? 'en'}>
+    <Document nonce={nonce} theme={theme}>
       <ProgressBar />
       <AuthenticityTokenProvider token={csrfToken}>
         <Auth0Provider

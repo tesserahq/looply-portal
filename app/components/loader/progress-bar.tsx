@@ -1,5 +1,5 @@
-import { cn } from '@/utils/misc'
-import { useNavigation } from '@remix-run/react'
+import { cn } from '@shadcn/lib/utils'
+import { useNavigation } from 'react-router'
 import { useEffect, useRef, useState } from 'react'
 
 export function ProgressBar() {
@@ -23,7 +23,7 @@ export function ProgressBar() {
       role="progressbar"
       aria-valuetext={active ? 'Loading' : undefined}
       aria-hidden={!active}
-      className="fixed inset-x-0 top-0 left-0 z-[1000] h-1 animate-pulse">
+      className="fixed inset-x-0 top-0 left-0 z-1000 h-1 animate-pulse">
       <div
         ref={ref}
         className={cn(

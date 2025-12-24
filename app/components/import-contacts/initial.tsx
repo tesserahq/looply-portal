@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from '@/modules/shadcn/ui/button'
-import { cn } from '@/utils/misc'
+import { cn } from '@shadcn/lib/utils'
 import { AlertCircle, FileCheck, Import, Loader2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import CSVReader, { IFileInfo } from 'react-csv-reader'

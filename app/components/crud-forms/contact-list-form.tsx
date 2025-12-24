@@ -5,7 +5,7 @@ import {
   formValuesToContactListData,
 } from '@/resources/queries/contact-lists'
 import { contactListFormSchema } from '@/resources/queries/contact-lists/contact-list.schema'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate } from 'react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Form } from '../form'
@@ -44,7 +44,13 @@ export const ContactListForm = ({
   return (
     <Form schema={contactListFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
       <FormLayout title={title}>
-        <Form.Input field="name" label="Name" placeholder="Enter contact list name" required />
+        <Form.Input
+          field="name"
+          label="Name"
+          placeholder="Enter contact list name"
+          required
+          autoFocus
+        />
 
         <Form.Textarea
           field="description"

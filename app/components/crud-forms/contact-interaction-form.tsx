@@ -7,7 +7,7 @@ import {
   formValuesToContactInteractionData,
 } from '@/resources/queries/contact-interactions'
 import { contactInteractionFormSchema } from '@/resources/queries/contact-interactions/contact-interaction.schema'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate } from 'react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Form } from '../form'

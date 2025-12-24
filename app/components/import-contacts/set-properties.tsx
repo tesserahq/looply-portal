@@ -11,7 +11,7 @@ import {
   CONTACT_PROPERTIES,
   ContactProperty,
   IContactPropertyMapping,
-} from '@/routes/_main+/contacts+/imports'
+} from '@/routes/main/contacts/imports'
 
 interface IProps {
   columnMapping: IContactPropertyMapping

@@ -14,7 +14,7 @@ import { Loader2 } from 'lucide-react'
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { Form } from '../form'
 import { ContactInteractionType } from '@/resources/queries/contact-interactions/contact-interaction.type'
-import { useNavigate, useParams } from '@remix-run/react'
+import { useNavigate, useParams } from 'react-router'
 
 interface FuncProps {
   onOpen: (contact: ContactType) => void
