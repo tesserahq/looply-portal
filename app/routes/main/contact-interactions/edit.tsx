@@ -1,6 +1,6 @@
 import { ContactInteractionForm } from '@/components/crud-forms/contact-interaction-form'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import {
   useContactInteractionDetail,
   useUpdateContactInteraction,

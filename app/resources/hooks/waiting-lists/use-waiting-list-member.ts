@@ -59,14 +59,14 @@ export function useWaitingListMembers(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: waitingListMemberQueryKeys.list(waitingListId),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         const response = await fetchWaitingListMembers(waitingListId, config)
         return response.members || []
       } catch (error) {
@@ -74,7 +74,7 @@ export function useWaitingListMembers(
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!waitingListId,
+    enabled: options?.enabled !== false && !!waitingListId && !!config.token,
   })
 }
 
@@ -94,14 +94,14 @@ export function useWaitingListMembersByStatus(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: waitingListMemberQueryKeys.listByStatus(waitingListId, status),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         const response = await fetchWaitingListMembersByStatus(waitingListId, status, config)
         return (response.members || []) as WaitingListMemberType[]
       } catch (error) {
@@ -109,7 +109,7 @@ export function useWaitingListMembersByStatus(
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!waitingListId && !!status,
+    enabled: options?.enabled !== false && !!waitingListId && !!status && !!config.token,
   })
 }
 
@@ -125,14 +125,14 @@ export function useWaitingListStatuses(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: waitingListMemberQueryKeys.statuses(),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         const response = await fetchWaitingListStatuses(config)
         return response.items || []
       } catch (error) {
@@ -140,7 +140,7 @@ export function useWaitingListStatuses(
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }
 
@@ -157,12 +157,11 @@ export function useAddWaitingListMembers(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: AddWaitingListMembersData): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await addWaitingListMembers(waitingListId, config, data)
     },
     onSuccess: () => {
@@ -198,10 +197,6 @@ export function useUpdateWaitingListMemberStatus(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async ({
       memberId,
@@ -210,6 +205,9 @@ export function useUpdateWaitingListMemberStatus(
       memberId: string
       data: UpdateWaitingListMemberStatusData
     }): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await updateWaitingListMemberStatus(waitingListId, memberId, config, data)
     },
     onSuccess: () => {
@@ -245,12 +243,11 @@ export function useRemoveWaitingListMember(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (memberId: string): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await removeWaitingListMember(waitingListId, memberId, config)
     },
     onSuccess: () => {
@@ -286,12 +283,11 @@ export function useRemoveAllWaitingListMembers(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await removeAllWaitingListMembers(waitingListId, config)
     },
     onSuccess: () => {
@@ -327,12 +323,11 @@ export function useBulkUpdateWaitingListMemberStatus(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: BulkUpdateWaitingListMemberStatusData): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await bulkUpdateWaitingListMemberStatus(waitingListId, config, data)
     },
     onSuccess: () => {

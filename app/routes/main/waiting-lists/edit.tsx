@@ -1,6 +1,6 @@
 import { WaitingListForm } from '@/components/crud-forms/waiting-list-form'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useWaitingListDetail, useUpdateWaitingList } from '@/resources/hooks/waiting-lists'
 import { WaitingListFormData, waitingListToFormValues } from '@/resources/queries/waiting-lists'
 import { useLoaderData, useNavigate, useParams } from 'react-router'

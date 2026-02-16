@@ -1,5 +1,5 @@
 import { ContactForm } from '@/components/crud-forms/contact-form'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useCreateContact } from '@/resources/hooks/contacts'
 import { ContactFormData, ContactType } from '@/resources/queries/contacts/contact.type'
 import { defaultContactFormValues } from '@/resources/queries/contacts/contact.schema'

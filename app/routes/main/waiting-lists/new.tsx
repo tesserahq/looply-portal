@@ -1,5 +1,5 @@
 import { WaitingListForm } from '@/components/crud-forms/waiting-list-form'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useCreateWaitingList } from '@/resources/hooks/waiting-lists'
 import { WaitingListFormData, WaitingListType } from '@/resources/queries/waiting-lists'
 import { defaultWaitingListFormValues } from '@/resources/queries/waiting-lists/waiting-list.schema'

@@ -1,6 +1,6 @@
 import { ContactListForm } from '@/components/crud-forms/contact-list-form'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useContactListDetail, useUpdateContactList } from '@/resources/hooks/contact-lists'
 import { ContactListFormData, contactListToFormValues } from '@/resources/queries/contact-lists'
 import { useLoaderData, useNavigate, useParams } from 'react-router'

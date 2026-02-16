@@ -1,6 +1,9 @@
 import { index, layout, route, type RouteConfig } from '@react-router/dev/routes'
 
 export default [
+  // Theme
+  route('/resources/update-theme', 'routes/resources/update-theme.ts'),
+
   // Home Route
   route('/', 'routes/index.tsx'),
 

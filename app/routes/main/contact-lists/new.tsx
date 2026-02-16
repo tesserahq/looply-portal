@@ -1,5 +1,5 @@
 import { ContactListForm } from '@/components/crud-forms/contact-list-form'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useCreateContactList } from '@/resources/hooks/contact-lists'
 import { ContactListFormData, ContactListType } from '@/resources/queries/contact-lists'
 import { defaultContactListFormValues } from '@/resources/queries/contact-lists/contact-list.schema'

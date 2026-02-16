@@ -49,14 +49,14 @@ export function useContactListMembers(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactListMemberQueryKeys.list(contactListId),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         const response = await fetchContactListMembers(contactListId, config)
         return response.members || []
       } catch (error) {
@@ -64,7 +64,7 @@ export function useContactListMembers(
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!contactListId,
+    enabled: options?.enabled !== false && !!contactListId && !!config.token,
   })
 }
 
@@ -81,12 +81,11 @@ export function useAddContactListMembers(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: AddContactListMembersData): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await addContactListMembers(contactListId, config, data)
     },
     onSuccess: () => {
@@ -122,12 +121,11 @@ export function useRemoveContactListMember(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (memberId: string): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await removeContactListMember(contactListId, memberId, config)
     },
     onSuccess: () => {
@@ -163,12 +161,11 @@ export function useRemoveAllContactListMembers(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await removeAllContactListMembers(contactListId, config)
     },
     onSuccess: () => {

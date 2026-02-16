@@ -2,7 +2,7 @@ import { DataTable } from '@/components/data-table'
 import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import {
   useContactInteractions,
@@ -211,13 +211,15 @@ export default function ContactInteractions() {
   )
 
   return (
-    <div className="animate-slide-up h-full">
+    <div className="page-content h-full">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Contact Interactions</h1>
-        <NewButton
-          label="New Contact Interaction"
-          onClick={() => navigate('/contact-interactions/new')}
-        />
+        {hasData && (
+          <NewButton
+            label="New Contact Interaction"
+            onClick={() => navigate('/contact-interactions/new')}
+          />
+        )}
       </div>
       {!hasData ? (
         emptyContent

@@ -12,14 +12,11 @@ import NewResourceShortcut from '@/components/new-resources-shortcut/new-resourc
 import AppMenus, { IAppMenusProps } from '@/components/app-menus/app-menus'
 
 interface IHeaderProps {
-  apiUrl: string
-  nodeEnv: NodeENVType
   appHostUrls: IAppMenusProps
   action?: React.ReactNode
   withSidebar?: boolean
   isExpanded?: boolean
   setIsExpanded?: (isExpanded: boolean) => void
-  hostUrl?: string
 }
 
 export function Header({

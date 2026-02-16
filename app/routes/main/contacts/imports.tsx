@@ -4,7 +4,7 @@ import {
   ImportContactsPreview,
   ImportContactsSetProperties,
 } from '@/components/import-contacts'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/shadcn/ui/card'
 import { useCreateBatchContacts } from '@/resources/hooks/contacts'

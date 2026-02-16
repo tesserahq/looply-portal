@@ -20,8 +20,6 @@ import 'react-day-picker/style.css'
 import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-country-state-city.css?url'
 import { ClientHintCheck } from '@/components/misc/ClientHints'
 import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
-import { Toaster } from '@shadcn/ui/sonner'
-import { SITE_CONFIG } from '@/utils/config/site.config'
 import { getHints } from '@/hooks/useHints'
 import { useNonce } from '@/hooks/useNonce'
 import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
@@ -33,9 +31,9 @@ import { getToastSession } from '@/utils/cookies/toast.server'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { ProgressBar } from '@/components/loader/progress-bar'
-import { AppProvider } from '@/context/AppContext'
 import { ReactQueryProvider } from '@/modules/react-query'
 import { metaObject } from '@/utils/helpers/meta.helper'
+import { Toaster } from 'tessera-ui/components'
 
 library.add(fab)
 
@@ -79,14 +77,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const audience = process.env.AUTH0_AUDIENCE
   const organizationID = process.env.AUTH0_ORGANIZATION_ID
   const hostUrl = process.env.HOST_URL
-  const identiesApiUrl = process.env.IDENTIES_API_URL
-  const nodeEnv = process.env.NODE_ENV
 
   return data(
     {
       hostUrl,
-      identiesApiUrl,
-      nodeEnv,
       user,
       locale,
       toast,
@@ -153,17 +147,8 @@ function Document({
 }
 
 export default function AppWithProviders() {
-  const {
-    toast,
-    csrfToken,
-    clientID,
-    domain,
-    audience,
-    hostUrl,
-    organizationID,
-    identiesApiUrl,
-    nodeEnv,
-  } = useLoaderData<typeof loader>()
+  const { toast, csrfToken, clientID, domain, audience, hostUrl, organizationID } =
+    useLoaderData<typeof loader>()
 
   const nonce = useNonce()
   const theme = useTheme()
@@ -179,16 +164,13 @@ export default function AppWithProviders() {
           domain={domain ?? ''}
           clientId={clientID ?? ''}
           authorizationParams={{
-            redirect_uri: hostUrl || 'http://localhost:3000',
+            redirect_uri: hostUrl || 'http://localhost:3004',
             organization: organizationID,
             audience: audience,
           }}>
-          {/* To check if the route is a public gazette share page */}
-          <AppProvider identiesApiUrl={identiesApiUrl!} nodeEnv={nodeEnv}>
-            <ReactQueryProvider>
-              <Outlet />
-            </ReactQueryProvider>
-          </AppProvider>
+          <ReactQueryProvider>
+            <Outlet />
+          </ReactQueryProvider>
         </Auth0Provider>
       </AuthenticityTokenProvider>
     </Document>

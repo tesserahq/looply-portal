@@ -2,7 +2,7 @@ import { DateTime } from '@/components/datetime'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import {
   useContactInteractionDetail,
   useDeleteContactInteraction,
