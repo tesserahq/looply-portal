@@ -56,21 +56,21 @@ export function useContacts(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactQueryKeys.list(config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContacts(config, params)
       } catch (error) {
         throw new QueryError('Failed to fetch contacts', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }
 
@@ -88,21 +88,21 @@ export function useContactDetail(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactQueryKeys.detail(contactId),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContactDetail(contactId, config)
       } catch (error) {
         throw new QueryError('Failed to fetch contact', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!contactId,
+    enabled: options?.enabled !== false && !!contactId && !!config.token,
   })
 }
 
@@ -118,12 +118,11 @@ export function useCreateContact(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: ContactFormData): Promise<ContactType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await createContact(config, data)
     },
     onSuccess: (data) => {
@@ -156,12 +155,11 @@ export function useCreateBatchContacts(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: ContactFormData[]): Promise<ContactType[]> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await createBatchContacts(config, data)
     },
     onSuccess: (data) => {
@@ -194,10 +192,6 @@ export function useUpdateContact(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -206,6 +200,9 @@ export function useUpdateContact(
       id: string
       updateData: ContactFormData
     }): Promise<ContactType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await updateContact(id, config, updateData)
     },
     onSuccess: (data) => {
@@ -241,12 +238,11 @@ export function useDeleteContact(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (contactId: string): Promise<void> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await deleteContact(contactId, config)
     },
     onSuccess: (_, contactId) => {

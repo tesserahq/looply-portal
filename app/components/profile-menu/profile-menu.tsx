@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@shadcn/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import { cn } from '@shadcn/lib/utils'
 import { useNavigate } from 'react-router'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 
 interface Props {
   selectedTheme: string
@@ -16,14 +16,14 @@ interface Props {
 export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
   const [loaded, setLoaded] = React.useState(false)
-  const { user, isLoading } = useApp()
+  const { user, isLoadingIdenties } = useApp()
   const navigate = useNavigate()
 
   const onUpdateTheme = async (value: string) => {
     onSetTheme(value)
   }
 
-  if (isLoading) {
+  if (isLoadingIdenties) {
     return (
       <div className="animate-pulse">
         <div className="h-10 w-10 rounded-full bg-gray-200"></div>

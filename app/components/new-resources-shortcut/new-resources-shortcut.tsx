@@ -47,11 +47,11 @@ export default function NewResourceShortcut() {
       <Separator orientation="vertical" className="-ml-1 hidden h-8" />
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="border-accent bg-accent border">
-            <Plus />
+          <Button variant="outline" size="icon" className="border-accent bg-accent border w-9 h-9">
+            <Plus size={15} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[250px]" align="end" side="bottom" sideOffset={8}>
+        <DropdownMenuContent className="w-[250px]" align="start" side="bottom" sideOffset={8}>
           <h3 className="text-muted-foreground m-3 mb-2 text-xs font-medium uppercase">
             Create New Resources
           </h3>

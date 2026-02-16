@@ -3,7 +3,7 @@
  * Add your brand details here.
  */
 export const SITE_CONFIG = {
-  siteTitle: 'Looply Portal',
+  siteTitle: 'Looply',
   siteDescription: 'A modern web portal for contact management and waitlist administration',
   siteUrl: 'https://looply.mylinden.family',
   siteImage: '/images/logo.png',

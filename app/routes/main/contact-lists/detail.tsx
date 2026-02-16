@@ -8,7 +8,7 @@ import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import {
   useContactListDetail,
   useContactListMembers,

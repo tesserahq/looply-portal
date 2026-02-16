@@ -1,5 +1,5 @@
 import { ContactInteractionForm } from '@/components/crud-forms/contact-interaction-form'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useCreateContactInteraction } from '@/resources/hooks/contact-interactions'
 import {
   ContactInteractionFormData,

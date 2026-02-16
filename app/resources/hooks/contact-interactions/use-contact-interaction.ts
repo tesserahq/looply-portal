@@ -64,21 +64,21 @@ export function useContactInteractions(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: [...contactInteractionQueryKeys.list(config), params] as const,
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContactInteractions(config, params)
       } catch (error) {
         throw new QueryError('Failed to fetch contact interactions', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }
 
@@ -133,21 +133,21 @@ export function useContactInteractionDetail(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactInteractionQueryKeys.detail(interactionId),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContactInteractionDetail(interactionId, config)
       } catch (error) {
         throw new QueryError('Failed to fetch contact interaction detail', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token && !!interactionId,
   })
 }
 
@@ -163,12 +163,11 @@ export function useCreateContactInteraction(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: ContactInteractionFormData): Promise<ContactInteractionType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await createContactInteraction(config, data)
     },
     onSuccess: (data) => {
@@ -204,10 +203,6 @@ export function useUpdateContactInteraction(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -216,6 +211,9 @@ export function useUpdateContactInteraction(
       id: string
       updateData: Partial<ContactInteractionFormData>
     }): Promise<ContactInteractionType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await updateContactInteraction(config, id, updateData)
     },
     onSuccess: (data) => {
@@ -251,12 +249,11 @@ export function useDeleteContactInteraction(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (id: string): Promise<ContactInteractionType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await deleteContactInteraction(config, id)
     },
     onSuccess: (_, id) => {
@@ -290,20 +287,20 @@ export function useContactInteractionActions(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactInteractionQueryKeys.actions(),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContactInteractionActions(config)
       } catch (error) {
         throw new QueryError('Failed to fetch contact interaction actions', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }

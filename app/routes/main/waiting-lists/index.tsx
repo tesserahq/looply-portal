@@ -3,7 +3,7 @@ import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useWaitingLists, useDeleteWaitingList } from '@/resources/hooks/waiting-lists'
 import { WaitingListType } from '@/resources/queries/waiting-lists'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
@@ -188,10 +188,12 @@ export default function WaitingLists() {
   )
 
   return (
-    <div className="animate-slide-up h-full">
+    <div className="page-content h-full">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Waiting Lists</h1>
-        <NewButton label="New Waiting List" onClick={() => navigate('/waiting-lists/new')} />
+        {hasData && (
+          <NewButton label="New Waiting List" onClick={() => navigate('/waiting-lists/new')} />
+        )}
       </div>
       {!hasData ? (
         emptyContent

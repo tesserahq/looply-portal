@@ -2,7 +2,7 @@ import { DataTable } from '@/components/data-table'
 import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/shadcn/ui/card'
 import { useStats } from '@/resources/hooks/stats'
@@ -135,41 +135,43 @@ export default function Overview() {
   }
 
   return (
-    <div>
-      <div className="animate-slide-up mb-4 flex items-center justify-between">
+    <div className="page-content">
+      <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Overview</h1>
       </div>
 
       {/* Total Stats */}
-      <div className="animate-slide-up grid gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
         <Card>
           <CardHeader>
             <CardDescription># of Contacts</CardDescription>
-            <CardTitle className="text-3xl font-semibold">{data?.total_contacts}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">{data?.total_contacts || 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription># of Contact Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">{data?.total_list}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">{data?.total_list || 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription># of Public Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">{data?.total_public_list}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">{data?.total_public_list || 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription># of Private Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">{data?.total_private_list}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">
+              {data?.total_private_list || 0}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
 
       {/* Tables Grid */}
-      <div className="animate-slide-up mt-2 grid gap-2 lg:mt-5 lg:grid-cols-2 lg:gap-5">
+      <div className="mt-2 grid gap-2 lg:mt-5 lg:grid-cols-2 lg:gap-5">
         {/* Upcoming Interactions Table */}
         <Card>
           <CardHeader>

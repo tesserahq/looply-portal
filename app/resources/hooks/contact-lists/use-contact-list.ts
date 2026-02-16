@@ -55,21 +55,21 @@ export function useContactLists(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactListQueryKeys.list(config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContactLists(config, params)
       } catch (error) {
         throw new QueryError('Failed to fetch contact lists', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }
 
@@ -87,21 +87,21 @@ export function useContactListDetail(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: contactListQueryKeys.detail(contactListId),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchContactListDetail(contactListId, config)
       } catch (error) {
         throw new QueryError('Failed to fetch contact list detail', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!contactListId,
+    enabled: options?.enabled !== false && !!contactListId && !!config.token,
   })
 }
 
@@ -117,12 +117,11 @@ export function useCreateContactList(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: ContactListFormData): Promise<ContactListType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await createContactList(config, data)
     },
     onSuccess: (data) => {
@@ -155,10 +154,6 @@ export function useUpdateContactList(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -167,6 +162,9 @@ export function useUpdateContactList(
       id: string
       updateData: Partial<ContactListFormData>
     }): Promise<ContactListType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await updateContactList(config, id, updateData)
     },
     onSuccess: (data) => {
@@ -202,12 +200,11 @@ export function useDeleteContactList(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (id: string): Promise<ContactListType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await deleteContactList(config, id)
     },
     onSuccess: (_, id) => {

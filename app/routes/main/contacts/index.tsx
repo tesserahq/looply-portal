@@ -4,7 +4,7 @@ import ContactInteractionShortcut from '@/components/dialog/contact-interaction-
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import useDebounce from '@/hooks/useDebounce'
 import { useContacts, useDeleteContact } from '@/resources/hooks/contacts'
 import { ContactType } from '@/resources/queries/contacts/contact.type'
@@ -263,7 +263,7 @@ export default function Contacts() {
   )
 
   return (
-    <div className="animate-slide-up h-full">
+    <div className="page-content h-full">
       <div className="mb-5 flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
         {(hasSearchQuery || hasData) && (

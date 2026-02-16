@@ -55,21 +55,21 @@ export function useWaitingLists(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: waitingListQueryKeys.list(config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchWaitingLists(config, params)
       } catch (error) {
         throw new QueryError('Failed to fetch waiting lists', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }
 
@@ -87,21 +87,21 @@ export function useWaitingListDetail(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: waitingListQueryKeys.detail(waitingListId),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchWaitingListDetail(waitingListId, config)
       } catch (error) {
         throw new QueryError('Failed to fetch waiting list detail', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!waitingListId,
+    enabled: options?.enabled !== false && !!waitingListId && !!config.token,
   })
 }
 
@@ -117,12 +117,11 @@ export function useCreateWaitingList(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: WaitingListFormData): Promise<WaitingListType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await createWaitingList(config, data)
     },
     onSuccess: (data) => {
@@ -155,10 +154,6 @@ export function useUpdateWaitingList(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -167,6 +162,9 @@ export function useUpdateWaitingList(
       id: string
       updateData: Partial<WaitingListFormData>
     }): Promise<WaitingListType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await updateWaitingList(config, id, updateData)
     },
     onSuccess: (data) => {
@@ -202,12 +200,11 @@ export function useDeleteWaitingList(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (id: string): Promise<WaitingListType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
       return await deleteWaitingList(config, id)
     },
     onSuccess: (_, id) => {

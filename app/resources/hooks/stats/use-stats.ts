@@ -37,14 +37,14 @@ export function useStats(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: statsQueryKeys.detail(),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await fetchStats(config)
       } catch (error) {
         throw new QueryError('Failed to fetch stats', 'FETCH_ERROR', error)

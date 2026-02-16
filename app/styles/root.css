@@ -1,5 +1,6 @@
 @config '../../tailwind.config.ts';
 @import 'tailwindcss';
+@source '../../node_modules/tessera-ui/src/**/*.{js,jsx,ts,tsx}';
 
 html,
 body {
@@ -146,7 +147,7 @@ body {
 }
 
 .sidebar-panel {
-  @apply dark:shadow-navy-900/60 md:animate-slide-right fixed top-[61px] left-0 z-30 h-full w-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))] -translate-x-full transform-gpu transition-transform delay-150 duration-200 ease-in md:delay-0;
+  @apply dark:shadow-navy-900/60 md:animate-slide-left fixed top-[61px] left-0 z-30 h-full w-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))] -translate-x-full transform-gpu transition-transform delay-150 duration-100 ease-in md:delay-0;
 }
 
 .is-sidebar-open .sidebar-panel {
@@ -358,4 +359,8 @@ input[type='time']::-webkit-calendar-picker-indicator {
   width: 20px;
   height: 20px;
   cursor: pointer;
+}
+
+.page-content {
+  @apply animate-slide-up mx-auto max-w-screen-2xl px-8 pt-5;
 }

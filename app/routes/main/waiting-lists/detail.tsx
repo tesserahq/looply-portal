@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
 import { Checkbox } from '@shadcn/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Tabs, TabsList, TabsTrigger } from '@shadcn/ui/tabs'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import {
   useWaitingListDetail,
   useWaitingListMembers,
