@@ -16,7 +16,7 @@ export default function ContactListEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { contact_list_id } = useParams<{ contact_list_id: string }>()
 
   const config = {
     apiUrl: apiUrl!,
@@ -24,17 +24,17 @@ export default function ContactListEdit() {
     token: token!,
   }
 
-  const { data: contactList, isLoading } = useContactListDetail(config, id!)
+  const { data: contactList, isLoading } = useContactListDetail(config, contact_list_id!)
 
   // Contact list update mutation
   const { mutateAsync: updateContactList } = useUpdateContactList(config, {
     onSuccess: () => {
-      navigate(`/contact-lists/${id}`)
+      navigate(`/contact-lists/${contact_list_id}`)
     },
   })
 
   const handleSubmit = async (data: ContactListFormData): Promise<void> => {
-    await updateContactList({ id: id!, updateData: data })
+    await updateContactList({ id: contact_list_id!, updateData: data })
   }
 
   if (isLoading) {

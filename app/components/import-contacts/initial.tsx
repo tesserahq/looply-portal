@@ -5,6 +5,9 @@ import { AlertCircle, File, FileCheck, FileDown, Import, Loader2, XCircle } from
 import { useState } from 'react'
 import CSVReader, { IFileInfo } from 'react-csv-reader'
 
+const CSVReaderComponent =
+  (CSVReader as unknown as { default?: typeof CSVReader }).default ?? CSVReader
+
 interface IProps {
   onFileLoaded: (data: any[], fileInfo: IFileInfo) => void
   onError: (error: Error) => void
@@ -161,7 +164,7 @@ export function ImportContactsInitial({ onFileLoaded, onError, maxFileSize }: IP
           <ImportUpload isDragging={isDragging} />
         )}
 
-        <CSVReader
+        <CSVReaderComponent
           cssClass="hidden"
           label=""
           onFileLoaded={handleFileLoaded}

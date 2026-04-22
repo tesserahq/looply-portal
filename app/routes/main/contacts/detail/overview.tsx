@@ -110,7 +110,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { apiUrl, nodeEnv, size: canonical.size, page: canonical.page }
 }
 
-export default function ContactDetail() {
+export default function ContactDetailOverview() {
   const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
@@ -124,20 +124,20 @@ export default function ContactDetail() {
     token: token!,
   }
 
-  const { data: contact, isLoading } = useContactDetail(config, params.id!, {
-    enabled: !!params.id && !!token,
+  const { data: contact, isLoading } = useContactDetail(config, params.contact_id!, {
+    enabled: !!params.contact_id && !!token,
   })
 
   const { data: interactions, isLoading: isLoadingInteractions } =
     useContactInteractionsByContactId(
       config,
-      params.id!,
+      params.contact_id!,
       {
         page,
         size,
       },
       {
-        enabled: !!params.id && !!token,
+        enabled: !!params.contact_id && !!token,
       }
     )
 
@@ -149,18 +149,18 @@ export default function ContactDetail() {
   })
 
   const handleDelete = useCallback(() => {
-    if (!params.id) return
+    if (!params.contact_id) return
 
     deleteModalRef.current?.open({
       title: 'Remove Contact',
       description: `This will remove "${contact?.email}" from your contacts. This action cannot be undone.`,
       onDelete: async () => {
         deleteModalRef.current?.updateConfig({ isLoading: true })
-        await deleteContact(params.id!)
+        await deleteContact(params.contact_id!)
       },
       isLoading: false,
     })
-  }, [params.id, contact?.email, deleteContact])
+  }, [params.contact_id, contact?.email, deleteContact])
 
   useEffect(() => {
     if (isDeleting) {
@@ -212,7 +212,7 @@ export default function ContactDetail() {
                     <Button
                       variant="ghost"
                       className="flex w-full justify-start gap-2"
-                      onClick={() => navigate(`/contacts/${params.id}/edit`)}>
+                      onClick={() => navigate(`/contacts/${params.contact_id}/edit`)}>
                       <Edit size={18} />
                       <span>Edit</span>
                     </Button>

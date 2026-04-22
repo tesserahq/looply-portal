@@ -7,54 +7,27 @@ import { SITE_CONFIG } from '@/utils/config/site.config'
 import { useAuth0 } from '@auth0/auth0-react'
 import { BookUser, Contact, FileChartLine, SquareUser, Users2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Outlet, useLoaderData, useNavigate, useSubmit } from 'react-router'
+import { Outlet, useLoaderData, useLocation, useParams, useSubmit } from 'react-router'
 import { Layout, MainItemProps, TesseraProvider } from 'tessera-ui'
 
 export function loader() {
   const identiesApiUrl = process.env.IDENTIES_API_URL
 
-  // app host urls
-  const quoreHostUrl = process.env.QUORE_HOST_URL
-  const looplyHostUrl = process.env.LOOPLY_HOST_URL || process.env.HOST_URL
-  const vaultaHostUrl = process.env.VAULTA_HOST_URL
-  const identiesHostUrl = process.env.IDENTIES_HOST_URL
-  const orchaHostUrl = process.env.ORCHA_HOST_URL
-  const custosHostUrl = process.env.CUSTOS_HOST_URL
-  const indexaHostUrl = process.env.INDEXA_HOST_URL
-  const sendlyHostUrl = process.env.SENDLY_HOST_URL
-
   return {
     identiesApiUrl,
-    quoreHostUrl,
-    looplyHostUrl,
-    vaultaHostUrl,
-    identiesHostUrl,
-    orchaHostUrl,
-    custosHostUrl,
-    indexaHostUrl,
-    sendlyHostUrl,
   }
 }
 
 export default function PrivateLayout() {
-  const {
-    identiesApiUrl,
-    quoreHostUrl,
-    looplyHostUrl,
-    vaultaHostUrl,
-    identiesHostUrl,
-    orchaHostUrl,
-    custosHostUrl,
-    indexaHostUrl,
-    sendlyHostUrl,
-  } = useLoaderData<typeof loader>()
+  const { identiesApiUrl } = useLoaderData<typeof loader>()
 
   const { isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0()
   const [token, setToken] = useState<string>('')
   const handleApiError = useHandleApiError()
   const requestInfo = useRequestInfo()
   const submit = useSubmit()
-  const navigate = useNavigate()
+  const params = useParams()
+  const location = useLocation()
 
   const onSetTheme = (theme: string) => {
     submit(
@@ -83,17 +56,6 @@ export default function PrivateLayout() {
       fetchToken()
     }
   }, [isLoading, isAuthenticated])
-
-  const appHostUrls = {
-    quore: quoreHostUrl ?? '',
-    looply: looplyHostUrl ?? '',
-    vaulta: vaultaHostUrl ?? '',
-    identies: identiesHostUrl ?? '',
-    orcha: orchaHostUrl ?? '',
-    custos: custosHostUrl ?? '',
-    indexa: indexaHostUrl ?? '',
-    sendly: sendlyHostUrl ?? '',
-  }
 
   const menuItems: MainItemProps[] = [
     {
@@ -131,18 +93,24 @@ export default function PrivateLayout() {
     return <AppPreloader className="min-h-screen" />
   }
 
+  const shouldCollapseSidebar = Boolean(
+    location.pathname.includes(`/contacts/${params['contact_id']}/overview`) ||
+    location.pathname.includes(`/contact-lists/${params['contact_list_id']}/overview`) ||
+    location.pathname.includes(`/waiting-lists/${params['waiting_list_id']}/overview`) ||
+    location.pathname.includes(`/contact-interactions/${params['contact_interaction_id']}/overview`)
+  )
+
   return (
     <TesseraProvider identiesApiUrl={identiesApiUrl} token={token}>
-      <Layout.Main menuItems={menuItems}>
+      <Layout.Main menuItems={menuItems} collapseSidebar={shouldCollapseSidebar}>
         <Layout.Header
-          appHostUrls={appHostUrls}
-          actionLogout={() => navigate('/logout', { replace: true })}
+          actionLogout={() => {}}
           actionProfile={() => {}}
-          defaultAvatar=""
+          contentRight={<NewResourceShortcut />}
+          defaultLogo="/images/logo.png"
           onSetTheme={(theme) => onSetTheme(theme)}
           selectedTheme={requestInfo.userPrefs.theme || 'system'}
           title={SITE_CONFIG.siteTitle}
-          action={<NewResourceShortcut />}
         />
         <Outlet />
       </Layout.Main>

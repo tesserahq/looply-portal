@@ -264,7 +264,7 @@ export default function Contacts() {
 
   return (
     <div className="page-content h-full">
-      <div className="mb-5 flex flex-col gap-y-4">
+      <div className="mb-5 animate-slide-up flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
         {(hasSearchQuery || hasData) && (
           <div className="flex items-center justify-between">
@@ -302,27 +302,29 @@ export default function Contacts() {
           </div>
         )}
       </div>
-      {!hasData && !hasSearchQuery ? (
-        emptyContent
-      ) : (
-        <DataTable
-          columns={columns}
-          data={data?.items || []}
-          hasFilter
-          isLoading={isLoading}
-          empty={emptySearchContent}
-          meta={
-            data
-              ? {
-                  page: data.page,
-                  pages: data.pages,
-                  size: data.size,
-                  total: data.total,
-                }
-              : undefined
-          }
-        />
-      )}
+      <div className="animate-slide-up">
+        {!hasData && !hasSearchQuery ? (
+          emptyContent
+        ) : (
+          <DataTable
+            columns={columns}
+            data={data?.items || []}
+            hasFilter
+            isLoading={isLoading}
+            empty={emptySearchContent}
+            meta={
+              data
+                ? {
+                    page: data.page,
+                    pages: data.pages,
+                    size: data.size,
+                    total: data.total,
+                  }
+                : undefined
+            }
+          />
+        )}
+      </div>
 
       <DeleteConfirmation ref={deleteModalRef} />
       <ContactInteractionShortcut ref={contactInteractionRef} apiUrl={apiUrl!} nodeEnv={nodeEnv!} />

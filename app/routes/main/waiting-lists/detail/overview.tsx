@@ -58,7 +58,7 @@ export default function WaitingListDetail() {
     token: token!,
   }
 
-  const waitingListId = params.id || ''
+  const waitingListId = params.waiting_list_id || ''
 
   const { data: waitingList, isLoading: isLoadingWaitingList } = useWaitingListDetail(
     config,
@@ -465,8 +465,8 @@ export default function WaitingListDetail() {
   }
 
   return (
-    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
-      <Card>
+    <div className="animate-slide-up h-full space-y-3">
+      <Card className="w-1/2">
         <CardHeader>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-3xl">Waiting List Details</h1>
@@ -480,7 +480,7 @@ export default function WaitingListDetail() {
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"
-                  onClick={() => navigate(`/waiting-lists/${params.id}/edit`)}>
+                  onClick={() => navigate(`/waiting-lists/${params.waiting_list_id}/edit`)}>
                   <Edit size={18} />
                   <span>Edit</span>
                 </Button>
@@ -522,7 +522,7 @@ export default function WaitingListDetail() {
         </CardContent>
       </Card>
 
-      <Card className="mt-5">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-2xl">Members</h1>

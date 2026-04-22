@@ -151,7 +151,7 @@ const NewMemberContactList: React.ForwardRefRenderFunction<FuncProps, IProps> = 
         {isLoading ? (
           <AppPreloader className="h-auto" />
         ) : (
-          <div className="animate-slide-up flex flex-col gap-1">
+          <div className="animate-slide-up flex flex-col gap-1 overflow-y-auto max-h-[500px]">
             {!hasData && !search && emptyContent}
             {!hasData && search && emptySearchContent}
             {hasData &&
