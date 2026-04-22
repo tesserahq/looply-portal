@@ -19,32 +19,44 @@ export default [
       index('routes/main/contacts/index.tsx'),
       route('new', 'routes/main/contacts/new.tsx'),
       route('imports', 'routes/main/contacts/imports.tsx'),
-      route(':id', 'routes/main/contacts/detail.tsx'),
-      route(':id/edit', 'routes/main/contacts/edit.tsx'),
+      route(':contact_id/edit', 'routes/main/contacts/edit.tsx'),
+      route(':contact_id', 'routes/main/contacts/detail/layout.tsx', [
+        index('routes/main/contacts/detail/index.tsx'),
+        route('overview', 'routes/main/contacts/detail/overview.tsx'),
+      ]),
     ]),
 
     // Contact Lists
     route('/contact-lists', 'routes/main/contact-lists/layout.tsx', [
       index('routes/main/contact-lists/index.tsx'),
       route('new', 'routes/main/contact-lists/new.tsx'),
-      route(':id', 'routes/main/contact-lists/detail.tsx'),
-      route(':id/edit', 'routes/main/contact-lists/edit.tsx'),
+      route(':contact_list_id/edit', 'routes/main/contact-lists/edit.tsx'),
+      route(':contact_list_id', 'routes/main/contact-lists/detail/layout.tsx', [
+        index('routes/main/contact-lists/detail/index.tsx'),
+        route('overview', 'routes/main/contact-lists/detail/overview.tsx'),
+      ]),
     ]),
 
     // Waiting Lists
     route('/waiting-lists', 'routes/main/waiting-lists/layout.tsx', [
       index('routes/main/waiting-lists/index.tsx'),
       route('new', 'routes/main/waiting-lists/new.tsx'),
-      route(':id', 'routes/main/waiting-lists/detail.tsx'),
-      route(':id/edit', 'routes/main/waiting-lists/edit.tsx'),
+      route(':waiting_list_id/edit', 'routes/main/waiting-lists/edit.tsx'),
+      route(':waiting_list_id', 'routes/main/waiting-lists/detail/layout.tsx', [
+        index('routes/main/waiting-lists/detail/index.tsx'),
+        route('overview', 'routes/main/waiting-lists/detail/overview.tsx'),
+      ]),
     ]),
 
     // Contact Interactions
     route('/contact-interactions', 'routes/main/contact-interactions/layout.tsx', [
       index('routes/main/contact-interactions/index.tsx'),
       route('new', 'routes/main/contact-interactions/new.tsx'),
-      route(':id', 'routes/main/contact-interactions/detail.tsx'),
-      route(':id/edit', 'routes/main/contact-interactions/edit.tsx'),
+      route(':contact_interaction_id/edit', 'routes/main/contact-interactions/edit.tsx'),
+      route(':contact_interaction_id', 'routes/main/contact-interactions/detail/layout.tsx', [
+        index('routes/main/contact-interactions/detail/index.tsx'),
+        route('overview', 'routes/main/contact-interactions/detail/overview.tsx'),
+      ]),
     ]),
   ]),
 

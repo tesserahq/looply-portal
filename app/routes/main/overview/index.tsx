@@ -145,6 +145,7 @@ export default function Overview() {
         <Card>
           <CardHeader>
             <CardDescription># of Contacts</CardDescription>
+
             <CardTitle className="text-3xl font-semibold">{data?.total_contacts || 0}</CardTitle>
           </CardHeader>
         </Card>

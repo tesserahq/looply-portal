@@ -198,27 +198,29 @@ export default function ContactLists() {
 
   return (
     <div className="page-content h-full">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 animate-slide-up flex items-center justify-between">
         <h1 className="page-title">Contact Lists</h1>
         {hasData && (
           <NewButton label="New Contact List" onClick={() => navigate('/contact-lists/new')} />
         )}
       </div>
-      {!hasData ? (
-        emptyContent
-      ) : (
-        <DataTable
-          columns={columns}
-          data={data?.items || []}
-          meta={{
-            page: data?.page || 1,
-            pages: data?.pages || 1,
-            size: data?.size || 1,
-            total: data?.total || 0,
-          }}
-          isLoading={isLoading}
-        />
-      )}
+      <div className="animate-slide-up">
+        {!hasData ? (
+          emptyContent
+        ) : (
+          <DataTable
+            columns={columns}
+            data={data?.items || []}
+            meta={{
+              page: data?.page || 1,
+              pages: data?.pages || 1,
+              size: data?.size || 1,
+              total: data?.total || 0,
+            }}
+            isLoading={isLoading}
+          />
+        )}
+      </div>
 
       <DeleteConfirmation ref={deleteModalRef} />
     </div>

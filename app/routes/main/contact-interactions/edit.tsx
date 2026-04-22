@@ -22,7 +22,7 @@ export default function ContactInteractionEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { contact_interaction_id } = useParams<{ contact_interaction_id: string }>()
 
   const config = {
     apiUrl: apiUrl!,
@@ -30,17 +30,17 @@ export default function ContactInteractionEdit() {
     token: token!,
   }
 
-  const { data: interaction, isLoading } = useContactInteractionDetail(config, id!)
+  const { data: interaction, isLoading } = useContactInteractionDetail(config, contact_interaction_id!)
 
   // Contact interaction update mutation
   const { mutateAsync: updateContactInteraction } = useUpdateContactInteraction(config, {
     onSuccess: () => {
-      navigate(`/contact-interactions/${id}`)
+      navigate(`/contact-interactions/${contact_interaction_id}`)
     },
   })
 
   const handleSubmit = async (data: ContactInteractionFormData): Promise<void> => {
-    await updateContactInteraction({ id: id!, updateData: data })
+    await updateContactInteraction({ id: contact_interaction_id!, updateData: data })
   }
 
   if (isLoading) {

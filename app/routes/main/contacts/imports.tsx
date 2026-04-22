@@ -214,7 +214,7 @@ export default function ImportContactsPage() {
   }
 
   return (
-    <Card className="max-w-screen-md mx-auto">
+    <Card className="max-w-screen-md mx-auto mt-5">
       <CardHeader>
         <CardTitle>Import Contacts</CardTitle>
         <CardDescription>Import contacts from a CSV file</CardDescription>

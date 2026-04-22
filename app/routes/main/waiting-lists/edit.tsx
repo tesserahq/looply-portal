@@ -16,7 +16,7 @@ export default function WaitingListEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { waiting_list_id } = useParams<{ waiting_list_id: string }>()
 
   const config = {
     apiUrl: apiUrl!,
@@ -24,17 +24,17 @@ export default function WaitingListEdit() {
     token: token!,
   }
 
-  const { data: waitingList, isLoading } = useWaitingListDetail(config, id!)
+  const { data: waitingList, isLoading } = useWaitingListDetail(config, waiting_list_id!)
 
   // Waiting list update mutation
   const { mutateAsync: updateWaitingList } = useUpdateWaitingList(config, {
     onSuccess: () => {
-      navigate(`/waiting-lists/${id}`)
+      navigate(`/waiting-lists/${waiting_list_id}`)
     },
   })
 
   const handleSubmit = async (data: WaitingListFormData): Promise<void> => {
-    await updateWaitingList({ id: id!, updateData: data })
+    await updateWaitingList({ id: waiting_list_id!, updateData: data })
   }
 
   if (isLoading) {

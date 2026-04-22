@@ -17,7 +17,7 @@ export default function ContactEdit() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { contact_id } = useParams<{ contact_id: string }>()
 
   const config = {
     apiUrl: apiUrl!,
@@ -25,8 +25,8 @@ export default function ContactEdit() {
     token: token!,
   }
 
-  const { data: contact, isLoading } = useContactDetail(config, id!, {
-    enabled: !!id && !!token,
+  const { data: contact, isLoading } = useContactDetail(config, contact_id!, {
+    enabled: !!contact_id && !!token,
   })
 
   // Contact update mutation
@@ -37,7 +37,7 @@ export default function ContactEdit() {
   })
 
   const handleSubmit = async (data: ContactFormData): Promise<void> => {
-    await updateContact({ id: id!, updateData: data })
+    await updateContact({ id: contact_id!, updateData: data })
   }
 
   if (isLoading) {

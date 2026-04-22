@@ -26,7 +26,7 @@ export default function ContactInteractionDetail() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { contact_interaction_id } = useParams<{ contact_interaction_id: string }>()
   const deleteConfirmationRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
 
   const config = {
@@ -35,7 +35,11 @@ export default function ContactInteractionDetail() {
     token: token!,
   }
 
-  const { data: interaction, isLoading, error } = useContactInteractionDetail(config, id!)
+  const {
+    data: interaction,
+    isLoading,
+    error,
+  } = useContactInteractionDetail(config, contact_interaction_id!)
 
   const { mutate: deleteContactInteraction, isPending: isDeleting } = useDeleteContactInteraction(
     config,
@@ -48,18 +52,18 @@ export default function ContactInteractionDetail() {
   )
 
   const handleDelete = useCallback(() => {
-    if (!id) return
+    if (!contact_interaction_id) return
 
     deleteConfirmationRef.current?.open({
       title: 'Delete Contact Interaction',
       description:
         'This will permanently delete this contact interaction. This action cannot be undone.',
       onDelete: async () => {
-        deleteContactInteraction(id)
+        deleteContactInteraction(contact_interaction_id)
       },
       isLoading: false,
     })
-  }, [id, deleteContactInteraction])
+  }, [contact_interaction_id, deleteContactInteraction])
 
   useEffect(() => {
     if (isDeleting) {
@@ -94,7 +98,7 @@ export default function ContactInteractionDetail() {
   }
 
   return (
-    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
+    <div className="animate-slide-up h-full w-1/2">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -111,7 +115,7 @@ export default function ContactInteractionDetail() {
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"
-                  onClick={() => navigate(`/contact-interactions/${id}/edit`)}>
+                  onClick={() => navigate(`/contact-interactions/${contact_interaction_id}/edit`)}>
                   <Edit size={18} />
                   <span>Edit</span>
                 </Button>
