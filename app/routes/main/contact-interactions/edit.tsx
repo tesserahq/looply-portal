@@ -30,7 +30,10 @@ export default function ContactInteractionEdit() {
     token: token!,
   }
 
-  const { data: interaction, isLoading } = useContactInteractionDetail(config, contact_interaction_id!)
+  const { data: interaction, isLoading } = useContactInteractionDetail(
+    config,
+    contact_interaction_id!
+  )
 
   // Contact interaction update mutation
   const { mutateAsync: updateContactInteraction } = useUpdateContactInteraction(config, {
