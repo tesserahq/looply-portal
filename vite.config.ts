@@ -17,6 +17,7 @@ export default defineConfig((config) => {
   return {
     resolve: {
       alias: aliases,
+      tsconfigPaths: true,
     },
     server: {
       port: 3000,
@@ -26,6 +27,6 @@ export default defineConfig((config) => {
         include: ['react-dom/server.node'],
       },
     },
-    plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+    plugins: [tailwindcss(), reactRouter()],
   }
 })
