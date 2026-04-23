@@ -30,7 +30,6 @@
       "@shadcn/*": ["./app/modules/shadcn/*"]
     },
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "rootDirs": [".", "./.react-router/types"],
 
     // Vite takes care of building everything, not tsc.
