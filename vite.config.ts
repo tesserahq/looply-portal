@@ -1,7 +1,6 @@
 import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
 import { resolve } from 'path'
 
 export default defineConfig((config) => {
@@ -17,6 +16,7 @@ export default defineConfig((config) => {
   return {
     resolve: {
       alias: aliases,
+      tsconfigPaths: true,
     },
     server: {
       port: 3000,
@@ -26,6 +26,6 @@ export default defineConfig((config) => {
         include: ['react-dom/server.node'],
       },
     },
-    plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+    plugins: [tailwindcss(), reactRouter()],
   }
 })
