@@ -16,6 +16,7 @@ export default defineConfig((config) => {
   return {
     resolve: {
       alias: aliases,
+      dedupe: ['react', 'react-dom', '@auth0/auth0-react'],
       tsconfigPaths: true,
     },
     server: {
