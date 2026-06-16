@@ -1,4 +1,3 @@
-import { Auth0Provider } from '@auth0/auth0-react'
 import type { LinksFunction, LoaderFunctionArgs } from 'react-router'
 import {
   data,
@@ -9,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useNavigate,
 } from 'react-router'
 import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
@@ -33,7 +33,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 import { ProgressBar } from '@/components/loader/progress-bar'
 import { ReactQueryProvider } from '@/modules/react-query'
 import { metaObject } from '@/utils/helpers/meta.helper'
-import { Toaster } from 'tessera-ui/components'
+import { AuthProvider, Toaster } from 'tessera-ui'
 
 library.add(fab)
 
@@ -77,6 +77,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const audience = process.env.AUTH0_AUDIENCE
   const organizationID = process.env.AUTH0_ORGANIZATION_ID
   const hostUrl = process.env.HOST_URL
+  const identiesApiUrl = process.env.IDENTIES_API_URL
 
   return data(
     {
@@ -88,6 +89,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       clientID,
       domain,
       audience,
+      identiesApiUrl,
       organizationID,
       requestInfo: {
         hints: getHints(request),
@@ -147,11 +149,12 @@ function Document({
 }
 
 export default function AppWithProviders() {
-  const { toast, csrfToken, clientID, domain, audience, hostUrl, organizationID } =
+  const { toast, csrfToken, clientID, domain, audience, hostUrl, identiesApiUrl, organizationID } =
     useLoaderData<typeof loader>()
 
   const nonce = useNonce()
   const theme = useTheme()
+  const navigate = useNavigate()
 
   // Renders toast (if any).
   useToast(toast)
@@ -160,18 +163,23 @@ export default function AppWithProviders() {
     <Document nonce={nonce} theme={theme}>
       <ProgressBar />
       <AuthenticityTokenProvider token={csrfToken}>
-        <Auth0Provider
-          domain={domain ?? ''}
-          clientId={clientID ?? ''}
-          authorizationParams={{
-            redirect_uri: hostUrl || 'http://localhost:3004',
-            organization: organizationID,
-            audience: audience,
-          }}>
+        <AuthProvider
+          auth0={{
+            domain: domain ?? '',
+            clientId: clientID ?? '',
+            audience: audience ?? '',
+            organizationID: organizationID ?? '',
+            redirectUri: hostUrl || 'http://localhost:3004',
+          }}
+          identiesApiUrl={identiesApiUrl ?? ''}
+          onUnauthenticated={() => {
+            navigate('/')
+          }}
+          requireAuth={false}>
           <ReactQueryProvider>
             <Outlet />
           </ReactQueryProvider>
-        </Auth0Provider>
+        </AuthProvider>
       </AuthenticityTokenProvider>
     </Document>
   )
