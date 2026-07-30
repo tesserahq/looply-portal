@@ -98,15 +98,17 @@ export default function CampaignDetail() {
   const handleSend = useCallback(() => {
     if (!campaign) return
 
+    const contactCount = contactList?.contact_count ?? 0
+
     sendModalRef.current?.open({
       title: 'Send Campaign?',
-      description: `This will send "${campaign.name}" to its contact list.`,
+      description: `This will send "${campaign.name}" to ${contactCount} ${contactCount === 1 ? 'recipient' : 'recipients'} in "${contactList?.name}".`,
       onSend: async () => {
         sendModalRef.current?.updateConfig({ isLoading: true })
         await sendCampaign(campaignId)
       },
     })
-  }, [campaign, campaignId, sendCampaign])
+  }, [campaign, campaignId, contactList, sendCampaign])
 
   if (isLoading || isLoadingTemplate || isLoadingContactList) {
     return <AppPreloader />

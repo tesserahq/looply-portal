@@ -135,7 +135,9 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
         let html: string | undefined
         try {
           html = (await richEditorRef.current?.getHTML()) ?? ''
-        } catch (error) {}
+        } catch (error) {
+          console.error('Failed to serialize email body', error)
+        }
 
         // Only sync the campaign name into the template when the template
         // doesn't already have one of its own (e.g. a blank template created

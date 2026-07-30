@@ -48,9 +48,14 @@ export function NewCampaignModal({
 
   const { mutateAsync: createTemplate, isPending } = useCreateTemplate(sendlyConfig)
 
+  const sortedTemplates = useMemo(
+    () => [...(templates?.items ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
+    [templates]
+  )
+
   const selectedTemplate = useMemo(
-    () => templates?.items.find((template) => template.id === templateId),
-    [templates, templateId]
+    () => sortedTemplates.find((template) => template.id === templateId),
+    [sortedTemplates, templateId]
   )
 
   const canContinue = source === 'new' || !!selectedTemplate
@@ -137,7 +142,7 @@ export function NewCampaignModal({
                 )}
               </SelectTrigger>
               <SelectContent>
-                {templates?.items.map((template) => (
+                {sortedTemplates.map((template) => (
                   <SelectItem key={template.id} value={template.id}>
                     {template.name}
                   </SelectItem>
