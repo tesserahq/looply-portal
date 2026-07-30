@@ -4,6 +4,7 @@ import SendConfirmation from '@/components/send-confirmation/send-confirmation'
 import { CampaignStatusBadge } from '@/components/campaign-status/campaign-status'
 import { useApp } from 'tessera-ui'
 import { useCampaignDetail, useSendCampaign } from '@/resources/hooks/campaigns'
+import { useContactListDetail } from '@/resources/hooks/contact-lists'
 import { Button } from '@shadcn/ui/button'
 import { useRef, useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
@@ -30,6 +31,10 @@ export default function CampaignEdit() {
 
   const { data: campaign, isLoading } = useCampaignDetail(config, campaign_id!)
 
+  const { data: contactList } = useContactListDetail(config, campaign?.contact_list_id ?? '', {
+    enabled: !!campaign?.contact_list_id,
+  })
+
   const { mutateAsync: sendCampaign } = useSendCampaign(config, {
     onSuccess: () => {
       sendModalRef.current?.close()
@@ -52,9 +57,11 @@ export default function CampaignEdit() {
   const handleSend = () => {
     if (!campaign) return
 
+    const contactCount = contactList?.contact_count ?? 0
+
     sendModalRef.current?.open({
       title: 'Send Campaign?',
-      description: `This will send "${campaign.name}" to its contact list.`,
+      description: `This will send "${campaign.name}" to ${contactCount} ${contactCount === 1 ? 'recipient' : 'recipients'} in "${contactList?.name}".`,
       onSend: async () => {
         sendModalRef.current?.updateConfig({ isLoading: true })
         try {

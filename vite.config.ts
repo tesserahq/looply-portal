@@ -9,7 +9,7 @@ export default defineConfig((config) => {
     '@': resolve(__dirname, './app'),
   }
 
-  if (isProduction) {
+  if (isProduction && config.isSsrBuild) {
     aliases['react-dom/server'] = 'react-dom/server.node'
   }
 
