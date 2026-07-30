@@ -5,6 +5,7 @@ import { ContactType } from '@/resources/queries/contacts'
 import { ContactListType } from '@/resources/queries/contact-lists/contact-list.type'
 import { WaitingListType } from '@/resources/queries/waiting-lists'
 import { ContactInteractionType } from '@/resources/queries/contact-interactions'
+import { CampaignType } from '@/resources/queries/campaigns'
 
 /**
  * Union type of all possible resource data types
@@ -15,6 +16,7 @@ export type BreadcrumbResourceData =
   | ContactListType
   | WaitingListType
   | ContactInteractionType
+  | CampaignType
 
 /**
  * Configuration for breadcrumb generation

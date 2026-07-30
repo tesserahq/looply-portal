@@ -11,6 +11,7 @@ export type ContactListType = {
   created_by_id: string
   created_at: string
   updated_at: string
+  contact_count?: number
 }
 
 /**

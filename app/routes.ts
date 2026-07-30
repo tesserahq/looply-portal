@@ -58,6 +58,17 @@ export default [
         route('overview', 'routes/main/contact-interactions/detail/overview.tsx'),
       ]),
     ]),
+
+    // Campaigns
+    route('/campaigns', 'routes/main/campaigns/layout.tsx', [
+      index('routes/main/campaigns/index.tsx'),
+      route('new', 'routes/main/campaigns/new.tsx'),
+      route(':campaign_id/edit', 'routes/main/campaigns/edit.tsx'),
+      route(':campaign_id', 'routes/main/campaigns/detail/layout.tsx', [
+        index('routes/main/campaigns/detail/index.tsx'),
+        route('overview', 'routes/main/campaigns/detail/overview.tsx'),
+      ]),
+    ]),
   ]),
 
   // Logout Route

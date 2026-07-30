@@ -1,7 +1,7 @@
 import { TokenExpiredError, UnauthorizedError } from '@/libraries/fetch'
 import { useNavigate } from 'react-router'
 import { useCallback } from 'react'
-import { toast } from 'sonner'
+import { toast } from 'tessera-ui/components'
 
 export const useHandleApiError = () => {
   const navigate = useNavigate()

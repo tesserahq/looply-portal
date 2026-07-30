@@ -11,6 +11,7 @@ import { Checkbox } from '@shadcn/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Tabs, TabsList, TabsTrigger } from '@shadcn/ui/tabs'
 import { useApp } from 'tessera-ui'
+import { DateTime } from 'tessera-ui/components'
 import {
   useWaitingListDetail,
   useWaitingListMembers,
@@ -27,7 +28,6 @@ import { WaitingListMemberType, WaitingListStatusType } from '@/resources/querie
 import { cn } from '@shadcn/lib/utils'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import { ColumnDef, useReactTable, getCoreRowModel } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { ContactType } from '@/resources/queries/contacts'
@@ -509,13 +509,13 @@ export default function WaitingListDetail() {
             <div className="d-item">
               <dt className="d-label">Created At</dt>
               <dd className="d-content">
-                {format(new Date(waitingList.created_at + 'z'), 'PPPpp')}
+                <DateTime date={waitingList.created_at} />
               </dd>
             </div>
             <div className="d-item">
               <dt className="d-label">Updated At</dt>
               <dd className="d-content">
-                {format(new Date(waitingList.updated_at + 'z'), 'PPPpp')}
+                <DateTime date={waitingList.updated_at} />
               </dd>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { generateBreadcrumbs } from '@/utils/helpers/breadcrumb'
 import { fetchContactListDetail } from '@/resources/queries/contact-lists'
 import { fetchWaitingListDetail } from '@/resources/queries/waiting-lists'
 import { fetchContactInteractionDetail } from '@/resources/queries/contact-interactions'
+import { getCampaign } from '@/resources/queries/campaigns'
 
 /**
  * Resource state per breadcrumb
@@ -49,6 +50,7 @@ const breadcrumbFetchers = {
   waiting_list_id: (config: IQueryConfig, id: string) => fetchWaitingListDetail(id, config),
   contact_interaction_id: (config: IQueryConfig, id: string) =>
     fetchContactInteractionDetail(id, config),
+  campaign_id: (config: IQueryConfig, id: string) => getCampaign(config, id),
 }
 
 export default function useBreadcrumb(config: BreadcrumbConfigType): BreadcrumbItemData[] {
