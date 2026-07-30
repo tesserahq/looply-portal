@@ -246,6 +246,10 @@ export function useSendCampaign(
     },
     onSuccess: (data) => {
       queryClient.setQueryData(campaignQueryKeys.detail(data.id), data)
+      // The /send response may not reflect the fully-settled status (e.g. if
+      // sending is processed async server-side) — refetch the detail query
+      // so the UI reconciles against the authoritative state.
+      queryClient.invalidateQueries({ queryKey: campaignQueryKeys.detail(data.id) })
       queryClient.invalidateQueries({ queryKey: campaignQueryKeys.lists() })
 
       toast.success('Campaign sent successfully!')
