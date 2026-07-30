@@ -1,0 +1,35 @@
+/* Visual-only override for the live editing canvas.
+ * Templates authored as raw HTML often center their outer table via
+ * align="center" (or an inline margin:auto style) — meaningful for how the
+ * email renders in an inbox, but it makes editing awkward (a narrow column
+ * floating in a wide canvas while its own text stays left-aligned). This
+ * only changes how it *looks* while editing; the underlying node attributes
+ * are untouched, so exported/saved HTML still centers as originally authored.
+ */
+
+.re-canvas [align='center'] {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* The bubble menu's text-align buttons set a non-standard `alignment="..."`
+ * HTML attribute (not `style="text-align:..."`, not even the legacy `align`
+ * attribute) on paragraph/heading nodes — see the package's
+ * alignment-attribute.tsx `renderHTML`. That attribute updates the live DOM
+ * immediately, but nothing renders it visually until the editor's theme CSS
+ * gets fully regenerated (which only happens on a full setContent reload).
+ * Mapping it directly to text-align here makes alignment changes apply the
+ * instant you click, without depending on that regeneration.
+ */
+.re-canvas [alignment='left'] {
+  text-align: left;
+}
+.re-canvas [alignment='center'] {
+  text-align: center;
+}
+.re-canvas [alignment='right'] {
+  text-align: right;
+}
+.re-canvas [alignment='justify'] {
+  text-align: justify;
+}

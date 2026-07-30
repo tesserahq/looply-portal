@@ -2,7 +2,7 @@ import NewResourceShortcut from '@/components/new-resources-shortcut/new-resourc
 import { useRequestInfo } from '@/hooks/useRequestInfo'
 import { ROUTE_PATH as THEME_PATH } from '@/routes/resources/update-theme'
 import { SITE_CONFIG } from '@/utils/config/site.config'
-import { BookUser, Contact, FileChartLine, SquareUser, Users2 } from 'lucide-react'
+import { BookUser, Contact, FileChartLine, Megaphone, SquareUser, Users2 } from 'lucide-react'
 import { Outlet, useLocation, useNavigate, useParams, useSubmit } from 'react-router'
 import { Layout, MainItemProps } from 'tessera-ui'
 
@@ -51,13 +51,21 @@ export default function PrivateLayout() {
       path: '/contact-interactions',
       icon: Contact,
     },
+    {
+      title: 'Campaigns',
+      path: '/campaigns',
+      icon: Megaphone,
+    },
   ]
 
   const shouldCollapseSidebar = Boolean(
     location.pathname.includes(`/contacts/${params['contact_id']}/overview`) ||
     location.pathname.includes(`/contact-lists/${params['contact_list_id']}/overview`) ||
     location.pathname.includes(`/waiting-lists/${params['waiting_list_id']}/overview`) ||
-    location.pathname.includes(`/contact-interactions/${params['contact_interaction_id']}/overview`)
+    location.pathname.includes(
+      `/contact-interactions/${params['contact_interaction_id']}/overview`
+    ) ||
+    location.pathname.includes(`/campaigns/${params['campaign_id']}/overview`)
   )
 
   return (

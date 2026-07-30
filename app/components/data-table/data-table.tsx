@@ -75,7 +75,7 @@ export function DataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        'border-border bg-card relative flex flex-col overflow-hidden rounded border',
+        'border-border bg-card relative z-0 flex flex-col overflow-hidden rounded border',
         fixed && 'h-[calc(100vh-10rem)]',
         hasFilter && 'h-[calc(100vh-13rem)]'
       )}>

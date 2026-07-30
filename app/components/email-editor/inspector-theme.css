@@ -1,0 +1,44 @@
+/* Visual polish for @react-email/editor's Inspector panel.
+ * The package only ships functional/layout CSS (see its own inspector.css
+ * comment) and leaves colors/radius up to the consumer. This maps the
+ * library's --re-* variables to this app's existing design tokens so the
+ * panel matches the rest of the app (including dark mode), and tightens up
+ * a few controls (color swatches especially) whose native browser chrome
+ * wasn't fully suppressed by the library's own rules.
+ */
+
+.re-inspector {
+  --re-bg: hsl(var(--background));
+  --re-border: hsl(var(--border));
+  --re-text: hsl(var(--foreground));
+  --re-text-muted: hsl(var(--muted-foreground));
+  --re-bg-hover: hsl(var(--muted));
+  --re-bg-active: hsl(var(--accent));
+  --re-tooltip-bg: hsl(var(--foreground));
+  --re-tooltip-text: hsl(var(--background));
+}
+
+.re-inspector [data-re-inspector-number],
+.re-inspector [data-re-inspector-color-control],
+.re-inspector [data-re-inspector-toggle-group],
+.re-inspector [data-re-inspector-button] {
+  border-radius: 0.5rem;
+}
+
+.re-inspector [data-re-inspector-color-trigger] {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 0.375rem !important;
+  border: 1px solid hsl(var(--border));
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.re-inspector [data-re-inspector-section] {
+  padding: 0.875rem 0;
+}
+
+.re-inspector [data-re-inspector-section-toggle] {
+  font-size: 0.8rem;
+}

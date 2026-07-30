@@ -9,6 +9,7 @@ import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { useApp } from 'tessera-ui'
+import { DateTime } from 'tessera-ui/components'
 import {
   useContactListDetail,
   useContactListMembers,
@@ -20,7 +21,6 @@ import {
 import { ContactListMemberType } from '@/resources/queries/contact-lists'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 
@@ -309,13 +309,13 @@ export default function ContactListDetail() {
             <div className="d-item">
               <dt className="d-label">Created At</dt>
               <dd className="d-content">
-                {format(new Date(contactList.created_at + 'z'), 'PPPpp')}
+                <DateTime date={contactList.created_at} />
               </dd>
             </div>
             <div className="d-item">
               <dt className="d-label">Updated At</dt>
               <dd className="d-content">
-                {format(new Date(contactList.updated_at + 'z'), 'PPPpp')}
+                <DateTime date={contactList.updated_at} />
               </dd>
             </div>
           </div>

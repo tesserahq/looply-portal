@@ -6,6 +6,7 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { useApp } from 'tessera-ui'
+import { DateTime as TesseraDateTime } from 'tessera-ui/components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/modules/shadcn/ui/tooltip'
 import { useContactInteractionsByContactId } from '@/resources/hooks/contact-interactions'
 import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
@@ -19,7 +20,6 @@ import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { Edit, EllipsisVertical, MapPin, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 
@@ -297,13 +297,13 @@ export default function ContactDetailOverview() {
                 <div className="d-item">
                   <dt className="d-label">Created At</dt>
                   <dd className="d-content">
-                    {format(new Date(contact.created_at + 'z'), 'PPPpp')}
+                    <TesseraDateTime date={contact.created_at} />
                   </dd>
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Updated At</dt>
                   <dd className="d-content">
-                    {format(new Date(contact.updated_at + 'z'), 'PPPpp')}
+                    <TesseraDateTime date={contact.updated_at} />
                   </dd>
                 </div>
               </div>
