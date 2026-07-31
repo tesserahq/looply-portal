@@ -3,6 +3,7 @@ import {
   type RichEmailEditorRef,
 } from '@/components/email-editor/rich-email-editor'
 import { ContactListSelect, type ContactListOption } from '@/components/form/form-contact-lists'
+import { JsonEditor, type JsonObject } from '@/components/json/editor'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
 import { useCreateTemplate, useTemplate, useUpdateTemplate } from '@/resources/hooks/templates'
@@ -23,6 +24,7 @@ export interface CampaignFormInitialValues {
   contactListId?: string
   subject: string
   fromEmail: string
+  templateVariables?: JsonObject
 }
 
 export interface CampaignFormProps {
@@ -73,6 +75,9 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const [contactListError, setContactListError] = useState<string>()
   const [subject, setSubject] = useState(initialValues?.subject ?? '')
   const [fromEmail, setFromEmail] = useState(initialValues?.fromEmail ?? '')
+  const [templateVariables, setTemplateVariables] = useState<JsonObject>(
+    initialValues?.templateVariables ?? {}
+  )
   const [currentTemplateId, setCurrentTemplateId] = useState(templateId)
 
   const { data: template } = useTemplate(sendlyConfig, currentTemplateId, {
@@ -152,6 +157,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             template_id: currentTemplateId,
             subject,
             from_email: fromEmail,
+            template_variables: templateVariables,
           })
           if (html !== undefined) {
             await updateTemplate({
@@ -169,7 +175,13 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
 
         const campaign = await updateCampaign({
           id: campaignId!,
-          updateData: { name, contact_list_id: contactListId, subject, from_email: fromEmail },
+          updateData: {
+            name,
+            contact_list_id: contactListId,
+            subject,
+            from_email: fromEmail,
+            template_variables: templateVariables,
+          },
           showSuccessToast,
         })
 
@@ -209,6 +221,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
       contactListId,
       subject,
       fromEmail,
+      templateVariables,
       currentTemplateId,
       campaignId,
       template,
@@ -270,6 +283,16 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
               value={fromEmail}
               onChange={(e) => setFromEmail(e.target.value)}
               disabled={disabled}
+            />
+          </div>
+        </div>
+        <div>
+          <Label>Template Variables</Label>
+          <div className="mt-1.5">
+            <JsonEditor
+              initialValue={templateVariables}
+              onChange={setTemplateVariables}
+              readOnly={disabled}
             />
           </div>
         </div>
