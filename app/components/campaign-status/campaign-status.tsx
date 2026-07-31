@@ -16,6 +16,8 @@ export const getCampaignStatusBadgeClasses = (status: string, className?: string
     sending:
       'border-blue-200/50 bg-blue-50/80 text-blue-700 dark:border-blue-800/50 dark:bg-blue-900/30 dark:text-blue-300',
     sent: 'border-emerald-200/50 bg-emerald-50/80 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-300',
+    completed:
+      'border-green-200/50 bg-green-50/80 text-green-700 dark:border-green-800/50 dark:bg-green-900/30 dark:text-green-300',
     failed:
       'border-red-200/50 bg-red-50/80 text-red-700 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-300',
     cancelled:

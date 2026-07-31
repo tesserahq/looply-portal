@@ -97,6 +97,7 @@ export default function CampaignEdit() {
           contactListId: campaign.contact_list_id || undefined,
           subject: campaign.subject,
           fromEmail: campaign.from_email,
+          templateVariables: campaign.template_variables,
         }}
         apiUrl={apiUrl!}
         sendlyApiUrl={sendlyApiUrl!}
@@ -105,6 +106,9 @@ export default function CampaignEdit() {
         disabled={!isDraft}
         footer={
           <>
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              Cancel
+            </Button>
             <Button variant="outline" onClick={handleSave} disabled={isSaving || !isDraft}>
               {isSaving ? 'Saving...' : 'Save draft'}
             </Button>

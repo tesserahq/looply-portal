@@ -31,6 +31,7 @@ export type CreateCampaignPayload = {
   from_email: string
   subject: string
   tags?: string[]
+  template_variables?: Record<string, unknown>
 }
 
 /**
