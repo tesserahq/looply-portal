@@ -1,21 +1,21 @@
 import { DataTable } from '@/components/data-table'
 import { DateTime } from '@/components/datetime'
+import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
-import { useApp } from 'tessera-ui'
+import NewButton from '@/components/new-button/new-button'
 import { useContactLists, useDeleteContactList } from '@/resources/hooks/contact-lists'
 import { ContactListType } from '@/resources/queries/contact-lists'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
-import type { LoaderFunctionArgs } from 'react-router'
-import { Link, useLoaderData, useNavigate } from 'react-router'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
-import NewButton from '@/components/new-button/new-button'
+import type { LoaderFunctionArgs } from 'react-router'
+import { Link, useLoaderData, useNavigate } from 'react-router'
+import { useApp } from 'tessera-ui'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -111,6 +111,14 @@ export default function ContactLists() {
               {row.original.is_public ? 'Public' : 'Private'}
             </Badge>
           )
+        },
+      },
+      {
+        accessorKey: 'contact_Count',
+        header: 'Contact Count',
+        size: 120,
+        cell: ({ row }) => {
+          return <div className="text-center">{row.original.contact_count}</div>
         },
       },
       {

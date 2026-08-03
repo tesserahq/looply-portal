@@ -307,6 +307,10 @@ export default function ContactListDetail() {
               </dd>
             </div>
             <div className="d-item">
+              <dt className="d-label">Contact Count</dt>
+              <dd className="d-content">{contactList.contact_count || 'N/A'}</dd>
+            </div>
+            <div className="d-item">
               <dt className="d-label">Created At</dt>
               <dd className="d-content">
                 <DateTime date={contactList.created_at} />
@@ -327,7 +331,11 @@ export default function ContactListDetail() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold lg:text-2xl">Members</h1>
             {hasData && (
-              <NewButton label="New Members" onClick={() => newMemberRef.current?.onOpen()} />
+              <NewButton
+                label="Add contacts"
+                name="Add contacts"
+                onClick={() => newMemberRef.current?.onOpen()}
+              />
             )}
           </div>
         </CardHeader>
@@ -341,18 +349,9 @@ export default function ContactListDetail() {
             </div>
           )}
         </CardContent>
-
-        {hasData && (
-          <CardFooter className="justify-end">
-            <Button variant="destructive" size="sm" onClick={handleDeleteAll}>
-              Delete All Members
-            </Button>
-          </CardFooter>
-        )}
       </Card>
 
       <DeleteConfirmation ref={deleteModalRef} />
-      <DeleteConfirmation ref={deleteAllModalRef} />
       <DeleteConfirmation ref={deleteContactListModalRef} />
 
       <NewMemberContactList
