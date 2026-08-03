@@ -1,19 +1,21 @@
-import { DateTime } from '@/components/datetime'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import { useApp, DateTime } from 'tessera-ui'
+import { ResourceID } from 'tessera-ui/components'
 import {
+  useContactInteractionActions,
   useContactInteractionDetail,
   useDeleteContactInteraction,
 } from '@/resources/hooks/contact-interactions'
+import { humanizeText } from '@/utils/helpers/text.helper'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -40,6 +42,12 @@ export default function ContactInteractionDetail() {
     isLoading,
     error,
   } = useContactInteractionDetail(config, contact_interaction_id!)
+
+  const { data: actions } = useContactInteractionActions(config)
+
+  const actionLabels = useMemo(() => {
+    return new Map(actions?.items?.map((action) => [action.value, action.label]))
+  }, [actions])
 
   const { mutate: deleteContactInteraction, isPending: isDeleting } = useDeleteContactInteraction(
     config,
@@ -134,6 +142,12 @@ export default function ContactInteractionDetail() {
         <CardContent className="space-y-4 px-6 pt-4">
           <div className="d-list">
             <div className="d-item">
+              <dt className="d-label">ID</dt>
+              <dd className="d-content">
+                <ResourceID value={interaction.id} />
+              </dd>
+            </div>
+            <div className="d-item">
               <dt className="d-label">Note</dt>
               <dd className="d-content">
                 {interaction.note ? (
@@ -146,9 +160,13 @@ export default function ContactInteractionDetail() {
             <div className="d-item">
               <dt className="d-label">Action</dt>
               <dd className="d-content">
-                <Badge variant="outline" className="capitalize">
-                  {interaction.action || 'N/A'}
-                </Badge>
+                {interaction.action ? (
+                  <Badge variant="outline">
+                    {actionLabels.get(interaction.action) || humanizeText(interaction.action)}
+                  </Badge>
+                ) : (
+                  'N/A'
+                )}
               </dd>
             </div>
             {interaction.custom_action_description && (
@@ -165,7 +183,7 @@ export default function ContactInteractionDetail() {
               <dt className="d-label">Interaction Time</dt>
               <dd className="d-content">
                 {interaction.interaction_timestamp ? (
-                  <DateTime date={interaction.interaction_timestamp} formatStr="PPpp" />
+                  <DateTime date={interaction.interaction_timestamp} />
                 ) : (
                   <span className="text-muted-foreground">N/A</span>
                 )}
@@ -175,7 +193,7 @@ export default function ContactInteractionDetail() {
               <dt className="d-label">Action Time</dt>
               <dd className="d-content">
                 {interaction.action_timestamp ? (
-                  <DateTime date={interaction.action_timestamp} formatStr="PPpp" />
+                  <DateTime date={interaction.action_timestamp} />
                 ) : (
                   'N/A'
                 )}

@@ -5,7 +5,7 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import SendConfirmation from '@/components/send-confirmation/send-confirmation'
 import { CampaignStatusBadge } from '@/components/campaign-status/campaign-status'
-import { useApp, DateTime } from 'tessera-ui'
+import { useApp, DateTime, ResourceID } from 'tessera-ui'
 import { useCampaigns, useDeleteCampaign, useSendCampaign } from '@/resources/hooks/campaigns'
 import { CampaignType } from '@/resources/queries/campaigns'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
@@ -146,11 +146,19 @@ export default function Campaigns() {
       {
         accessorKey: 'created_at',
         header: 'Created At',
-        size: 120,
+        size: 100,
         cell: ({ row }) => {
           const { created_at } = row.original
           if (!created_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={created_at} tooltipAlign="end" />
+          return <DateTime date={created_at} formatStr="dd/MM/yyyy" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 20,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {

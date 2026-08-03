@@ -1,9 +1,8 @@
 import { DataTable } from '@/components/data-table'
-import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp, DateTime } from 'tessera-ui'
 import { useWaitingLists, useDeleteWaitingList } from '@/resources/hooks/waiting-lists'
 import { WaitingListType } from '@/resources/queries/waiting-lists'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
@@ -107,21 +106,29 @@ export default function WaitingLists() {
       {
         accessorKey: 'created_at',
         header: 'Created At',
-        size: 180,
+        size: 100,
         cell: ({ row }) => {
           const { created_at } = row.original
           if (!created_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={created_at} />
+          return <DateTime date={created_at} formatStr="dd/MM/yyyy" />
         },
       },
       {
         accessorKey: 'updated_at',
         header: 'Updated At',
-        size: 180,
+        size: 100,
         cell: ({ row }) => {
           const { updated_at } = row.original
           if (!updated_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={updated_at} />
+          return <DateTime date={updated_at} formatStr="dd/MM/yyyy" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 20,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {

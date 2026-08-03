@@ -6,7 +6,7 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { useApp } from 'tessera-ui'
-import { DateTime as TesseraDateTime } from 'tessera-ui/components'
+import { DateTime as TesseraDateTime, ResourceID } from 'tessera-ui/components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/modules/shadcn/ui/tooltip'
 import { useContactInteractionsByContactId } from '@/resources/hooks/contact-interactions'
 import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
@@ -230,6 +230,12 @@ export default function ContactDetailOverview() {
             </CardHeader>
             <CardContent className="space-y-4 px-6 pt-4">
               <div className="d-list">
+                <div className="d-item">
+                  <dt className="d-label">ID</dt>
+                  <dd className="d-content">
+                    <ResourceID value={contact.id} />
+                  </dd>
+                </div>
                 <div className="d-item">
                   <dt className="d-label">Email</dt>
                   <dd className="d-content">{contact.email}</dd>

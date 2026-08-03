@@ -8,7 +8,7 @@ import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { useApp } from 'tessera-ui'
-import { DateTime } from 'tessera-ui/components'
+import { DateTime, ResourceID } from 'tessera-ui/components'
 import { useCampaignDetail, useDeleteCampaign, useSendCampaign } from '@/resources/hooks/campaigns'
 import { useContactListDetail } from '@/resources/hooks/contact-lists'
 import { useTemplate } from '@/resources/hooks/templates'
@@ -183,6 +183,12 @@ export default function CampaignDetail() {
             </CardHeader>
             <CardContent className="space-y-4 px-6 pt-4">
               <div className="d-list">
+                <div className="d-item">
+                  <dt className="d-label">ID</dt>
+                  <dd className="d-content">
+                    <ResourceID value={campaign.id} />
+                  </dd>
+                </div>
                 <div className="d-item">
                   <dt className="d-label">Name</dt>
                   <dd className="d-content">{campaign.name || 'N/A'}</dd>

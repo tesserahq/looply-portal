@@ -4,7 +4,7 @@ import ContactInteractionShortcut from '@/components/dialog/contact-interaction-
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp } from 'tessera-ui'
 import useDebounce from '@/hooks/useDebounce'
 import { useContacts, useDeleteContact } from '@/resources/hooks/contacts'
 import { ContactType } from '@/resources/queries/contacts/contact.type'
@@ -182,6 +182,14 @@ export default function Contacts() {
               <span className="truncate text-sm">{address}</span>
             </div>
           )
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 20,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {
