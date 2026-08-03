@@ -1,15 +1,16 @@
 import { DataTable } from '@/components/data-table'
-import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp, DateTime } from 'tessera-ui'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import {
+  useContactInteractionActions,
   useContactInteractions,
   useDeleteContactInteraction,
 } from '@/resources/hooks/contact-interactions/use-contact-interaction'
 import { ContactInteractionType } from '@/resources/queries/contact-interactions'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
+import { humanizeText } from '@/utils/helpers/text.helper'
 import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate } from 'react-router'
 import { Badge } from '@shadcn/ui/badge'
@@ -52,6 +53,12 @@ export default function ContactInteractions() {
     page,
     size,
   })
+
+  const { data: actions } = useContactInteractionActions(config)
+
+  const actionLabels = useMemo(() => {
+    return new Map(actions?.items?.map((action) => [action.value, action.label]))
+  }, [actions])
 
   const hasData = useMemo(() => {
     return data && data.items && data.items.length > 0
@@ -100,13 +107,16 @@ export default function ContactInteractions() {
         header: 'Action',
         cell: ({ row }) => {
           const { action, custom_action_description } = row.original
+          if (!action) return '-'
+
+          const actionLabel = actionLabels.get(action) || humanizeText(action)
 
           if (action === 'custom') {
             return (
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger>
-                    <Badge variant="outline">{action}</Badge>
+                    <Badge variant="outline">{actionLabel}</Badge>
                   </TooltipTrigger>
                   <TooltipContent>
                     <span>{custom_action_description || '-'}</span>
@@ -116,7 +126,7 @@ export default function ContactInteractions() {
             )
           }
 
-          return action ? <Badge variant="outline">{action}</Badge> : '-'
+          return <Badge variant="outline">{actionLabel}</Badge>
         },
       },
       {
@@ -126,7 +136,7 @@ export default function ContactInteractions() {
         cell: ({ row }) => {
           const { interaction_timestamp } = row.original
           if (!interaction_timestamp) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={interaction_timestamp} formatStr="PPpp" />
+          return <DateTime date={interaction_timestamp} />
         },
       },
       {
@@ -136,7 +146,7 @@ export default function ContactInteractions() {
         cell: ({ row }) => {
           const { action_timestamp } = row.original
           if (!action_timestamp) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={action_timestamp} formatStr="PPpp" />
+          return <DateTime date={action_timestamp} />
         },
       },
       {
@@ -146,7 +156,15 @@ export default function ContactInteractions() {
         cell: ({ row }) => {
           const { created_at } = row.original
           if (!created_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={created_at} />
+          return <DateTime date={created_at} formatStr="dd/MM/yyyy" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 20,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {

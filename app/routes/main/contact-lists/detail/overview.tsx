@@ -9,7 +9,7 @@ import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { useApp } from 'tessera-ui'
-import { DateTime } from 'tessera-ui/components'
+import { DateTime, ResourceID } from 'tessera-ui/components'
 import {
   useContactListDetail,
   useContactListMembers,
@@ -290,6 +290,12 @@ export default function ContactListDetail() {
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
           <div className="d-list">
+            <div className="d-item">
+              <dt className="d-label">ID</dt>
+              <dd className="d-content">
+                <ResourceID value={contactList.id} />
+              </dd>
+            </div>
             <div className="d-item">
               <dt className="d-label">Name</dt>
               <dd className="d-content">{contactList.name || 'N/A'}</dd>

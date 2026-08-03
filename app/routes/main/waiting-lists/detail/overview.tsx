@@ -11,7 +11,7 @@ import { Checkbox } from '@shadcn/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Tabs, TabsList, TabsTrigger } from '@shadcn/ui/tabs'
 import { useApp } from 'tessera-ui'
-import { DateTime } from 'tessera-ui/components'
+import { DateTime, ResourceID } from 'tessera-ui/components'
 import {
   useWaitingListDetail,
   useWaitingListMembers,
@@ -498,6 +498,12 @@ export default function WaitingListDetail() {
         </CardHeader>
         <CardContent className="space-y-4 px-6 pt-4">
           <div className="d-list">
+            <div className="d-item">
+              <dt className="d-label">ID</dt>
+              <dd className="d-content">
+                <ResourceID value={waitingList.id} />
+              </dd>
+            </div>
             <div className="d-item">
               <dt className="d-label">Name</dt>
               <dd className="d-content">{waitingList.name || 'N/A'}</dd>

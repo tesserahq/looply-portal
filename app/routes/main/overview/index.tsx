@@ -1,8 +1,7 @@
 import { DataTable } from '@/components/data-table'
-import { DateTime } from '@/components/datetime'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import { useApp, DateTime } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/shadcn/ui/card'
 import { useStats } from '@/resources/hooks/stats'
@@ -111,11 +110,11 @@ export default function Overview() {
       {
         accessorKey: 'created_at',
         header: 'Created At',
-        size: 130,
+        size: 100,
         cell: ({ row }) => {
           const { created_at } = row.original
           if (!created_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={created_at + 'Z'} formatStr="PPpp" />
+          return <DateTime date={created_at} tooltipAlign="end" />
         },
       },
     ],

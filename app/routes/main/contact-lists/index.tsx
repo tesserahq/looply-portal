@@ -1,5 +1,4 @@
 import { DataTable } from '@/components/data-table'
-import { DateTime } from '@/components/datetime'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
@@ -15,7 +14,7 @@ import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate } from 'react-router'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp, DateTime } from 'tessera-ui'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -128,7 +127,7 @@ export default function ContactLists() {
         cell: ({ row }) => {
           const { created_at } = row.original
           if (!created_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={created_at} />
+          return <DateTime date={created_at} formatStr="dd/MM/yyyy" />
         },
       },
       {
@@ -138,7 +137,15 @@ export default function ContactLists() {
         cell: ({ row }) => {
           const { updated_at } = row.original
           if (!updated_at) return <span className="text-muted-foreground">-</span>
-          return <DateTime date={updated_at} />
+          return <DateTime date={updated_at} formatStr="dd/MM/yyyy" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 20,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {
