@@ -1,4 +1,5 @@
 import { NodeENVType } from '@/libraries/fetch'
+import { ContactListType } from '@/resources/queries/contact-lists/contact-list.type'
 
 /**
  * Contact Type
@@ -26,6 +27,7 @@ export type ContactType = {
   created_by_id: string
   created_at: string
   updated_at: string
+  contact_lists?: ContactListType[]
 }
 
 /**
