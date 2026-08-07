@@ -1,6 +1,7 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import SendConfirmation from '@/components/send-confirmation/send-confirmation'
+import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { CampaignStatusBadge } from '@/components/campaign-status/campaign-status'
 import { JsonEditor } from '@/components/json/editor'
 import { Badge } from '@shadcn/ui/badge'
@@ -58,11 +59,14 @@ export default function CampaignDetail() {
     enabled: !!campaignId && !!token,
   })
 
-  const { data: template, isLoading: isLoadingTemplate } = useTemplate(
-    sendlyConfig,
-    campaign?.template_id ?? '',
-    { enabled: !!campaign?.template_id }
-  )
+  const {
+    data: template,
+    isLoading: isLoadingTemplate,
+    isError: isTemplateError,
+    apiError: templateApiError,
+  } = useTemplate(sendlyConfig, campaign?.template_id ?? '', {
+    enabled: !!campaign?.template_id,
+  })
 
   const { data: contactList, isLoading: isLoadingContactList } = useContactListDetail(
     config,
@@ -216,7 +220,9 @@ export default function CampaignDetail() {
                       ? 'N/A'
                       : isLoadingTemplate
                         ? 'Loading...'
-                        : template?.name || campaign.template_id}
+                        : isTemplateError
+                          ? 'Unable to load (no access)'
+                          : template?.name || campaign.template_id}
                   </dd>
                 </div>
                 <div className="d-item">
@@ -284,21 +290,29 @@ export default function CampaignDetail() {
           </Card>
         </div>
 
-        {previewHtml && (
+        {(previewHtml || isTemplateError) && (
           <Card className="flex-1">
             <CardHeader>
               <h2 className="text-xl font-bold lg:text-2xl">Email</h2>
             </CardHeader>
             <CardContent>
-              <iframe
-                ref={previewIframeRef}
-                srcDoc={previewHtml}
-                onLoad={handlePreviewLoad}
-                className="w-full border-0"
-                style={{ height: previewHeight ? `${previewHeight}px` : '600px' }}
-                sandbox="allow-same-origin"
-                title="Email Content"
-              />
+              {isTemplateError ? (
+                <ApiErrorOverlay
+                  statusCode={templateApiError?.statusCode ?? 403}
+                  message={templateApiError?.message ?? 'Access denied.'}
+                  rawMessage={templateApiError?.rawMessage}
+                />
+              ) : (
+                <iframe
+                  ref={previewIframeRef}
+                  srcDoc={previewHtml}
+                  onLoad={handlePreviewLoad}
+                  className="w-full border-0"
+                  style={{ height: previewHeight ? `${previewHeight}px` : '600px' }}
+                  sandbox="allow-same-origin"
+                  title="Email Content"
+                />
+              )}
             </CardContent>
           </Card>
         )}

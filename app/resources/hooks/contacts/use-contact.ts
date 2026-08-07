@@ -12,23 +12,10 @@ import {
   ContactType,
   ContactFormData,
 } from '@/resources/queries/contacts/contact.type'
+import { QueryError } from '@/resources/queries'
+import { toApiError } from '@/libraries/fetch'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'tessera-ui/components'
-
-/**
- * Custom error class for query errors
- */
-class QueryError extends Error {
-  code?: string
-  details?: unknown
-
-  constructor(message: string, code?: string, details?: unknown) {
-    super(message)
-    this.name = 'QueryError'
-    this.code = code
-    this.details = details
-  }
-}
 
 /**
  * Contact query keys for React Query Caching
@@ -56,7 +43,7 @@ export function useContacts(
     staleTime?: number
   }
 ) {
-  return useQuery({
+  const query = useQuery({
     queryKey: contactQueryKeys.list(config, params),
     queryFn: async () => {
       try {
@@ -66,12 +53,19 @@ export function useContacts(
 
         return await fetchContacts(config, params)
       } catch (error) {
-        throw new QueryError('Failed to fetch contacts', 'FETCH_ERROR', error)
+        throw new QueryError(
+          'Failed to fetch contacts',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'contacts')
+        )
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!config.token,
   })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }
 
 /**

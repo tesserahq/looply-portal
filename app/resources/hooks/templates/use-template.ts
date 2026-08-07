@@ -9,24 +9,10 @@ import {
   TemplateType,
   UpdateTemplatePayload,
 } from '@/resources/queries/templates/template.type'
-import { IQueryConfig, IQueryParams } from '@/resources/queries'
+import { IQueryConfig, IQueryParams, QueryError } from '@/resources/queries'
+import { toApiError } from '@/libraries/fetch'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'tessera-ui/components'
-
-/**
- * Custom error class for query errors
- */
-class QueryError extends Error {
-  code?: string
-  details?: unknown
-
-  constructor(message: string, code?: string, details?: unknown) {
-    super(message)
-    this.name = 'QueryError'
-    this.code = code
-    this.details = details
-  }
-}
 
 /**
  * Template query keys for React Query Caching
@@ -54,7 +40,7 @@ export function useTemplates(
     staleTime?: number
   }
 ) {
-  return useQuery({
+  const query = useQuery({
     queryKey: templateQueryKeys.list(config, params),
     queryFn: async () => {
       try {
@@ -64,12 +50,19 @@ export function useTemplates(
 
         return await getTemplates(config, params)
       } catch (error) {
-        throw new QueryError('Failed to fetch templates', 'FETCH_ERROR', error)
+        throw new QueryError(
+          'Failed to fetch templates',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'sendly email template')
+        )
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!config.token,
   })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }
 
 /**
@@ -86,7 +79,7 @@ export function useTemplate(
     staleTime?: number
   }
 ) {
-  return useQuery({
+  const query = useQuery({
     queryKey: templateQueryKeys.detail(templateId),
     queryFn: async () => {
       try {
@@ -96,12 +89,19 @@ export function useTemplate(
 
         return await getTemplate(config, templateId)
       } catch (error) {
-        throw new QueryError('Failed to fetch template', 'FETCH_ERROR', error)
+        throw new QueryError(
+          'Failed to fetch template',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'sendly email template')
+        )
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!templateId && !!config.token,
   })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }
 
 /**

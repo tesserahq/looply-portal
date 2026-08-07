@@ -34,6 +34,7 @@ import { ProgressBar } from '@/components/loader/progress-bar'
 import { ReactQueryProvider } from '@/modules/react-query'
 import { metaObject } from '@/utils/helpers/meta.helper'
 import { AuthProvider, Toaster } from 'tessera-ui'
+import { Button } from './modules/shadcn/ui/button'
 
 library.add(fab)
 

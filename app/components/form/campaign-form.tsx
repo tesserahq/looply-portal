@@ -4,6 +4,8 @@ import {
 } from '@/components/email-editor/rich-email-editor'
 import { ContactListSelect, type ContactListOption } from '@/components/form/form-contact-lists'
 import { JsonEditor, type JsonObject } from '@/components/json/editor'
+import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
+import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
 import { useCreateTemplate, useTemplate, useUpdateTemplate } from '@/resources/hooks/templates'
@@ -80,9 +82,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   )
   const [currentTemplateId, setCurrentTemplateId] = useState(templateId)
 
-  const { data: template } = useTemplate(sendlyConfig, currentTemplateId, {
-    enabled: !!currentTemplateId,
-  })
+  const {
+    data: template,
+    isError: isTemplateError,
+    apiError: templateApiError,
+    isLoading: isLoadingTemplate,
+  } = useTemplate(sendlyConfig, currentTemplateId, { enabled: !!currentTemplateId })
 
   const handleContactListChange = (contactList?: ContactListOption) => {
     setContactListId(contactList?.id)
@@ -301,13 +306,23 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             {template?.name ? `Email body from "${template.name}" template` : 'Email body'}
           </Label>
           <div className="mt-1.5 overflow-hidden rounded-md border">
-            <RichEmailEditor
-              ref={richEditorRef}
-              height="450px"
-              onReady={() => setEditorReady(true)}
-              onUploadImage={handleUploadImage}
-              editable={!disabled}
-            />
+            {isLoadingTemplate ? (
+              <AppPreloader className="h-[450px]" />
+            ) : isTemplateError ? (
+              <ApiErrorOverlay
+                statusCode={templateApiError?.statusCode ?? 403}
+                message={templateApiError?.message ?? 'Access denied.'}
+                rawMessage={templateApiError?.rawMessage}
+              />
+            ) : (
+              <RichEmailEditor
+                ref={richEditorRef}
+                height="450px"
+                onReady={() => setEditorReady(true)}
+                onUploadImage={handleUploadImage}
+                editable={!disabled}
+              />
+            )}
           </div>
         </div>
 

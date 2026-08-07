@@ -1,5 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import EmptyContent from '@/components/empty-content/empty-content'
+import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp, DateTime } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
@@ -28,7 +29,7 @@ export default function Overview() {
     token: token!,
   } as const
 
-  const { data, isLoading } = useStats(config)
+  const { data, isLoading, apiError } = useStats(config)
 
   const upcomingInteractionsColumns: ColumnDef<StatsContactInteractionType>[] = useMemo(
     () => [
@@ -139,115 +140,132 @@ export default function Overview() {
         <h1 className="text-2xl font-bold">Overview</h1>
       </div>
 
-      {/* Total Stats */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-        <Card>
-          <CardHeader>
-            <CardDescription># of Contacts</CardDescription>
+      {apiError ? (
+        <ApiErrorOverlay
+          statusCode={apiError?.statusCode ?? 403}
+          message={apiError?.message ?? 'Access denied.'}
+          rawMessage={apiError?.rawMessage}
+        />
+      ) : (
+        <>
+          {/* Total Stats */}
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+            <Card>
+              <CardHeader>
+                <CardDescription># of Contacts</CardDescription>
 
-            <CardTitle className="text-3xl font-semibold">{data?.total_contacts || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription># of Contact Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">{data?.total_list || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription># of Public Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">{data?.total_public_list || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription># of Private Lists</CardDescription>
-            <CardTitle className="text-3xl font-semibold">
-              {data?.total_private_list || 0}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
+                <CardTitle className="text-3xl font-semibold">
+                  {data?.total_contacts || 0}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardDescription># of Contact Lists</CardDescription>
+                <CardTitle className="text-3xl font-semibold">{data?.total_list || 0}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardDescription># of Public Lists</CardDescription>
+                <CardTitle className="text-3xl font-semibold">
+                  {data?.total_public_list || 0}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardDescription># of Private Lists</CardDescription>
+                <CardTitle className="text-3xl font-semibold">
+                  {data?.total_private_list || 0}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          </div>
 
-      {/* Tables Grid */}
-      <div className="mt-2 grid gap-2 lg:mt-5 lg:grid-cols-2 lg:gap-5">
-        {/* Upcoming Interactions Table */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-2">
-              <div className="space-y-1">
-                <CardTitle>Upcoming Interactions</CardTitle>
-                <CardDescription>Recent interactions that are scheduled</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/contact-interactions')}>
-                View All
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {!hasUpcomingInteractions ? (
-              <EmptyContent
-                image="/images/empty-contacts.svg"
-                title="No upcoming interactions"
-                description="Upcoming interactions will appear here once they are scheduled"
-              />
-            ) : (
-              <DataTable
-                columns={upcomingInteractionsColumns}
-                data={data?.upcoming_interactions || []}
-                isLoading={isLoading}
-                fixed={false}
-                empty={
+          {/* Tables Grid */}
+          <div className="mt-2 grid gap-2 lg:mt-5 lg:grid-cols-2 lg:gap-5">
+            {/* Upcoming Interactions Table */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="space-y-1">
+                    <CardTitle>Upcoming Interactions</CardTitle>
+                    <CardDescription>Recent interactions that are scheduled</CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/contact-interactions')}>
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {!hasUpcomingInteractions ? (
                   <EmptyContent
                     image="/images/empty-contacts.svg"
                     title="No upcoming interactions"
                     description="Upcoming interactions will appear here once they are scheduled"
                   />
-                }
-              />
-            )}
-          </CardContent>
-        </Card>
+                ) : (
+                  <DataTable
+                    columns={upcomingInteractionsColumns}
+                    data={data?.upcoming_interactions || []}
+                    isLoading={isLoading}
+                    fixed={false}
+                    empty={
+                      <EmptyContent
+                        image="/images/empty-contacts.svg"
+                        title="No upcoming interactions"
+                        description="Upcoming interactions will appear here once they are scheduled"
+                      />
+                    }
+                  />
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Recent Contacts Table */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-2">
-              <div className="space-y-1">
-                <CardTitle>Recent Contacts</CardTitle>
-                <CardDescription>Recently added contacts</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/contacts')}>
-                View All
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {!hasRecentContacts ? (
-              <EmptyContent
-                image="/images/empty-contacts.svg"
-                title="No recent contacts"
-                description="Recent contacts will appear here once they are added"
-              />
-            ) : (
-              <DataTable
-                columns={recentContactsColumns}
-                data={data?.recent_contacts || []}
-                isLoading={isLoading}
-                fixed={false}
-                empty={
+            {/* Recent Contacts Table */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="space-y-1">
+                    <CardTitle>Recent Contacts</CardTitle>
+                    <CardDescription>Recently added contacts</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/contacts')}>
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {!hasRecentContacts ? (
                   <EmptyContent
                     image="/images/empty-contacts.svg"
                     title="No recent contacts"
                     description="Recent contacts will appear here once they are added"
                   />
-                }
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                ) : (
+                  <DataTable
+                    columns={recentContactsColumns}
+                    data={data?.recent_contacts || []}
+                    isLoading={isLoading}
+                    fixed={false}
+                    empty={
+                      <EmptyContent
+                        image="/images/empty-contacts.svg"
+                        title="No recent contacts"
+                        description="Recent contacts will appear here once they are added"
+                      />
+                    }
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   )
 }

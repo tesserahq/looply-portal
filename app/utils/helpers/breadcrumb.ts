@@ -12,11 +12,7 @@ import { CampaignType } from '@/resources/queries/campaigns'
  * Add more resource types here as you implement them
  */
 export type BreadcrumbResourceData =
-  | ContactType
-  | ContactListType
-  | WaitingListType
-  | ContactInteractionType
-  | CampaignType
+  ContactType | ContactListType | WaitingListType | ContactInteractionType | CampaignType
 
 /**
  * Configuration for breadcrumb generation
