@@ -21,7 +21,7 @@ Git hooks are managed by `lefthook` (`lefthook.yml`): on pre-commit, staged `*.{
 
 ## Architecture
 
-Looply Portal is a **React Router v7** (framework mode, SSR enabled — `react-router.config.ts` has `ssr: true`) app served by a custom Express server (`server.mjs`), not `react-router-serve`. The server wires up `helmet` CSP (with a per-request nonce in `res.locals.cspNonce`), `compression`, `morgan` logging, and `express-rate-limit`, and delegates rendering to `@react-router/express`'s `createRequestHandler`.
+Looply Portal is a **React Router v7** (framework mode, SSR enabled — `react-router.config.ts` has `ssr: true`) app served by a custom Express server (`server.mjs`), not `react-router-serve`. The server wires up `helmet` CSP (with a per-request nonce in `res.locals.cspNonce`), `compression`, `morgan` logging, and `express-rate-limit`, and delegates rendering to `@react-router/express`'s `createRequestHandler`. `react-router.config.ts` also sets `routeDiscovery: { mode: 'initial' }`, so all routes ship in the initial HTML document instead of being lazily fetched via `/__manifest` at navigation time — avoids a request-storm/blank-screen failure mode when a deploy lands between page load and the user's next navigation.
 
 ### Routing
 
@@ -51,12 +51,21 @@ Each resource has a matching pair of directories:
 Hooks follow a consistent shape: mutations invalidate/update the relevant `queryKeys` on success and fire toast notifications (`toast` from `tessera-ui/components`) on both success and error; queries require `config.token` and are `enabled` only when a token is present.
 
 All HTTP calls go through `fetchApi(endpoint, token, node_env, options)` in `app/libraries/fetch.ts`. It:
+
 - attaches `Authorization: Bearer <token>` when a token is given
 - serializes `params`/`pagination` onto the URL
 - logs an equivalent `curl` command via `curl-generator` when `node_env === 'development'`
 - throws `TokenExpiredError` (401) or `UnauthorizedError` (403) as typed errors, otherwise a generic `Error` with a JSON-stringified `{ status, error }` message
 
+`toApiError(error, context?)` (also `app/libraries/fetch.ts`) converts a caught error into a `{ statusCode, message }` shape for UI rendering, substituting a friendlier "you don't have access to `<context>`" message when the backend's 403 body is just a generic string (`"forbidden"`, `"access denied"`, etc.).
+
 Pages get `apiUrl`/`nodeEnv` from a route `loader()` reading `process.env`, and get the auth `token` from `useApp()` — imported from the shared **`tessera-ui`** package (a git dependency at `github.com/tesserahq/tessera-ui`), not a local context. List pages additionally use `ensureCanonicalPagination` (`app/utils/helpers/pagination.helper`) in their loader to normalize `page`/`size` query params.
+
+### API error handling
+
+`useHandleApiError` (`app/hooks/useHandleApiError.ts`) only handles **401** globally: it toasts and redirects to `/logout`. It deliberately does *not* handle 403 — the right response to "you can't see this" depends on which part of the UI failed (a full-panel overlay, inline text on a small control, etc.), so 403s are handled locally at the point of failure instead of through one blanket handler.
+
+The pattern for a React Query hook that needs this: the `queryFn` catches the error, calls `toApiError(error, '<context>')`, and attaches the result as an `apiError` field on a thrown `QueryError`; the hook then returns `{ ...query, apiError: (query.error as QueryError | null)?.apiError }` so callers get `isError`/`apiError` directly off the hook. See `useTemplates`/`useTemplate` in `app/resources/hooks/templates/use-template.ts` for the reference implementation. Consumers branch on `isError`/`apiError` to render `ApiErrorOverlay` (`app/components/misc/api-error-overlay.tsx` — replaces the failed panel in place, wraps `EmptyContent`) or inline error text for smaller controls — see `campaign-form.tsx`, `new-campaign-modal.tsx`, and `routes/main/campaigns/detail/overview.tsx` for the variations.
 
 ### UI layer
 

@@ -3,6 +3,17 @@ import { CurlGenerator } from 'curl-generator'
 
 export type NodeENVType = 'test' | 'development' | 'staging' | 'production'
 
+export interface ApiErrorInfo {
+  statusCode: number
+  // The literal text the API returned (e.g. "Access denied") — use this to
+  // say what actually happened.
+  rawMessage: string
+  // Friendlier, contextual version — generic denials get rewritten to name
+  // the resource (see GENERIC_403_MESSAGES below); specific ones pass through
+  // unchanged and end up identical to `rawMessage`.
+  message: string
+}
+
 // Custom error class for token expiration
 export class TokenExpiredError extends Error {
   constructor(message: string) {
@@ -16,6 +27,46 @@ export class UnauthorizedError extends Error {
   constructor(message: string) {
     super(message)
     this.name = 'UnauthorizedError'
+  }
+}
+
+// Backend 403 messages that don't actually say what was denied — when we see
+// one of these, we substitute a message naming the resource instead of
+// surfacing the vague text verbatim.
+const GENERIC_403_MESSAGES = new Set([
+  'access denied',
+  'forbidden',
+  'unauthorized',
+  'unauthorized access',
+  'permission denied',
+])
+
+// Converts a fetchApi error (message is a JSON-stringified `{status, error}`,
+// see the `throw`s below) into a plain `{statusCode, message}` shape UI
+// components can render directly. `context` names the API/resource being
+// called (e.g. "the Sendly API") and is only used to fill in generic 403
+// messages that otherwise wouldn't tell the user what they lack access to.
+export function toApiError(error: unknown, context?: string): ApiErrorInfo {
+  const message = error instanceof Error ? error.message : String(error)
+
+  try {
+    const parsed = JSON.parse(message)
+    const rawDetail = typeof parsed.error === 'string' ? parsed.error : JSON.stringify(parsed.error)
+    const statusCode = typeof parsed.status === 'number' ? parsed.status : 500
+    const isGenericDenial = GENERIC_403_MESSAGES.has((rawDetail ?? '').trim().toLowerCase())
+
+    const fallbackMessage = rawDetail || 'An unexpected error occurred'
+
+    return {
+      statusCode,
+      rawMessage: fallbackMessage,
+      message: isGenericDenial
+        ? `You don't have access to ${context ?? 'this resource'}. Please contact your administrator.`
+        : fallbackMessage,
+    }
+  } catch {
+    const fallbackMessage = message || 'An unexpected error occurred'
+    return { statusCode: 500, rawMessage: fallbackMessage, message: fallbackMessage }
   }
 }
 

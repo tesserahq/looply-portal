@@ -1,6 +1,7 @@
 import { DataTable } from '@/components/data-table'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
+import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { useContactLists, useDeleteContactList } from '@/resources/hooks/contact-lists'
@@ -42,7 +43,7 @@ export default function ContactLists() {
     token: token!,
   }
 
-  const { data, isLoading } = useContactLists(config, {
+  const { data, isLoading, apiError } = useContactLists(config, {
     page,
     size,
   })
@@ -220,7 +221,13 @@ export default function ContactLists() {
         )}
       </div>
       <div className="animate-slide-up">
-        {!hasData ? (
+        {apiError ? (
+          <ApiErrorOverlay
+            statusCode={apiError?.statusCode ?? 403}
+            message={apiError?.message ?? 'Access denied.'}
+            rawMessage={apiError?.rawMessage}
+          />
+        ) : !hasData ? (
           emptyContent
         ) : (
           <DataTable

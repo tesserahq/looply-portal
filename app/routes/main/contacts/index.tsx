@@ -2,6 +2,7 @@ import { DataTable } from '@/components/data-table'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import ContactInteractionShortcut from '@/components/dialog/contact-interaction-shorcut'
 import EmptyContent from '@/components/empty-content/empty-content'
+import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { ResourceID, useApp } from 'tessera-ui'
@@ -49,7 +50,7 @@ export default function Contacts() {
     token: token!,
   }
 
-  const { data, isLoading } = useContacts(
+  const { data, isLoading, apiError } = useContacts(
     config,
     {
       page,
@@ -311,7 +312,13 @@ export default function Contacts() {
         )}
       </div>
       <div className="animate-slide-up">
-        {!hasData && !hasSearchQuery ? (
+        {apiError ? (
+          <ApiErrorOverlay
+            statusCode={apiError?.statusCode ?? 403}
+            message={apiError?.message ?? 'Access denied.'}
+            rawMessage={apiError?.rawMessage}
+          />
+        ) : !hasData && !hasSearchQuery ? (
           emptyContent
         ) : (
           <DataTable

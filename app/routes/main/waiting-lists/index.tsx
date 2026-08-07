@@ -1,5 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import EmptyContent from '@/components/empty-content/empty-content'
+import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { ResourceID, useApp, DateTime } from 'tessera-ui'
@@ -44,7 +45,7 @@ export default function WaitingLists() {
 
   const searchQuery = searchParams.get('q') || undefined
 
-  const { data, isLoading } = useWaitingLists(config, {
+  const { data, isLoading, apiError } = useWaitingLists(config, {
     page,
     size,
     q: searchQuery,
@@ -203,7 +204,13 @@ export default function WaitingLists() {
         )}
       </div>
       <div className="animate-slide-up">
-        {!hasData ? (
+        {apiError ? (
+          <ApiErrorOverlay
+            statusCode={apiError?.statusCode ?? 403}
+            message={apiError?.message ?? 'Access denied.'}
+            rawMessage={apiError?.rawMessage}
+          />
+        ) : !hasData ? (
           emptyContent
         ) : (
           <DataTable

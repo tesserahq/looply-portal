@@ -1,16 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { IAssetInput, IAssetResponse, uploadAssets } from '@/resources/queries/vaulta'
 import { toast } from 'tessera-ui/components'
-import { IQueryConfig } from '@/resources/queries'
-
-class QueryError extends Error {
-  code?: string
-  constructor(message: string, code?: string) {
-    super(message)
-    this.name = 'QueryError'
-    this.code = code
-  }
-}
+import { IQueryConfig, QueryError } from '@/resources/queries'
 
 /**
  * Hook for uploading an asset (Vaulta API)

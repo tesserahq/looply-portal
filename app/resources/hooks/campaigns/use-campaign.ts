@@ -11,24 +11,10 @@ import {
   CreateCampaignPayload,
   UpdateCampaignPayload,
 } from '@/resources/queries/campaigns/campaign.type'
-import { IQueryConfig, IQueryParams } from '@/resources/queries'
+import { IQueryConfig, IQueryParams, QueryError } from '@/resources/queries'
+import { toApiError } from '@/libraries/fetch'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'tessera-ui/components'
-
-/**
- * Custom error class for query errors
- */
-class QueryError extends Error {
-  code?: string
-  details?: unknown
-
-  constructor(message: string, code?: string, details?: unknown) {
-    super(message)
-    this.name = 'QueryError'
-    this.code = code
-    this.details = details
-  }
-}
 
 /**
  * Campaign query keys for React Query Caching
@@ -56,7 +42,7 @@ export function useCampaigns(
     staleTime?: number
   }
 ) {
-  return useQuery({
+  const query = useQuery({
     queryKey: campaignQueryKeys.list(config, params),
     queryFn: async () => {
       try {
@@ -66,12 +52,19 @@ export function useCampaigns(
 
         return await getCampaigns(config, params)
       } catch (error) {
-        throw new QueryError('Failed to fetch campaigns', 'FETCH_ERROR', error)
+        throw new QueryError(
+          'Failed to fetch campaigns',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'campaigns')
+        )
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!config.token,
   })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }
 
 /**

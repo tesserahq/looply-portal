@@ -1,21 +1,8 @@
 import { fetchStats } from '@/resources/queries/stats/stats.queries'
 import { StatsQueryConfig } from '@/resources/queries/stats/stats.type'
+import { QueryError } from '@/resources/queries'
+import { toApiError } from '@/libraries/fetch'
 import { useQuery } from '@tanstack/react-query'
-
-/**
- * Custom error class for query errors
- */
-class QueryError extends Error {
-  code?: string
-  details?: unknown
-
-  constructor(message: string, code?: string, details?: unknown) {
-    super(message)
-    this.name = 'QueryError'
-    this.code = code
-    this.details = details
-  }
-}
 
 /**
  * Stats query keys for React Query Caching
@@ -37,7 +24,7 @@ export function useStats(
     staleTime?: number
   }
 ) {
-  return useQuery({
+  const query = useQuery({
     queryKey: statsQueryKeys.detail(),
     queryFn: async () => {
       try {
@@ -47,10 +34,17 @@ export function useStats(
 
         return await fetchStats(config)
       } catch (error) {
-        throw new QueryError('Failed to fetch stats', 'FETCH_ERROR', error)
+        throw new QueryError(
+          'Failed to fetch stats',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'the overview stats')
+        )
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false,
   })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }

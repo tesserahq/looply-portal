@@ -1,6 +1,6 @@
 <p align="center">
   <img width="200px" src="./public/images/logo-full.png">
-  
+
   <h2 align="center">Looply Portal</h2>
   <p align="center">
     A modern web portal for contact management and waitlist administration

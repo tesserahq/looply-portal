@@ -1,53 +1,28 @@
-import { TokenExpiredError, UnauthorizedError } from '@/libraries/fetch'
+import { TokenExpiredError } from '@/libraries/fetch'
 import { useNavigate } from 'react-router'
 import { useCallback } from 'react'
 import { toast } from 'tessera-ui/components'
 
+// Handles the one case that's actually global: an invalid session (401)
+// redirects everywhere, regardless of which API call triggered it. 403s are
+// NOT handled here — the right response depends on which part of the UI
+// failed (an overlay on the affected panel, inline text on a small control,
+// or a toast for a one-off action), so those are handled where the error
+// occurs instead of through a single blanket handler.
 export const useHandleApiError = () => {
   const navigate = useNavigate()
 
-  const handleTokenExpiration = useCallback((error: unknown) => {
-    if (error instanceof TokenExpiredError) {
-      toast.error('Session expired. Please log in again.')
-      // maybe need handle refresh token in here, for now let logout first
-      // or if logged out user can back to current page after logged in
-
-      navigate('/logout', { replace: true })
-      return false
-    }
-
-    if (error instanceof UnauthorizedError) {
-      toast.error('You are not authorized to perform this action.')
-      navigate('/', { replace: true })
-      return false
-    }
-
-    return false
-  }, [])
-
   const handleApiError = useCallback(
     (error: unknown) => {
-      try {
-        const errorData = JSON.parse((error as Error).message)
-
-        if (errorData.status === 401) {
-          return handleTokenExpiration(new TokenExpiredError((error as Error).message))
-        }
-
-        if (errorData.status === 403) {
-          return handleTokenExpiration(new UnauthorizedError((error as Error).message))
-        }
-
-        // For other errors, just show the error message
-        toast.error(`${errorData.status} - ${errorData.error}`)
-        return false
-      } catch {
-        // If we can't parse the error, show the original error message
-        toast.error((error as Error).message || 'An unexpected error occurred')
-        return false
+      if (error instanceof TokenExpiredError) {
+        toast.error('Session expired. Please log in again.')
+        navigate('/logout', { replace: true })
+        return true
       }
+
+      return false
     },
-    [handleTokenExpiration]
+    [navigate]
   )
 
   return handleApiError

@@ -40,11 +40,11 @@ export function NewCampaignModal({
 
   const sendlyConfig = { apiUrl: sendlyApiUrl, token: token!, nodeEnv }
 
-  const { data: templates, isLoading: isLoadingTemplates } = useTemplates(
-    sendlyConfig,
-    { page: 1, size: 100 },
-    { enabled: open }
-  )
+  const {
+    data: templates,
+    isLoading: isLoadingTemplates,
+    isError: isTemplatesError,
+  } = useTemplates(sendlyConfig, { page: 1, size: 100 }, { enabled: open })
 
   const { mutateAsync: createTemplate, isPending } = useCreateTemplate(sendlyConfig)
 
@@ -133,22 +133,28 @@ export function NewCampaignModal({
         {source === 'template' && (
           <div className="mt-2">
             <label className="mb-1.5 block text-sm font-medium">Template</label>
-            <Select value={templateId} onValueChange={setTemplateId}>
-              <SelectTrigger>
-                {isLoadingTemplates ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <SelectValue placeholder="Choose a template" />
-                )}
-              </SelectTrigger>
-              <SelectContent>
-                {sortedTemplates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isTemplatesError ? (
+              <p className="text-destructive text-sm">
+                Couldn&apos;t load templates. You may not have access to them.
+              </p>
+            ) : (
+              <Select value={templateId} onValueChange={setTemplateId}>
+                <SelectTrigger>
+                  {isLoadingTemplates ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <SelectValue placeholder="Choose a template" />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {sortedTemplates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
         )}
 

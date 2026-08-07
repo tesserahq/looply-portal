@@ -8,23 +8,9 @@ import {
   ContactListMemberQueryConfig,
   AddContactListMembersData,
 } from '@/resources/queries/contact-lists/contact-list-member.type'
+import { QueryError } from '@/resources/queries'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'tessera-ui/components'
-
-/**
- * Custom error class for query errors
- */
-class QueryError extends Error {
-  code?: string
-  details?: unknown
-
-  constructor(message: string, code?: string, details?: unknown) {
-    super(message)
-    this.name = 'QueryError'
-    this.code = code
-    this.details = details
-  }
-}
 
 /**
  * Contact list member query keys for React Query Caching
