@@ -10,13 +10,14 @@ import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { useApp } from 'tessera-ui'
 import { DateTime, ResourceID } from 'tessera-ui/components'
+import { useBroadcast } from '@/resources/hooks/broadcasts'
 import { useCampaignDetail, useDeleteCampaign, useSendCampaign } from '@/resources/hooks/campaigns'
 import { useContactListDetail } from '@/resources/hooks/contact-lists'
 import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
 import { Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { Activity, useCallback, useRef, useState } from 'react'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -74,6 +75,15 @@ export default function CampaignDetail() {
     { enabled: !!campaign?.contact_list_id }
   )
 
+  const {
+    data: broadcast,
+    isLoading: isLoadingBroadcast,
+    isError: isBroadcastError,
+    apiError: broadcastApiError,
+  } = useBroadcast(sendlyConfig, campaign?.batch_id ?? '', {
+    enabled: !!campaign?.batch_id,
+  })
+
   const { mutate: deleteCampaign } = useDeleteCampaign(config, {
     onSuccess: () => {
       deleteModalRef.current?.close()
@@ -115,7 +125,7 @@ export default function CampaignDetail() {
     })
   }, [campaign, campaignId, contactList, sendCampaign])
 
-  if (isLoading || isLoadingTemplate || isLoadingContactList) {
+  if (isLoading || isLoadingTemplate || isLoadingContactList || isLoadingBroadcast) {
     return <AppPreloader />
   }
 
@@ -250,10 +260,6 @@ export default function CampaignDetail() {
                   </dd>
                 </div>
                 <div className="d-item">
-                  <dt className="d-label">Batch ID</dt>
-                  <dd className="d-content">{campaign.batch_id || 'N/A'}</dd>
-                </div>
-                <div className="d-item">
                   <dt className="d-label">Sent At</dt>
                   <dd className="d-content">
                     {campaign?.sent_at ? <DateTime date={campaign.sent_at} /> : 'N/A'}
@@ -280,6 +286,45 @@ export default function CampaignDetail() {
               </div>
             </CardContent>
           </Card>
+
+          <Activity mode={campaign.batch_id ? 'visible' : 'hidden'}>
+            <Card>
+              <CardHeader>
+                <h2 className="text-xl font-bold lg:text-2xl">Broadcast</h2>
+              </CardHeader>
+              <CardContent>
+                {isBroadcastError ? (
+                  <ApiErrorOverlay
+                    statusCode={broadcastApiError?.statusCode ?? 403}
+                    message={broadcastApiError?.message ?? 'Access denied.'}
+                    rawMessage={broadcastApiError?.rawMessage}
+                  />
+                ) : (
+                  <div className="d-list">
+                    <div className="d-item">
+                      <dt className="d-label">Batch ID</dt>
+                      <dd className="d-content">{broadcast?.batch_id || 'N/A'}</dd>
+                    </div>
+                    <div className="d-item">
+                      <dt className="d-label">Queued</dt>
+                      <dd className="d-content">{broadcast?.queued_count ?? 'N/A'}</dd>
+                    </div>
+                    <div className="d-item">
+                      <dt className="d-label">Suppressed</dt>
+                      <dd className="d-content">{broadcast?.suppressed_count ?? 'N/A'}</dd>
+                    </div>
+                    <div className="d-item">
+                      <dt className="d-label">Created At</dt>
+                      <dd className="d-content">
+                        {broadcast?.created_at ? <DateTime date={broadcast.created_at} /> : 'N/A'}
+                      </dd>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </Activity>
+
           <Card>
             <CardHeader>
               <h2 className="text-xl font-bold lg:text-2xl">Template Variables</h2>
