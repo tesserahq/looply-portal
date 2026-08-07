@@ -292,19 +292,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
           </div>
         </div>
         <div>
-          <Label>Template Variables</Label>
-          <div className="mt-1.5">
-            <JsonEditor
-              initialValue={templateVariables}
-              onChange={setTemplateVariables}
-              readOnly={disabled}
-            />
-          </div>
-        </div>
-        <div>
-          <Label>
-            {template?.name ? `Email body from "${template.name}" template` : 'Email body'}
-          </Label>
+          <Label>Body</Label>
           <div className="mt-1.5 overflow-hidden rounded-md border">
             {isLoadingTemplate ? (
               <AppPreloader className="h-[450px]" />
@@ -323,6 +311,16 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
                 editable={!disabled}
               />
             )}
+          </div>
+        </div>
+        <div>
+          <Label>Template Variables</Label>
+          <div className="mt-1.5">
+            <JsonEditor
+              initialValue={templateVariables}
+              onChange={setTemplateVariables}
+              readOnly={disabled}
+            />
           </div>
         </div>
 
