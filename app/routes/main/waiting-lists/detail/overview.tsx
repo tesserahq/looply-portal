@@ -6,7 +6,7 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { WaitingListStatusBadge } from '@/components/waiting-list-status/waiting-list-status'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { Button } from '@shadcn/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@shadcn/ui/card'
+import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Checkbox } from '@shadcn/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Tabs, TabsList, TabsTrigger } from '@shadcn/ui/tabs'
@@ -18,7 +18,6 @@ import {
   useWaitingListMembersByStatus,
   useWaitingListStatuses,
   useRemoveWaitingListMember,
-  useRemoveAllWaitingListMembers,
   useAddWaitingListMembers,
   useUpdateWaitingListMemberStatus,
   useBulkUpdateWaitingListMemberStatus,
@@ -45,7 +44,6 @@ export default function WaitingListDetail() {
   const navigate = useNavigate()
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
-  const deleteAllModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const deleteWaitingListModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const newMemberRef = useRef<React.ElementRef<typeof NewMemberWaitingList>>(null)
   const updateMemberRef = useRef<React.ElementRef<typeof UpdateMemberWaitingListStatus>>(null)
@@ -130,12 +128,6 @@ export default function WaitingListDetail() {
     },
   })
 
-  const { mutateAsync: removeAllMembers } = useRemoveAllWaitingListMembers(config, waitingListId, {
-    onSuccess: () => {
-      deleteAllModalRef.current?.close()
-    },
-  })
-
   const { mutateAsync: addMembers } = useAddWaitingListMembers(config, waitingListId, {
     onSuccess: () => {
       newMemberRef.current?.onClose()
@@ -184,17 +176,6 @@ export default function WaitingListDetail() {
     },
     [removeMember, getContactFromMember, getMemberId]
   )
-
-  const handleDeleteAll = useCallback(() => {
-    deleteAllModalRef.current?.open({
-      title: 'Remove All Members',
-      description: `This will remove all members from your waiting list "${waitingList?.name}". This action cannot be undone.`,
-      onDelete: async () => {
-        deleteAllModalRef.current?.updateConfig({ isLoading: true })
-        await removeAllMembers()
-      },
-    })
-  }, [removeAllMembers, waitingList?.name])
 
   const handleAddMembers = useCallback(
     async (contactIds: string[], status?: string) => {
@@ -580,18 +561,9 @@ export default function WaitingListDetail() {
             </div>
           )}
         </CardContent>
-
-        {hasData && (
-          <CardFooter className="justify-end">
-            <Button variant="destructive" size="sm" onClick={handleDeleteAll}>
-              Delete All Members
-            </Button>
-          </CardFooter>
-        )}
       </Card>
 
       <DeleteConfirmation ref={deleteModalRef} />
-      <DeleteConfirmation ref={deleteAllModalRef} />
       <DeleteConfirmation ref={deleteWaitingListModalRef} />
 
       <NewMemberWaitingList
