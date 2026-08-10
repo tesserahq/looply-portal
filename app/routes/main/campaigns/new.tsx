@@ -19,6 +19,7 @@ export default function CampaignNew() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const templateId = searchParams.get('template_id')
+  const isFromExistingTemplate = searchParams.get('source') === 'template'
 
   const formRef = useRef<CampaignFormRef>(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -60,6 +61,7 @@ export default function CampaignNew() {
         ref={formRef}
         mode="create"
         templateId={templateId}
+        cloneTemplateOnSave={isFromExistingTemplate}
         apiUrl={apiUrl!}
         sendlyApiUrl={sendlyApiUrl!}
         vaultaApiUrl={vaultaApiUrl!}

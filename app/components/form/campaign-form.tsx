@@ -8,7 +8,12 @@ import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
-import { useCreateTemplate, useTemplate, useUpdateTemplate } from '@/resources/hooks/templates'
+import {
+  useCloneTemplate,
+  useCreateTemplate,
+  useTemplate,
+  useUpdateTemplate,
+} from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
 import { generateTemplateAlias } from '@/utils/helpers/slug.helper'
@@ -40,6 +45,10 @@ export interface CampaignFormProps {
   initialValues?: CampaignFormInitialValues
   footer?: React.ReactNode
   disabled?: boolean
+  /** Clone `templateId` into a campaign-specific copy on save — only when the
+   * user started this campaign from an existing template, as opposed to a
+   * blank template created for a brand-new campaign. */
+  cloneTemplateOnSave?: boolean
 }
 
 export interface CampaignFormRef {
@@ -58,6 +67,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     initialValues,
     footer,
     disabled = false,
+    cloneTemplateOnSave = false,
   },
   ref
 ) {
@@ -119,6 +129,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const { mutateAsync: createTemplate } = useCreateTemplate(sendlyConfig)
   const { mutateAsync: updateTemplate } = useUpdateTemplate(sendlyConfig)
   const { mutateAsync: uploadAsset } = useUploadAsset(vaultaConfig)
+  const { mutateAsync: cloneTemplate } = useCloneTemplate(sendlyConfig)
 
   const handleUploadImage = async (file: File) => {
     const asset = await uploadAsset({ file, expires_in: SIX_MONTHS_IN_SECONDS })
@@ -175,6 +186,22 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
               },
             })
           }
+
+          // Clone the source template into a campaign-specific copy so edits
+          // made here don't mutate the template the user picked. Only
+          // applies when starting from an existing template — a blank
+          // template created for a brand-new campaign has nothing worth
+          // preserving under its own name.
+          if (cloneTemplateOnSave) {
+            await cloneTemplate({
+              id: currentTemplateId,
+              data: {
+                name: `Campaign: ${name}`,
+                tags: ['broadcast', `campaign:${campaign.id.substring(0, 8)}`],
+              },
+            })
+          }
+
           return campaign
         }
 
@@ -230,10 +257,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
       currentTemplateId,
       campaignId,
       template,
+      cloneTemplateOnSave,
       createCampaign,
       updateCampaign,
       createTemplate,
       updateTemplate,
+      cloneTemplate,
     ]
   )
 

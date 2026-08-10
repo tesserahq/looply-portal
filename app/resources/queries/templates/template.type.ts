@@ -39,3 +39,8 @@ export type UpdateTemplatePayload = {
   reply_to?: string | null
   layout_id?: string | null
 }
+
+export type CloneTemplatePayload = {
+  name: string
+  tags: string[]
+}
