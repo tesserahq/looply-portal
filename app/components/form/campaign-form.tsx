@@ -45,6 +45,10 @@ export interface CampaignFormProps {
   initialValues?: CampaignFormInitialValues
   footer?: React.ReactNode
   disabled?: boolean
+  /** Clone `templateId` into a campaign-specific copy on save — only when the
+   * user started this campaign from an existing template, as opposed to a
+   * blank template created for a brand-new campaign. */
+  cloneTemplateOnSave?: boolean
 }
 
 export interface CampaignFormRef {
@@ -63,6 +67,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     initialValues,
     footer,
     disabled = false,
+    cloneTemplateOnSave = false,
   },
   ref
 ) {
@@ -182,14 +187,20 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             })
           }
 
-          // Cloning template
-          await cloneTemplate({
-            id: currentTemplateId,
-            data: {
-              name: `Campaign: ${name}`,
-              tags: ['broadcast', `campaign:${campaign.id.substring(0, 8)}`],
-            },
-          })
+          // Clone the source template into a campaign-specific copy so edits
+          // made here don't mutate the template the user picked. Only
+          // applies when starting from an existing template — a blank
+          // template created for a brand-new campaign has nothing worth
+          // preserving under its own name.
+          if (cloneTemplateOnSave) {
+            await cloneTemplate({
+              id: currentTemplateId,
+              data: {
+                name: `Campaign: ${name}`,
+                tags: ['broadcast', `campaign:${campaign.id.substring(0, 8)}`],
+              },
+            })
+          }
 
           return campaign
         }
@@ -246,10 +257,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
       currentTemplateId,
       campaignId,
       template,
+      cloneTemplateOnSave,
       createCampaign,
       updateCampaign,
       createTemplate,
       updateTemplate,
+      cloneTemplate,
     ]
   )
 

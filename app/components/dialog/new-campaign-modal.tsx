@@ -72,7 +72,7 @@ export function NewCampaignModal({
     if (source === 'template') {
       if (!selectedTemplate) return
       handleOpenChange(false)
-      navigate(`/campaigns/new?template_id=${selectedTemplate.id}`)
+      navigate(`/campaigns/new?template_id=${selectedTemplate.id}&source=template`)
       return
     }
 
