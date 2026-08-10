@@ -43,4 +43,5 @@ export type UpdateTemplatePayload = {
 export type CloneTemplatePayload = {
   name: string
   tags: string[]
+  alias: string
 }

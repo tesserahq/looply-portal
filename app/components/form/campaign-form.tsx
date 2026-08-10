@@ -16,7 +16,7 @@ import {
 } from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
-import { generateTemplateAlias } from '@/utils/helpers/slug.helper'
+import { generateRandomString, generateTemplateAlias } from '@/utils/helpers/slug.helper'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Input } from '@shadcn/ui/input'
 import { Label } from '@shadcn/ui/label'
@@ -193,11 +193,13 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
           // template created for a brand-new campaign has nothing worth
           // preserving under its own name.
           if (cloneTemplateOnSave) {
+            const randomSuffix = generateRandomString(5)
             await cloneTemplate({
               id: currentTemplateId,
               data: {
-                name: `Campaign: ${name}`,
+                name: `Campaign: ${name}-${randomSuffix}`,
                 tags: ['broadcast', `campaign:${campaign.id.substring(0, 8)}`],
+                alias: `campaign-${template?.alias}-${randomSuffix}`,
               },
             })
           }
