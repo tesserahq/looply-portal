@@ -8,7 +8,12 @@ import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
-import { useCreateTemplate, useTemplate, useUpdateTemplate } from '@/resources/hooks/templates'
+import {
+  useCloneTemplate,
+  useCreateTemplate,
+  useTemplate,
+  useUpdateTemplate,
+} from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
 import { generateTemplateAlias } from '@/utils/helpers/slug.helper'
@@ -119,6 +124,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const { mutateAsync: createTemplate } = useCreateTemplate(sendlyConfig)
   const { mutateAsync: updateTemplate } = useUpdateTemplate(sendlyConfig)
   const { mutateAsync: uploadAsset } = useUploadAsset(vaultaConfig)
+  const { mutateAsync: cloneTemplate } = useCloneTemplate(sendlyConfig)
 
   const handleUploadImage = async (file: File) => {
     const asset = await uploadAsset({ file, expires_in: SIX_MONTHS_IN_SECONDS })
@@ -175,6 +181,16 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
               },
             })
           }
+
+          // Cloning template
+          await cloneTemplate({
+            id: currentTemplateId,
+            data: {
+              name: `Campaign: ${name}`,
+              tags: ['broadcast', `campaign:${campaign.id.substring(0, 8)}`],
+            },
+          })
+
           return campaign
         }
 

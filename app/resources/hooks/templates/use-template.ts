@@ -1,10 +1,12 @@
 import {
+  cloneTemplate,
   createTemplate,
   getTemplate,
   getTemplates,
   updateTemplate,
 } from '@/resources/queries/templates/template.queries'
 import {
+  CloneTemplatePayload,
   CreateTemplatePayload,
   TemplateType,
   UpdateTemplatePayload,
@@ -171,6 +173,46 @@ export function useUpdateTemplate(
     },
     onError: (error: QueryError) => {
       toast.error('Failed to update template', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for cloning a template (Sendly API)
+ */
+export function useCloneTemplate(
+  config: IQueryConfig,
+  options?: {
+    onSuccess?: (data: TemplateType) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: CloneTemplatePayload
+    }): Promise<TemplateType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await cloneTemplate(config, id, data)
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: templateQueryKeys.lists() })
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to clone template', {
         description: error?.message || 'Please try again.',
       })
 
