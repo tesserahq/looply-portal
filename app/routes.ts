@@ -67,6 +67,7 @@ export default [
       route(':campaign_id', 'routes/main/campaigns/detail/layout.tsx', [
         index('routes/main/campaigns/detail/index.tsx'),
         route('overview', 'routes/main/campaigns/detail/overview.tsx'),
+        route('audience', 'routes/main/campaigns/detail/audience.tsx'),
       ]),
     ]),
   ]),

@@ -38,7 +38,7 @@ export {
 // Member types
 export type {
   ContactListMemberType,
-  ContactListMembersResponse,
   AddContactListMembersData,
   ContactListMemberQueryConfig,
+  ContactListMemberQueryParams,
 } from './contact-list-member.type'

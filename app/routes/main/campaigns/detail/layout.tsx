@@ -1,5 +1,5 @@
 import useBreadcrumb from '@/hooks/useBreadcumb'
-import { FileChartLine } from 'lucide-react'
+import { FileChartLine, Users } from 'lucide-react'
 import { Outlet, useLoaderData, useLocation, useParams } from 'react-router'
 import { DetailItemsProps, Layout, useApp } from 'tessera-ui'
 
@@ -30,6 +30,11 @@ export default function CampaignDetailLayout() {
       title: 'Overview',
       path: `/campaigns/${campaign_id}/overview`,
       icon: FileChartLine as unknown as DetailItemsProps['icon'],
+    },
+    {
+      title: 'Audience',
+      path: `/campaigns/${campaign_id}/audience`,
+      icon: Users as unknown as DetailItemsProps['icon'],
     },
   ]
 
