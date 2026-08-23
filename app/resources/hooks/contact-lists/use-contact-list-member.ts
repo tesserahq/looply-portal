@@ -6,6 +6,7 @@ import {
 } from '@/resources/queries/contact-lists/contact-list-member.queries'
 import {
   ContactListMemberQueryConfig,
+  ContactListMemberQueryParams,
   AddContactListMembersData,
 } from '@/resources/queries/contact-lists/contact-list-member.type'
 import { QueryError } from '@/resources/queries'
@@ -18,33 +19,37 @@ import { toast } from 'tessera-ui/components'
 export const contactListMemberQueryKeys = {
   all: ['contact-list-members'] as const,
   lists: () => [...contactListMemberQueryKeys.all, 'list'] as const,
-  list: (contactListId: string) => [...contactListMemberQueryKeys.lists(), contactListId] as const,
+  listsForContactList: (contactListId: string) =>
+    [...contactListMemberQueryKeys.lists(), contactListId] as const,
+  list: (contactListId: string, params: ContactListMemberQueryParams) =>
+    [...contactListMemberQueryKeys.listsForContactList(contactListId), params] as const,
 }
 
 /**
- * Hook for fetching contact list members
+ * Hook for fetching paginated contact list members
  * @contactListId - Contact list ID
  * @config - Contact list member query configuration
+ * @params - Contact list member query parameters
  * @options - Contact list member query options
  */
 export function useContactListMembers(
   config: ContactListMemberQueryConfig,
   contactListId: string,
+  params: ContactListMemberQueryParams,
   options?: {
     enabled?: boolean
     staleTime?: number
   }
 ) {
   return useQuery({
-    queryKey: contactListMemberQueryKeys.list(contactListId),
+    queryKey: contactListMemberQueryKeys.list(contactListId, params),
     queryFn: async () => {
       try {
         if (!config.token) {
           throw new QueryError('Token is required', 'TOKEN_REQUIRED')
         }
 
-        const response = await fetchContactListMembers(contactListId, config)
-        return response.members || []
+        return await fetchContactListMembers(contactListId, config, params)
       } catch (error) {
         throw new QueryError('Failed to fetch contact list members', 'FETCH_ERROR', error)
       }
@@ -77,7 +82,7 @@ export function useAddContactListMembers(
     onSuccess: () => {
       // Invalidate and refetch members list
       queryClient.invalidateQueries({
-        queryKey: contactListMemberQueryKeys.list(contactListId),
+        queryKey: contactListMemberQueryKeys.listsForContactList(contactListId),
       })
 
       toast.success('Members added successfully!')
@@ -117,7 +122,7 @@ export function useRemoveContactListMember(
     onSuccess: () => {
       // Invalidate and refetch members list
       queryClient.invalidateQueries({
-        queryKey: contactListMemberQueryKeys.list(contactListId),
+        queryKey: contactListMemberQueryKeys.listsForContactList(contactListId),
       })
 
       toast.success('Member removed successfully!')
@@ -157,7 +162,7 @@ export function useRemoveAllContactListMembers(
     onSuccess: () => {
       // Invalidate and refetch members list
       queryClient.invalidateQueries({
-        queryKey: contactListMemberQueryKeys.list(contactListId),
+        queryKey: contactListMemberQueryKeys.listsForContactList(contactListId),
       })
 
       toast.success('All members removed successfully!')

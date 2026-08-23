@@ -1,26 +1,36 @@
 import { fetchApi } from '@/libraries/fetch'
+import { IPaging } from '@/resources/types/pagination'
 import {
   ContactListMemberQueryConfig,
-  ContactListMembersResponse,
+  ContactListMemberQueryParams,
+  ContactListMemberType,
   AddContactListMembersData,
 } from './contact-list-member.type'
 
 /**
- * Get all members of a contact list.
+ * Get members of a contact list, paginated.
  */
 export async function fetchContactListMembers(
   contactListId: string,
-  config: ContactListMemberQueryConfig
+  config: ContactListMemberQueryConfig,
+  params: ContactListMemberQueryParams
 ) {
   const { apiUrl, token, nodeEnv } = config
+  const { page, size } = params
 
   const response = await fetchApi(
     `${apiUrl}/contact-lists/${contactListId}/members`,
     token,
-    nodeEnv
+    nodeEnv,
+    {
+      pagination: {
+        page,
+        size,
+      },
+    }
   )
 
-  return response as ContactListMembersResponse
+  return response as IPaging<ContactListMemberType>
 }
 
 /**

@@ -19,20 +19,29 @@ import {
   useDeleteContactList,
 } from '@/resources/hooks/contact-lists'
 import { ContactListMemberType } from '@/resources/queries/contact-lists'
+import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
+import type { LoaderFunctionArgs } from 'react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 
-export function loader() {
+export function loader({ request }: LoaderFunctionArgs) {
+  const canonical = ensureCanonicalPagination(request, {
+    defaultSize: 25,
+    defaultPage: 1,
+  })
+
+  if (canonical instanceof Response) return canonical
+
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv }
+  return { apiUrl, nodeEnv, size: canonical.size, page: canonical.page }
 }
 
 export default function ContactListDetail() {
-  const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
@@ -57,13 +66,16 @@ export default function ContactListDetail() {
     }
   )
 
-  const { data: members = [], isLoading: isLoadingMembers } = useContactListMembers(
+  const { data: membersData, isLoading: isLoadingMembers } = useContactListMembers(
     config,
     contactListId,
+    { page, size },
     {
       enabled: !!contactListId && !!token,
     }
   )
+
+  const members = membersData?.items ?? []
 
   const { mutateAsync: removeMember } = useRemoveContactListMember(config, contactListId, {
     onSuccess: () => {
@@ -351,7 +363,17 @@ export default function ContactListDetail() {
             emptyContent
           ) : (
             <div className="animate-slide-up">
-              <DataTable columns={columns} data={members || []} fixed={false} />
+              <DataTable
+                columns={columns}
+                data={members}
+                fixed={false}
+                meta={{
+                  page: membersData?.page || 1,
+                  pages: membersData?.pages || 1,
+                  size: membersData?.size || 1,
+                  total: membersData?.total || 0,
+                }}
+              />
             </div>
           )}
         </CardContent>

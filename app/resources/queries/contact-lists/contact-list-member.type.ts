@@ -7,17 +7,18 @@ import { ContactType } from '@/resources/queries/contacts'
 export type ContactListMemberType = ContactType
 
 /**
- * Contact list members response type
- */
-export interface ContactListMembersResponse {
-  members: ContactListMemberType[]
-}
-
-/**
  * Add members to contact list form data
  */
 export type AddContactListMembersData = {
   contact_ids: string[]
+}
+
+/**
+ * Contact list member query parameters for pagination
+ */
+export interface ContactListMemberQueryParams {
+  page?: number
+  size?: number
 }
 
 /**
