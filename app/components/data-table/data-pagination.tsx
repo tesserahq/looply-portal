@@ -62,9 +62,11 @@ export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
 
   return (
     <div className="flex w-full items-center justify-between">
-      <div className="flex items-center gap-1">
-        <p className="text-navy-800 dark:text-navy-200 w-28 text-sm">Items per page:</p>
-        <div className="w-20">
+      <div className="flex items-center gap-1 flex-1">
+        <p className="hidden lg:block text-navy-800 dark:text-navy-200 w-28 text-sm">
+          Items per page:
+        </p>
+        <div className="w-16 md:w-20">
           <Select value={row} onValueChange={onChange}>
             <SelectTrigger className="h-8">
               <SelectValue />

@@ -4,7 +4,7 @@ import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-tabl
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shadcn/ui/table'
 import { cn } from '@shadcn/lib/utils'
-import { useEffect, useRef, useState } from 'react'
+import { CSSProperties, useEffect, useRef, useState } from 'react'
 import { Pagination } from './data-pagination'
 import { TableCellSkeletons } from './data-table-skeleton'
 import { DataTableProps } from './types'
@@ -80,8 +80,12 @@ export function DataTable<TData, TValue>({
         hasFilter && 'h-[calc(100vh-13rem)]'
       )}>
       <div className="flex-1 overflow-hidden">
-        <div ref={scrollContainerRef} className="no-scrollbar h-full overflow-y-auto">
-          <Table>
+        <div
+          ref={scrollContainerRef}
+          className="scrollbar-sm h-full overflow-x-auto overflow-y-auto">
+          <Table
+            style={{ '--table-min-width': `${table.getTotalSize()}px` } as CSSProperties}
+            className="max-sm:min-w-[var(--table-min-width)]">
             <TableHeader
               className="sticky top-0 z-10 w-full bg-slate-100/20 backdrop-blur-md
                 dark:bg-slate-800/50">

@@ -51,7 +51,7 @@ export default function NewResourceShortcut() {
   return (
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild className="mr-3">
+        <DropdownMenuTrigger asChild className="md:mr-3">
           <Button variant="outline" size="icon" className="border-accent bg-accent border w-9 h-9">
             <Plus size={15} />
           </Button>

@@ -106,7 +106,7 @@ export default function ContactInteractionDetail() {
   }
 
   return (
-    <div className="animate-slide-up h-full w-1/2">
+    <div className="animate-slide-up h-full w-full sm:w-1/2">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

@@ -151,8 +151,8 @@ export default function CampaignDetail() {
 
   return (
     <div className="animate-slide-up h-full">
-      <div className="flex md:flex-row flex-col items-start gap-3">
-        <div className="w-full md:w-1/2 space-y-3">
+      <div className="flex lg:flex-row flex-col items-start gap-3">
+        <div className="w-full lg:w-1/2 space-y-3">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -336,7 +336,7 @@ export default function CampaignDetail() {
         </div>
 
         {(previewHtml || isTemplateError) && (
-          <Card className="flex-1">
+          <Card className="w-full lg:flex-1">
             <CardHeader>
               <h2 className="text-xl font-bold lg:text-2xl">Email</h2>
             </CardHeader>
