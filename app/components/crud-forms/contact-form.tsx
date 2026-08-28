@@ -6,7 +6,7 @@ import { formValuesToContactData } from '@/resources/queries/contacts/contact.ut
 import { useNavigate } from 'react-router'
 import { Combobox, type ComboboxOption } from '@shadcn/ui/Combobox'
 import { Loader2 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState as useReactState, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState as useReactState, useState } from 'react'
 import { GetCity, GetCountries, GetState } from 'react-country-state-city'
 import { City, Country, State } from 'react-country-state-city/dist/esm/types'
 import { Form } from '../form'
@@ -71,16 +71,19 @@ export const phoneTypeOptions: ComboboxOption[] = [
 interface ContactFormProps {
   defaultValues: ContactFormValue
   onSubmit: (data: ContactFormData) => Promise<void> | void
+  onSubmitAndAddNew?: (data: ContactFormData) => Promise<void> | void
   submitLabel?: string
 }
 
 export const ContactForm = ({
   defaultValues,
   onSubmit,
+  onSubmitAndAddNew,
   submitLabel = 'Save',
 }: ContactFormProps) => {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const submitActionRef = useRef<'save' | 'saveAndAddNew'>('save')
   const [selectedCountry, setSelectedCountry] = useReactState<ComboboxOption<Country>>()
   const [selectedState, setSelectedState] = useReactState<ComboboxOption<State>>()
   const [selectedCity, setSelectedCity] = useReactState<ComboboxOption<City>>()
@@ -191,6 +194,7 @@ export const ContactForm = ({
   // Handle form submission
   const handleSubmit = async (data: ContactFormValue) => {
     setIsSubmitting(true)
+    const submitAction = submitActionRef.current
 
     try {
       // Include country, state, city from combobox selections
@@ -202,11 +206,16 @@ export const ContactForm = ({
       }
       const contactData = formValuesToContactData(formDataWithLocation)
 
-      await onSubmit(contactData)
+      if (submitAction === 'saveAndAddNew' && onSubmitAndAddNew) {
+        await onSubmitAndAddNew(contactData)
+      } else {
+        await onSubmit(contactData)
+      }
     } catch {
       // Error handling is done by parent component
     } finally {
       setIsSubmitting(false)
+      submitActionRef.current = 'save'
     }
   }
 
@@ -307,11 +316,15 @@ export const ContactForm = ({
         </Card>
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <Button variant="secondary" type="button" onClick={() => navigate('/contacts')}>
+          <Button
+            variant="secondary"
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => navigate('/contacts')}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
+          <Button type="submit" variant="outline" disabled={isSubmitting}>
+            {isSubmitting && submitActionRef.current === 'save' ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
@@ -320,6 +333,23 @@ export const ContactForm = ({
               submitLabel
             )}
           </Button>
+          {onSubmitAndAddNew && (
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              onClick={() => {
+                submitActionRef.current = 'saveAndAddNew'
+              }}>
+              {isSubmitting && submitActionRef.current === 'saveAndAddNew' ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save & Add New'
+              )}
+            </Button>
+          )}
         </div>
       </FormLayout>
     </Form>
