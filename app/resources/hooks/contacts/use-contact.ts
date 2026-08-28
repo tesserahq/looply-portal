@@ -123,7 +123,7 @@ export function useCreateContact(
       // Invalidate and refetch contacts lists
       queryClient.invalidateQueries({ queryKey: contactQueryKeys.lists() })
 
-      toast.success('Contact created successfully!')
+      toast.success(`Contact ${data.email} created successfully!`)
 
       options?.onSuccess?.(data)
     },

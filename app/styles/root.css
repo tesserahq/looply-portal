@@ -368,7 +368,7 @@ nav.header .header-container {
 }
 
 .page-title {
-  @apply dark:text-foreground text-[1.85rem] font-bold;
+  @apply dark:text-foreground text-[1.85rem] font-bold leading-7;
 }
 
 input[type='time']::-webkit-calendar-picker-indicator {

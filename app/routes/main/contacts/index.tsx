@@ -276,7 +276,9 @@ export default function Contacts() {
       <div className="mb-5 animate-slide-up flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
         {(hasSearchQuery || hasData) && (
-          <div className="flex items-center justify-between">
+          <div
+            className="flex flex-col flex-col-reverse -mt-11 md:mt-0 md:flex-row items-end
+              md:items-center gap-3 justify-between">
             <InputGroup className="dark:bg-card max-w-96 bg-white">
               <InputGroupInput
                 placeholder="Search contacts"

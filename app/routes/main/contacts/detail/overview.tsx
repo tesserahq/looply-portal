@@ -209,7 +209,7 @@ export default function ContactDetailOverview() {
 
   return (
     <div className="animate-slide-up flex h-full flex-col gap-4">
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid lg:gap-4 lg:grid-cols-3">
         {/* Main Contact Information */}
         <div className="space-y-4 lg:col-span-1">
           {/* Details */}

@@ -2,9 +2,22 @@ import NewResourceShortcut from '@/components/new-resources-shortcut/new-resourc
 import { useRequestInfo } from '@/hooks/useRequestInfo'
 import { ROUTE_PATH as THEME_PATH } from '@/routes/resources/update-theme'
 import { SITE_CONFIG } from '@/utils/config/site.config'
-import { BookUser, Contact, FileChartLine, Megaphone, SquareUser, Users2 } from 'lucide-react'
+import {
+  BookUser,
+  Contact,
+  FileChartLine,
+  LucideIcon,
+  Megaphone,
+  SquareUser,
+  Users2,
+} from 'lucide-react'
 import { Outlet, useLocation, useNavigate, useParams, useSubmit } from 'react-router'
 import { Layout, MainItemProps } from 'tessera-ui'
+
+// tessera-ui is symlinked from a sibling repo with its own lucide-react/@types/react
+// versions, so its LucideIcon type is structurally distinct from this app's — cast
+// across that boundary rather than fighting the duplicate types.
+const asMenuIcon = (Icon: LucideIcon) => Icon as unknown as MainItemProps['icon']
 
 export default function PrivateLayout() {
   const requestInfo = useRequestInfo()
@@ -29,32 +42,32 @@ export default function PrivateLayout() {
     {
       title: 'Overview',
       path: '/overview',
-      icon: FileChartLine,
+      icon: asMenuIcon(FileChartLine),
     },
     {
       title: 'Contacts',
       path: '/contacts',
-      icon: SquareUser,
+      icon: asMenuIcon(SquareUser),
     },
     {
       title: 'Contact Lists',
       path: '/contact-lists',
-      icon: BookUser,
+      icon: asMenuIcon(BookUser),
     },
     {
       title: 'Waiting Lists',
       path: '/waiting-lists',
-      icon: Users2,
+      icon: asMenuIcon(Users2),
     },
     {
       title: 'Contact Interactions',
       path: '/contact-interactions',
-      icon: Contact,
+      icon: asMenuIcon(Contact),
     },
     {
       title: 'Campaigns',
       path: '/campaigns',
-      icon: Megaphone,
+      icon: asMenuIcon(Megaphone),
     },
   ]
 
