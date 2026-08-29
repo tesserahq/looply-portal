@@ -6,7 +6,6 @@ import { ContactListSelect, type ContactListOption } from '@/components/form/for
 import { JsonEditor, type JsonObject } from '@/components/json/editor'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { TagsInput } from '@/components/tags-input/tags-input'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
 import {
@@ -24,6 +23,7 @@ import { Label } from '@shadcn/ui/label'
 import { Users } from 'lucide-react'
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useApp } from 'tessera-ui'
+import { TagsInput } from 'tessera-ui/components'
 
 const SIX_MONTHS_IN_SECONDS = 60 * 60 * 24 * 30 * 6
 
