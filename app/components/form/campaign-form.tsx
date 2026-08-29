@@ -6,6 +6,7 @@ import { ContactListSelect, type ContactListOption } from '@/components/form/for
 import { JsonEditor, type JsonObject } from '@/components/json/editor'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
+import { TagsInput } from '@/components/tags-input/tags-input'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
 import {
@@ -32,6 +33,7 @@ export interface CampaignFormInitialValues {
   subject: string
   fromEmail: string
   templateVariables?: JsonObject
+  tags?: string[]
 }
 
 export interface CampaignFormProps {
@@ -90,6 +92,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const [templateVariables, setTemplateVariables] = useState<JsonObject>(
     initialValues?.templateVariables ?? {}
   )
+  const [tags, setTags] = useState<string[]>(initialValues?.tags ?? [])
   const [currentTemplateId, setCurrentTemplateId] = useState(templateId)
 
   const {
@@ -174,6 +177,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             subject,
             from_email: fromEmail,
             template_variables: templateVariables,
+            tags,
           })
           if (html !== undefined) {
             await updateTemplate({
@@ -215,6 +219,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             subject,
             from_email: fromEmail,
             template_variables: templateVariables,
+            tags,
           },
           showSuccessToast,
         })
@@ -256,6 +261,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
       subject,
       fromEmail,
       templateVariables,
+      tags,
       currentTemplateId,
       campaignId,
       template,
@@ -352,6 +358,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
               onChange={setTemplateVariables}
               readOnly={disabled}
             />
+          </div>
+        </div>
+        <div>
+          <Label>Tags</Label>
+          <div className="mt-1.5">
+            <TagsInput value={tags} onChange={setTags} disabled={disabled} />
           </div>
         </div>
 

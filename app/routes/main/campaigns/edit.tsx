@@ -98,6 +98,7 @@ export default function CampaignEdit() {
           subject: campaign.subject,
           fromEmail: campaign.from_email,
           templateVariables: campaign.template_variables,
+          tags: campaign.tags,
         }}
         apiUrl={apiUrl!}
         sendlyApiUrl={sendlyApiUrl!}
