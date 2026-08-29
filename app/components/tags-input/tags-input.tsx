@@ -2,7 +2,6 @@ import { X } from 'lucide-react'
 import { type KeyboardEvent, useState } from 'react'
 
 import { Badge } from '@shadcn/ui/badge'
-import { Input } from '@shadcn/ui/input'
 import { cn } from '@shadcn/lib/utils'
 
 type TagsInputProps = {
@@ -23,12 +22,17 @@ export function TagsInput({
   const [draft, setDraft] = useState('')
 
   const addTag = (raw: string) => {
-    const tag = raw.trim().toLowerCase()
-    if (!tag || value.includes(tag)) {
-      setDraft('')
-      return
+    const newTags = raw
+      .split(/[\s,]+/)
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0)
+
+    const deduped = [...value]
+    for (const tag of newTags) {
+      if (!deduped.includes(tag)) deduped.push(tag)
     }
-    onChange([...value, tag])
+
+    if (deduped.length !== value.length) onChange(deduped)
     setDraft('')
   }
 
@@ -37,7 +41,7 @@ export function TagsInput({
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
       e.preventDefault()
       addTag(draft)
       return
@@ -69,15 +73,15 @@ export function TagsInput({
           )}
         </Badge>
       ))}
-      <Input
+      <input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={() => addTag(draft)}
         placeholder={value.length === 0 ? placeholder : ''}
         disabled={disabled}
-        className="h-auto w-auto min-w-[8ch] flex-1 border-0 p-0 focus-visible:ring-0
-          focus-visible:ring-offset-0"
+        className="placeholder:text-muted-foreground min-w-[2ch] flex-1 border-0 bg-transparent p-0
+          text-base outline-none placeholder:opacity-50 disabled:cursor-not-allowed md:text-sm"
       />
     </div>
   )
