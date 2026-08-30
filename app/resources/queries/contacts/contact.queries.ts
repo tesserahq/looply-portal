@@ -3,6 +3,7 @@ import {
   ContactQueryParams,
   ContactQueryConfig,
   ContactType,
+  ContactTypeOption,
   CreateContactData,
   UpdateContactData,
 } from './contact.type'
@@ -30,6 +31,19 @@ export async function fetchContacts(config: ContactQueryConfig, params: ContactQ
   })
 
   return response as IPaging<ContactType>
+}
+
+/**
+ * List the fixed set of contact types available to assign to a contact.
+ */
+export async function fetchContactTypes(config: ContactQueryConfig) {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(`${apiUrl}/contacts/contact-types`, token, nodeEnv, {
+    pagination: { page: 1, size: 100 },
+  })
+
+  return response as IPaging<ContactTypeOption>
 }
 
 /**

@@ -31,6 +31,14 @@ export type ContactType = {
 }
 
 /**
+ * A single selectable contact type, as returned by GET /contacts/contact-types.
+ */
+export type ContactTypeOption = {
+  id: string
+  name: string
+}
+
+/**
  * Contact query configuration
  * Required configuration for API queries (apiUrl, token, nodeEnv)
  */
