@@ -6,6 +6,7 @@ import {
   BookUser,
   Contact,
   FileChartLine,
+  Filter,
   LucideIcon,
   Megaphone,
   SquareUser,
@@ -65,6 +66,11 @@ export default function PrivateLayout() {
       icon: asMenuIcon(Contact),
     },
     {
+      title: 'Segments',
+      path: '/segments',
+      icon: asMenuIcon(Filter),
+    },
+    {
       title: 'Campaigns',
       path: '/campaigns',
       icon: asMenuIcon(Megaphone),
@@ -78,6 +84,7 @@ export default function PrivateLayout() {
     location.pathname.includes(
       `/contact-interactions/${params['contact_interaction_id']}/overview`
     ) ||
+    location.pathname.includes(`/segments/${params['segment_id']}/overview`) ||
     location.pathname.includes(`/campaigns/${params['campaign_id']}/overview`)
   )
 

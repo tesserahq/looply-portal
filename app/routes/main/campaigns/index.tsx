@@ -88,7 +88,7 @@ export default function Campaigns() {
     (campaign: CampaignType) => {
       sendModalRef.current?.open({
         title: 'Send Campaign',
-        description: `This will send "${campaign.name}" to its contact list.`,
+        description: `This will send "${campaign.name}" to its segment's audience.`,
         onSend: async () => {
           sendModalRef.current?.updateConfig({ isLoading: true })
           await sendCampaign(campaign.id)
@@ -142,6 +142,26 @@ export default function Campaigns() {
         size: 100,
         cell: ({ row }) => {
           return <CampaignStatusBadge status={row.original.status} />
+        },
+      },
+      {
+        accessorKey: 'opened_count',
+        header: 'Opened',
+        size: 80,
+        cell: ({ row }) => {
+          const { batch_id, opened_count } = row.original
+          if (!batch_id) return <span className="text-muted-foreground">-</span>
+          return <div className="text-center">{opened_count}</div>
+        },
+      },
+      {
+        accessorKey: 'clicked_count',
+        header: 'Clicked',
+        size: 80,
+        cell: ({ row }) => {
+          const { batch_id, clicked_count } = row.original
+          if (!batch_id) return <span className="text-muted-foreground">-</span>
+          return <div className="text-center">{clicked_count}</div>
         },
       },
       {

@@ -4,13 +4,15 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { Badge } from '@shadcn/ui/badge'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { useApp } from 'tessera-ui'
-import { useCampaignDetail } from '@/resources/hooks/campaigns'
-import { useContactListMembers } from '@/resources/hooks/contact-lists'
-import { ContactListMemberType } from '@/resources/queries/contact-lists'
+import { DateTime } from 'tessera-ui/components'
+import { useCampaignDetail, useCampaignRecipients } from '@/resources/hooks/campaigns'
+import { useSegmentPreviewById } from '@/resources/hooks/segments'
+import { CampaignRecipientType } from '@/resources/queries/campaigns'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { Link, useLoaderData, useParams } from 'react-router'
 import type { LoaderFunctionArgs } from 'react-router'
 import { ColumnDef } from '@tanstack/react-table'
+import { Users } from 'lucide-react'
 import { useMemo } from 'react'
 
 export function loader({ request }: LoaderFunctionArgs) {
@@ -44,31 +46,38 @@ export default function CampaignAudience() {
     enabled: !!campaignId && !!token,
   })
 
-  const contactListId = campaign?.contact_list_id ?? ''
+  // Recipients are only recorded once a campaign's send is accepted - a
+  // draft campaign has none yet, so its audience is a live segment preview
+  // (a prediction) rather than a recorded list.
+  const hasBeenSent = !!campaign?.batch_id
 
-  const { data: membersData, isLoading: isLoadingMembers } = useContactListMembers(
+  const { data: recipientsData, isLoading: isLoadingRecipients } = useCampaignRecipients(
     config,
-    contactListId,
+    campaignId,
     { page, size },
-    {
-      enabled: !!contactListId && !!token,
-    }
+    { enabled: !!campaignId && !!token && hasBeenSent }
   )
 
-  const members = membersData?.items ?? []
+  const { data: segmentPreview, isLoading: isLoadingPreview } = useSegmentPreviewById(
+    config,
+    campaign?.segment_id ?? '',
+    { enabled: !!campaign?.segment_id && !hasBeenSent }
+  )
 
-  const columns: ColumnDef<ContactListMemberType>[] = useMemo(
+  const recipients = recipientsData?.items ?? []
+
+  const columns: ColumnDef<CampaignRecipientType>[] = useMemo(
     () => [
       {
-        accessorKey: 'email',
+        accessorKey: 'contact.email',
         header: 'Email',
         size: 300,
         cell: ({ row }) => {
-          const email = row.original.email
+          const email = row.original.contact.email
           if (!email) return <span className="text-muted-foreground">-</span>
           return (
             <div className="inline">
-              <Link to={`/contacts/${row.original.id}`} className="button-link">
+              <Link to={`/contacts/${row.original.contact.id}`} className="button-link">
                 <span className="text-sm">{email}</span>
               </Link>
             </div>
@@ -76,52 +85,40 @@ export default function CampaignAudience() {
         },
       },
       {
-        accessorKey: 'state',
-        header: 'State',
-        size: 100,
-        cell: ({ row }) => {
-          return <Badge variant="outline">{row.original.is_active ? 'Active' : 'Inactive'}</Badge>
-        },
-      },
-      {
-        accessorKey: 'first_name',
+        accessorKey: 'contact.first_name',
         header: 'Name',
         size: 300,
         cell: ({ row }) => {
-          const { first_name, last_name } = row.original
+          const { first_name, last_name } = row.original.contact
           const fullName = [first_name, last_name].filter(Boolean).join(' ')
           return <span className="text-left">{fullName || '-'}</span>
         },
       },
       {
-        accessorKey: 'contact_type',
-        header: 'Contact Type',
+        accessorKey: 'opened_at',
+        header: 'Opened',
+        size: 150,
         cell: ({ row }) => {
-          const { contact_type } = row.original
-          return <span className="text-left text-sm capitalize">{contact_type || '-'}</span>
+          const { opened_at } = row.original
+          if (!opened_at) return <Badge variant="outline">Not yet</Badge>
+          return <DateTime date={opened_at} formatStr="dd/MM/yyyy HH:mm" />
         },
       },
       {
-        accessorKey: 'phone',
-        header: 'Phone',
+        accessorKey: 'clicked_at',
+        header: 'Clicked',
+        size: 150,
         cell: ({ row }) => {
-          const { phone, phone_type } = row.original
-          if (!phone) return <span className="text-muted-foreground">-</span>
-          return (
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{phone}</span>
-              {phone_type && <span className="text-muted-foreground text-xs">({phone_type})</span>}
-            </div>
-          )
+          const { clicked_at } = row.original
+          if (!clicked_at) return <Badge variant="outline">Not yet</Badge>
+          return <DateTime date={clicked_at} formatStr="dd/MM/yyyy HH:mm" />
         },
       },
     ],
     []
   )
 
-  const hasData = useMemo(() => members.length > 0, [members])
-
-  const isLoading = isLoadingCampaign || isLoadingMembers
+  const isLoading = isLoadingCampaign || (hasBeenSent ? isLoadingRecipients : isLoadingPreview)
 
   if (isLoading) {
     return <AppPreloader />
@@ -139,11 +136,35 @@ export default function CampaignAudience() {
     )
   }
 
+  if (!hasBeenSent) {
+    return (
+      <div className="animate-slide-up h-full space-y-3">
+        <Card>
+          <CardHeader>
+            <h1 className="text-xl font-bold lg:text-2xl">Audience</h1>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Users size={16} />
+              <p>
+                This is a draft - recipients are recorded once it&apos;s sent. Its segment currently
+                matches <b>{segmentPreview?.contact_count ?? 0}</b>{' '}
+                {segmentPreview?.contact_count === 1 ? 'contact' : 'contacts'}.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const hasData = recipients.length > 0
+
   const emptyContent = (
     <EmptyContent
       image="/images/empty-contacts.svg"
       title="No audience found"
-      description="This campaign's contact list has no members yet."
+      description="This campaign has no recorded recipients."
     />
   )
 
@@ -161,13 +182,13 @@ export default function CampaignAudience() {
             <div className="animate-slide-up">
               <DataTable
                 columns={columns}
-                data={members}
+                data={recipients}
                 fixed={false}
                 meta={{
-                  page: membersData?.page || 1,
-                  pages: membersData?.pages || 1,
-                  size: membersData?.size || 1,
-                  total: membersData?.total || 0,
+                  page: recipientsData?.page || 1,
+                  pages: recipientsData?.pages || 1,
+                  size: recipientsData?.size || 1,
+                  total: recipientsData?.total || 0,
                 }}
               />
             </div>

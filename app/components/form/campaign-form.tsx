@@ -2,12 +2,13 @@ import {
   RichEmailEditor,
   type RichEmailEditorRef,
 } from '@/components/email-editor/rich-email-editor'
-import { ContactListSelect, type ContactListOption } from '@/components/form/form-contact-lists'
+import { SegmentSelect, type SegmentOption } from '@/components/form/form-segments'
 import { JsonEditor, type JsonObject } from '@/components/json/editor'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
+import { useSegmentPreviewById } from '@/resources/hooks/segments'
 import {
   useCloneTemplate,
   useCreateTemplate,
@@ -29,7 +30,7 @@ const SIX_MONTHS_IN_SECONDS = 60 * 60 * 24 * 30 * 6
 
 export interface CampaignFormInitialValues {
   name: string
-  contactListId?: string
+  segmentId?: string
   subject: string
   fromEmail: string
   templateVariables?: JsonObject
@@ -82,11 +83,8 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const vaultaConfig = { apiUrl: vaultaApiUrl, token: token!, nodeEnv }
 
   const [name, setName] = useState(initialValues?.name ?? '')
-  const [contactListId, setContactListId] = useState<string | undefined>(
-    initialValues?.contactListId
-  )
-  const [contactCount, setContactCount] = useState(0)
-  const [contactListError, setContactListError] = useState<string>()
+  const [segmentId, setSegmentId] = useState<string | undefined>(initialValues?.segmentId)
+  const [segmentError, setSegmentError] = useState<string>()
   const [subject, setSubject] = useState(initialValues?.subject ?? '')
   const [fromEmail, setFromEmail] = useState(initialValues?.fromEmail ?? '')
   const [templateVariables, setTemplateVariables] = useState<JsonObject>(
@@ -102,11 +100,17 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     isLoading: isLoadingTemplate,
   } = useTemplate(sendlyConfig, currentTemplateId, { enabled: !!currentTemplateId })
 
-  const handleContactListChange = (contactList?: ContactListOption) => {
-    setContactListId(contactList?.id)
-    setContactCount(contactList?.contactCount ?? 0)
-    if (contactList?.id) setContactListError(undefined)
+  const handleSegmentChange = (segment?: SegmentOption) => {
+    setSegmentId(segment?.id)
+    if (segment?.id) setSegmentError(undefined)
   }
+
+  // A segment doesn't carry a static contact count like a contact list did -
+  // it's resolved live, so the recipient count shown in the footer comes
+  // from the same preview endpoint the Segments UI uses.
+  const { data: segmentPreview } = useSegmentPreviewById(config, segmentId ?? '', {
+    enabled: !!segmentId,
+  })
 
   // Seeding the editor is separate from `template` because the editor becomes
   // ready asynchronously (immediatelyRender: false) — if `template` had already
@@ -146,11 +150,11 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
       save: async (options) => {
         const showSuccessToast = !options?.silent
 
-        if (!contactListId) {
-          setContactListError('Contact list is required')
-          throw new Error('Contact list is required')
+        if (!segmentId) {
+          setSegmentError('Segment is required')
+          throw new Error('Segment is required')
         }
-        setContactListError(undefined)
+        setSegmentError(undefined)
 
         // Serializing the editor's content can throw (a known failure mode of
         // the underlying HTML formatter on certain table structures). Don't
@@ -172,7 +176,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
         if (mode === 'create') {
           const campaign = await createCampaign({
             name,
-            contact_list_id: contactListId ?? '',
+            segment_id: segmentId ?? '',
             template_id: currentTemplateId,
             subject,
             from_email: fromEmail,
@@ -215,7 +219,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
           id: campaignId!,
           updateData: {
             name,
-            contact_list_id: contactListId,
+            segment_id: segmentId,
             subject,
             from_email: fromEmail,
             template_variables: templateVariables,
@@ -257,7 +261,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     [
       mode,
       name,
-      contactListId,
+      segmentId,
       subject,
       fromEmail,
       templateVariables,
@@ -293,17 +297,17 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
 
           <div>
             <Label className='after:text-destructive after:ml-0.5 after:content-["*"]'>
-              Contact list
+              Segment
             </Label>
-            <ContactListSelect
-              value={contactListId}
-              onChange={handleContactListChange}
+            <SegmentSelect
+              value={segmentId}
+              onChange={handleSegmentChange}
               apiUrl={apiUrl}
               nodeEnv={nodeEnv}
               disabled={disabled}
             />
-            {contactListError && (
-              <p className="text-destructive mt-1 text-sm font-medium">{contactListError}</p>
+            {segmentError && (
+              <p className="text-destructive mt-1 text-sm font-medium">{segmentError}</p>
             )}
           </div>
 
@@ -369,12 +373,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
 
         {footer && (
           <div className="flex items-center justify-between gap-2 pt-2">
-            {contactCount !== null && (
+            {segmentId && (
               <div className="flex items-center gap-2">
                 <Users size={16} />
                 <p>
-                  This campaign will reach <b>{contactCount}</b>{' '}
-                  {contactCount === 1 ? 'recipient' : 'recipients'}
+                  This campaign will reach <b>{segmentPreview?.contact_count ?? 0}</b>{' '}
+                  {segmentPreview?.contact_count === 1 ? 'recipient' : 'recipients'}
                 </p>
               </div>
             )}
