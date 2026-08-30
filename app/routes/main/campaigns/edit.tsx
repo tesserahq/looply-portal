@@ -4,7 +4,7 @@ import SendConfirmation from '@/components/send-confirmation/send-confirmation'
 import { CampaignStatusBadge } from '@/components/campaign-status/campaign-status'
 import { useApp } from 'tessera-ui'
 import { useCampaignDetail, useSendCampaign } from '@/resources/hooks/campaigns'
-import { useContactListDetail } from '@/resources/hooks/contact-lists'
+import { useSegmentDetail, useSegmentPreviewById } from '@/resources/hooks/segments'
 import { Button } from '@shadcn/ui/button'
 import { useRef, useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
@@ -31,8 +31,12 @@ export default function CampaignEdit() {
 
   const { data: campaign, isLoading } = useCampaignDetail(config, campaign_id!)
 
-  const { data: contactList } = useContactListDetail(config, campaign?.contact_list_id ?? '', {
-    enabled: !!campaign?.contact_list_id,
+  const { data: segment } = useSegmentDetail(config, campaign?.segment_id ?? '', {
+    enabled: !!campaign?.segment_id,
+  })
+
+  const { data: segmentPreview } = useSegmentPreviewById(config, campaign?.segment_id ?? '', {
+    enabled: !!campaign?.segment_id,
   })
 
   const { mutateAsync: sendCampaign } = useSendCampaign(config, {
@@ -57,11 +61,11 @@ export default function CampaignEdit() {
   const handleSend = () => {
     if (!campaign) return
 
-    const contactCount = contactList?.contact_count ?? 0
+    const contactCount = segmentPreview?.contact_count ?? 0
 
     sendModalRef.current?.open({
       title: 'Send Campaign?',
-      description: `This will send "${campaign.name}" to ${contactCount} ${contactCount === 1 ? 'recipient' : 'recipients'} in "${contactList?.name}".`,
+      description: `This will send "${campaign.name}" to ${contactCount} ${contactCount === 1 ? 'recipient' : 'recipients'} matching segment "${segment?.name}".`,
       onSend: async () => {
         sendModalRef.current?.updateConfig({ isLoading: true })
         try {
@@ -94,7 +98,7 @@ export default function CampaignEdit() {
         templateId={campaign.template_id}
         initialValues={{
           name: campaign.name,
-          contactListId: campaign.contact_list_id || undefined,
+          segmentId: campaign.segment_id || undefined,
           subject: campaign.subject,
           fromEmail: campaign.from_email,
           templateVariables: campaign.template_variables,

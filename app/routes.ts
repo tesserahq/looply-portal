@@ -59,6 +59,17 @@ export default [
       ]),
     ]),
 
+    // Segments
+    route('/segments', 'routes/main/segments/layout.tsx', [
+      index('routes/main/segments/index.tsx'),
+      route('new', 'routes/main/segments/new.tsx'),
+      route(':segment_id/edit', 'routes/main/segments/edit.tsx'),
+      route(':segment_id', 'routes/main/segments/detail/layout.tsx', [
+        index('routes/main/segments/detail/index.tsx'),
+        route('overview', 'routes/main/segments/detail/overview.tsx'),
+      ]),
+    ]),
+
     // Campaigns
     route('/campaigns', 'routes/main/campaigns/layout.tsx', [
       index('routes/main/campaigns/index.tsx'),

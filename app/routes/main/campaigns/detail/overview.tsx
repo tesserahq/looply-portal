@@ -12,10 +12,10 @@ import { useApp } from 'tessera-ui'
 import { DateTime, ResourceID } from 'tessera-ui/components'
 import { useBroadcast } from '@/resources/hooks/broadcasts'
 import { useCampaignDetail, useDeleteCampaign, useSendCampaign } from '@/resources/hooks/campaigns'
-import { useContactListDetail } from '@/resources/hooks/contact-lists'
+import { useSegmentDetail, useSegmentPreviewById } from '@/resources/hooks/segments'
 import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
-import { useLoaderData, useNavigate, useParams } from 'react-router'
+import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import { Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
 import { Activity, useCallback, useRef, useState } from 'react'
 
@@ -69,11 +69,15 @@ export default function CampaignDetail() {
     enabled: !!campaign?.template_id,
   })
 
-  const { data: contactList, isLoading: isLoadingContactList } = useContactListDetail(
+  const { data: segment, isLoading: isLoadingSegment } = useSegmentDetail(
     config,
-    campaign?.contact_list_id ?? '',
-    { enabled: !!campaign?.contact_list_id }
+    campaign?.segment_id ?? '',
+    { enabled: !!campaign?.segment_id }
   )
+
+  const { data: segmentPreview } = useSegmentPreviewById(config, campaign?.segment_id ?? '', {
+    enabled: !!campaign?.segment_id,
+  })
 
   const {
     data: broadcast,
@@ -113,19 +117,19 @@ export default function CampaignDetail() {
   const handleSend = useCallback(() => {
     if (!campaign) return
 
-    const contactCount = contactList?.contact_count ?? 0
+    const contactCount = segmentPreview?.contact_count ?? 0
 
     sendModalRef.current?.open({
       title: 'Send Campaign?',
-      description: `This will send "${campaign.name}" to ${contactCount} ${contactCount === 1 ? 'recipient' : 'recipients'} in "${contactList?.name}".`,
+      description: `This will send "${campaign.name}" to ${contactCount} ${contactCount === 1 ? 'recipient' : 'recipients'} matching segment "${segment?.name}".`,
       onSend: async () => {
         sendModalRef.current?.updateConfig({ isLoading: true })
         await sendCampaign(campaignId)
       },
     })
-  }, [campaign, campaignId, contactList, sendCampaign])
+  }, [campaign, campaignId, segment, segmentPreview, sendCampaign])
 
-  if (isLoading || isLoadingTemplate || isLoadingContactList || isLoadingBroadcast) {
+  if (isLoading || isLoadingTemplate || isLoadingSegment || isLoadingBroadcast) {
     return <AppPreloader />
   }
 
@@ -208,14 +212,20 @@ export default function CampaignDetail() {
                   <dd className="d-content">{campaign.name || 'N/A'}</dd>
                 </div>
                 <div className="d-item">
-                  <dt className="d-label">Contact List</dt>
+                  <dt className="d-label">Segment</dt>
                   <dd className="d-content">
-                    {contactList?.name || campaign.contact_list_id || 'N/A'}
+                    {segment ? (
+                      <Link to={`/segments/${segment.id}`} className="button-link">
+                        {segment.name}
+                      </Link>
+                    ) : (
+                      campaign.segment_id || 'N/A'
+                    )}
                   </dd>
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Recipients</dt>
-                  <dd className="d-content">{contactList?.contact_count ?? 'N/A'}</dd>
+                  <dd className="d-content">{segmentPreview?.contact_count ?? 'N/A'}</dd>
                 </div>
                 {campaign.project_id && (
                   <div className="d-item">
@@ -321,6 +331,58 @@ export default function CampaignDetail() {
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </Activity>
+
+          <Activity mode={campaign.batch_id ? 'visible' : 'hidden'}>
+            <Card>
+              <CardHeader>
+                <h2 className="text-xl font-bold lg:text-2xl">Engagement</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="d-list">
+                  <div className="d-item">
+                    <dt className="d-label">Delivered</dt>
+                    <dd className="d-content">{campaign.delivered_count}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Opened</dt>
+                    <dd className="d-content">{campaign.opened_count}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Clicked</dt>
+                    <dd className="d-content">{campaign.clicked_count}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Bounced</dt>
+                    <dd className="d-content">{campaign.bounced_count}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Complained</dt>
+                    <dd className="d-content">{campaign.complained_count}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Data as of</dt>
+                    <dd className="d-content">
+                      {campaign.engagement_last_synced_at ? (
+                        <DateTime date={campaign.engagement_last_synced_at} />
+                      ) : (
+                        <span className="text-muted-foreground">Not yet synced</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Engagement tracking ends</dt>
+                    <dd className="d-content">
+                      {campaign.engagement_polling_expires_at ? (
+                        <DateTime date={campaign.engagement_polling_expires_at} />
+                      ) : (
+                        'N/A'
+                      )}
+                    </dd>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </Activity>
