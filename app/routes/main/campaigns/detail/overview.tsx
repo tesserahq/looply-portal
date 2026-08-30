@@ -3,7 +3,6 @@ import DeleteConfirmation from '@/components/delete-confirmation/delete-confirma
 import SendConfirmation from '@/components/send-confirmation/send-confirmation'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { CampaignStatusBadge } from '@/components/campaign-status/campaign-status'
-import { JsonEditor } from '@/components/json/editor'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
@@ -15,6 +14,7 @@ import { useCampaignDetail, useDeleteCampaign, useSendCampaign } from '@/resourc
 import { useSegmentDetail, useSegmentPreviewById } from '@/resources/hooks/segments'
 import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
+import { buildResourceUrl } from '@/utils/helpers/url.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import { Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
 import { Activity, useCallback, useRef, useState } from 'react'
@@ -22,13 +22,14 @@ import { Activity, useCallback, useRef, useState } from 'react'
 export function loader() {
   const apiUrl = process.env.API_URL
   const sendlyApiUrl = process.env.SENDLY_API_URL
+  const sendlyHostUrl = process.env.SENDLY_HOST_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, sendlyApiUrl, nodeEnv }
+  return { apiUrl, sendlyApiUrl, sendlyHostUrl, nodeEnv }
 }
 
 export default function CampaignDetail() {
-  const { apiUrl, sendlyApiUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { apiUrl, sendlyApiUrl, sendlyHostUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
   const params = useParams()
@@ -161,7 +162,7 @@ export default function CampaignDetail() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-bold lg:text-3xl">Campaign Details</h1>
+                  <h1 className="text-xl font-bold lg:text-3xl">Overview</h1>
                   <CampaignStatusBadge status={campaign.status} className="shadow-sm" />
                 </div>
                 <Popover>
@@ -313,7 +314,21 @@ export default function CampaignDetail() {
                   <div className="d-list">
                     <div className="d-item">
                       <dt className="d-label">Batch ID</dt>
-                      <dd className="d-content">{broadcast?.batch_id || 'N/A'}</dd>
+                      <dd className="d-content">
+                        {broadcast?.batch_id ? (
+                          <a
+                            href={buildResourceUrl(sendlyHostUrl!, '/broadcasts/:id/overview', {
+                              id: broadcast.batch_id,
+                            })}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline">
+                            {broadcast.batch_id.slice(0, 8)}
+                          </a>
+                        ) : (
+                          'N/A'
+                        )}
+                      </dd>
                     </div>
                     <div className="d-item">
                       <dt className="d-label">Queued</dt>
@@ -386,15 +401,6 @@ export default function CampaignDetail() {
               </CardContent>
             </Card>
           </Activity>
-
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-bold lg:text-2xl">Template Variables</h2>
-            </CardHeader>
-            <CardContent className="h-full">
-              <JsonEditor initialValue={campaign.template_variables ?? {}} readOnly />
-            </CardContent>
-          </Card>
         </div>
 
         {(previewHtml || isTemplateError) && (

@@ -3,52 +3,17 @@ import { Card, CardContent } from '@/modules/shadcn/ui/card'
 import { contactFormSchema, ContactFormValue } from '@/resources/queries/contacts/contact.schema'
 import { ContactFormData } from '@/resources/queries/contacts/contact.type'
 import { formValuesToContactData } from '@/resources/queries/contacts/contact.utils'
+import { useContactTypes } from '@/resources/hooks/contacts'
+import { NodeENVType } from '@/libraries/fetch'
 import { useNavigate } from 'react-router'
 import { Combobox, type ComboboxOption } from '@shadcn/ui/Combobox'
 import { Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState as useReactState, useState } from 'react'
 import { GetCity, GetCountries, GetState } from 'react-country-state-city'
 import { City, Country, State } from 'react-country-state-city/dist/esm/types'
+import { useApp } from 'tessera-ui'
 import { Form } from '../form'
 import { FormLayout } from '../form/form-layout'
-
-export const contactTypeOptions: ComboboxOption[] = [
-  {
-    id: 'personal',
-    label: 'Personal',
-    value: 'personal',
-  },
-  {
-    id: 'business',
-    label: 'Business',
-    value: 'business',
-  },
-  {
-    id: 'vendor',
-    label: 'Vendor',
-    value: 'vendor',
-  },
-  {
-    id: 'customer',
-    label: 'Customer',
-    value: 'customer',
-  },
-  {
-    id: 'partner',
-    label: 'Partner',
-    value: 'partner',
-  },
-  {
-    id: 'supplier',
-    label: 'Supplier',
-    value: 'supplier',
-  },
-  {
-    id: 'lead',
-    label: 'Lead',
-    value: 'lead',
-  },
-]
 
 export const phoneTypeOptions: ComboboxOption[] = [
   {
@@ -73,6 +38,8 @@ interface ContactFormProps {
   onSubmit: (data: ContactFormData) => Promise<void> | void
   onSubmitAndAddNew?: (data: ContactFormData) => Promise<void> | void
   submitLabel?: string
+  apiUrl: string
+  nodeEnv: NodeENVType
 }
 
 export const ContactForm = ({
@@ -80,8 +47,25 @@ export const ContactForm = ({
   onSubmit,
   onSubmitAndAddNew,
   submitLabel = 'Save',
+  apiUrl,
+  nodeEnv,
 }: ContactFormProps) => {
   const navigate = useNavigate()
+  const { token } = useApp()
+  const { data: contactTypesData, isLoading: isLoadingContactTypes } = useContactTypes({
+    apiUrl,
+    token: token!,
+    nodeEnv,
+  })
+  const contactTypeOptions: ComboboxOption[] = useMemo(
+    () =>
+      (contactTypesData?.items || []).map((option) => ({
+        id: option.id,
+        label: option.name,
+        value: option.id,
+      })),
+    [contactTypesData]
+  )
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const submitActionRef = useRef<'save' | 'saveAndAddNew'>('save')
   const [selectedCountry, setSelectedCountry] = useReactState<ComboboxOption<Country>>()
@@ -247,6 +231,7 @@ export const ContactForm = ({
               <Form.Select
                 field="contact_type"
                 label="Contact Type"
+                isLoading={isLoadingContactTypes}
                 options={contactTypeOptions.map((opt) => ({
                   value: opt.value,
                   label: opt.label,

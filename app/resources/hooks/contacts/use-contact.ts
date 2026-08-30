@@ -1,6 +1,7 @@
 import {
   fetchContacts,
   fetchContactDetail,
+  fetchContactTypes,
   createContact,
   createBatchContacts,
   updateContact,
@@ -27,6 +28,7 @@ export const contactQueryKeys = {
     [...contactQueryKeys.lists(), config, params] as const,
   details: () => [...contactQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...contactQueryKeys.details(), id] as const,
+  types: () => [...contactQueryKeys.all, 'contact-types'] as const,
 }
 
 /**
@@ -98,6 +100,44 @@ export function useContactDetail(
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!contactId && !!config.token,
   })
+}
+
+/**
+ * Hook for fetching the fixed list of contact types.
+ * @config - Contact query configuration
+ * @options - Contact query options
+ */
+export function useContactTypes(
+  config: ContactQueryConfig,
+  options?: {
+    enabled?: boolean
+  }
+) {
+  const query = useQuery({
+    queryKey: contactQueryKeys.types(),
+    queryFn: async () => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await fetchContactTypes(config)
+      } catch (error) {
+        throw new QueryError(
+          'Failed to fetch contact types',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'contact types')
+        )
+      }
+    },
+    // The set is a fixed enum on the backend, not user data — no need to ever refetch
+    // within a session.
+    staleTime: Infinity,
+    enabled: options?.enabled !== false && !!config.token,
+  })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }
 
 /**

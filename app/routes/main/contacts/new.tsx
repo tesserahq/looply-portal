@@ -44,6 +44,8 @@ export default function ContactNew() {
       onSubmit={handleSubmit}
       onSubmitAndAddNew={handleSubmitAndAddNew}
       defaultValues={defaultContactFormValues}
+      apiUrl={apiUrl!}
+      nodeEnv={nodeEnv}
     />
   )
 }
