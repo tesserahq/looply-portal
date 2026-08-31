@@ -2,6 +2,7 @@ import { DataTable } from '@/components/data-table'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import AddContactToList from '@/components/dialog/add-contact-to-list'
 import ContactInteractionShortcut from '@/components/dialog/contact-interaction-shorcut'
+import { ContactCustomEventsCard } from '@/components/contact/contact-custom-events-card'
 import { ContactCustomFieldsCard } from '@/components/contact/contact-custom-fields-card'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
@@ -394,6 +395,13 @@ export default function ContactDetailOverview() {
 
           {/* Custom Fields */}
           <ContactCustomFieldsCard
+            apiUrl={apiUrl!}
+            nodeEnv={nodeEnv}
+            contactExternalId={contact.external_id}
+          />
+
+          {/* Custom Events */}
+          <ContactCustomEventsCard
             apiUrl={apiUrl!}
             nodeEnv={nodeEnv}
             contactExternalId={contact.external_id}

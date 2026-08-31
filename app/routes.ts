@@ -37,6 +37,35 @@ export default [
       ]),
     ]),
 
+    // Custom Events
+    route('/custom-events', 'routes/main/custom-events/layout.tsx', [
+      index('routes/main/custom-events/index.tsx'),
+      route(':event_id', 'routes/main/custom-events/detail/layout.tsx', [
+        index('routes/main/custom-events/detail/index.tsx'),
+        route('overview', 'routes/main/custom-events/detail/overview.tsx'),
+      ]),
+    ]),
+
+    // Tracked Event Types
+    route('/tracked-event-types', 'routes/main/tracked-event-types/layout.tsx', [
+      index('routes/main/tracked-event-types/index.tsx'),
+      route('new', 'routes/main/tracked-event-types/new.tsx'),
+      route(':tracked_event_type_id', 'routes/main/tracked-event-types/detail/layout.tsx', [
+        index('routes/main/tracked-event-types/detail/index.tsx'),
+        route('overview', 'routes/main/tracked-event-types/detail/overview.tsx'),
+      ]),
+    ]),
+
+    // Event Field Mappings
+    route('/event-field-mappings', 'routes/main/event-field-mappings/layout.tsx', [
+      index('routes/main/event-field-mappings/index.tsx'),
+      route('new', 'routes/main/event-field-mappings/new.tsx'),
+      route(':mapping_id', 'routes/main/event-field-mappings/detail/layout.tsx', [
+        index('routes/main/event-field-mappings/detail/index.tsx'),
+        route('overview', 'routes/main/event-field-mappings/detail/overview.tsx'),
+      ]),
+    ]),
+
     // Contact Lists
     route('/contact-lists', 'routes/main/contact-lists/layout.tsx', [
       index('routes/main/contact-lists/index.tsx'),
