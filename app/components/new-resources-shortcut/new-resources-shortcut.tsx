@@ -36,6 +36,12 @@ type ResourceType = {
 const resourceTypes: ResourceType[] = [
   { id: 'contacts', name: 'Contacts', icon: SquareUser, href: '/contacts/new' },
   {
+    id: 'custom-fields',
+    name: 'Custom Fields',
+    icon: SlidersHorizontal,
+    href: '/custom-fields/new',
+  },
+  {
     id: 'contact-lists',
     name: 'Contact Lists',
     icon: BookUser,
@@ -58,12 +64,6 @@ const resourceTypes: ResourceType[] = [
     name: 'Segments',
     icon: Filter,
     href: '/segments/new',
-  },
-  {
-    id: 'custom-fields',
-    name: 'Custom Fields',
-    icon: SlidersHorizontal,
-    href: '/custom-fields/new',
   },
   {
     id: 'campaigns',

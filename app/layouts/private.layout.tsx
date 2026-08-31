@@ -52,6 +52,11 @@ export default function PrivateLayout() {
       icon: asMenuIcon(SquareUser),
     },
     {
+      title: 'Custom Fields',
+      path: '/custom-fields',
+      icon: asMenuIcon(SlidersHorizontal),
+    },
+    {
       title: 'Contact Lists',
       path: '/contact-lists',
       icon: asMenuIcon(BookUser),
@@ -70,11 +75,6 @@ export default function PrivateLayout() {
       title: 'Segments',
       path: '/segments',
       icon: asMenuIcon(Filter),
-    },
-    {
-      title: 'Custom Fields',
-      path: '/custom-fields',
-      icon: asMenuIcon(SlidersHorizontal),
     },
     {
       title: 'Campaigns',
