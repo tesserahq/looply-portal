@@ -1,7 +1,16 @@
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Link } from 'react-router'
-import { BookUser, Contact, Filter, Megaphone, Plus, SquareUser, Users2 } from 'lucide-react'
+import {
+  BookUser,
+  Contact,
+  Filter,
+  Megaphone,
+  Plus,
+  SlidersHorizontal,
+  SquareUser,
+  Users2,
+} from 'lucide-react'
 import { useState } from 'react'
 import Separator from '@shadcn/ui/separator'
 import {
@@ -17,6 +26,7 @@ type ResourceType = {
     | 'waiting-lists'
     | 'contact-interactions'
     | 'segments'
+    | 'custom-fields'
     | 'campaigns'
   name: string
   href: string
@@ -25,6 +35,12 @@ type ResourceType = {
 
 const resourceTypes: ResourceType[] = [
   { id: 'contacts', name: 'Contacts', icon: SquareUser, href: '/contacts/new' },
+  {
+    id: 'custom-fields',
+    name: 'Custom Fields',
+    icon: SlidersHorizontal,
+    href: '/custom-fields/new',
+  },
   {
     id: 'contact-lists',
     name: 'Contact Lists',

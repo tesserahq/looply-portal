@@ -9,6 +9,7 @@ import {
   Filter,
   LucideIcon,
   Megaphone,
+  SlidersHorizontal,
   SquareUser,
   Users2,
 } from 'lucide-react'
@@ -51,6 +52,11 @@ export default function PrivateLayout() {
       icon: asMenuIcon(SquareUser),
     },
     {
+      title: 'Custom Fields',
+      path: '/custom-fields',
+      icon: asMenuIcon(SlidersHorizontal),
+    },
+    {
       title: 'Contact Lists',
       path: '/contact-lists',
       icon: asMenuIcon(BookUser),
@@ -85,6 +91,7 @@ export default function PrivateLayout() {
       `/contact-interactions/${params['contact_interaction_id']}/overview`
     ) ||
     location.pathname.includes(`/segments/${params['segment_id']}/overview`) ||
+    location.pathname.includes(`/custom-fields/${params['definition_id']}/overview`) ||
     location.pathname.includes(`/campaigns/${params['campaign_id']}/overview`)
   )
 

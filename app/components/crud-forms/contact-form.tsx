@@ -300,6 +300,18 @@ export const ContactForm = ({
           </CardContent>
         </Card>
 
+        <h2 className="mt-5 mb-3 text-lg font-medium">Integration</h2>
+        <Card className="shadow-none">
+          <CardContent className="space-y-4 pt-4">
+            <Form.Input
+              field="external_id"
+              label="External ID"
+              placeholder="Set automatically by host platform events, if any"
+              description="This contact's identity in an external host platform (e.g. a Linden account/user id). Usually set automatically - only edit this if you know what you're doing."
+            />
+          </CardContent>
+        </Card>
+
         <div className="mt-5 flex items-center justify-end gap-2">
           <Button
             variant="secondary"

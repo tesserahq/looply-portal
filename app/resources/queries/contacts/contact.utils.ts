@@ -7,6 +7,7 @@ import { ContactFormValue } from './contact.schema'
 export function contactToFormValues(contact: ContactType): ContactFormValue {
   return {
     id: contact.id,
+    external_id: contact.external_id || '',
     first_name: contact.first_name || '',
     middle_name: contact.middle_name || '',
     last_name: contact.last_name || '',
@@ -38,6 +39,7 @@ export function formValuesToContactData(
   formValues: ContactFormValue
 ): Omit<ContactType, 'id' | 'created_by_id' | 'created_at' | 'updated_at'> {
   return {
+    external_id: formValues.external_id || null,
     first_name: formValues.first_name,
     middle_name: formValues.middle_name || '',
     last_name: formValues.last_name || '',

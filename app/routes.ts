@@ -26,6 +26,17 @@ export default [
       ]),
     ]),
 
+    // Custom Fields
+    route('/custom-fields', 'routes/main/custom-fields/layout.tsx', [
+      index('routes/main/custom-fields/index.tsx'),
+      route('new', 'routes/main/custom-fields/new.tsx'),
+      route(':definition_id/edit', 'routes/main/custom-fields/edit.tsx'),
+      route(':definition_id', 'routes/main/custom-fields/detail/layout.tsx', [
+        index('routes/main/custom-fields/detail/index.tsx'),
+        route('overview', 'routes/main/custom-fields/detail/overview.tsx'),
+      ]),
+    ]),
+
     // Contact Lists
     route('/contact-lists', 'routes/main/contact-lists/layout.tsx', [
       index('routes/main/contact-lists/index.tsx'),

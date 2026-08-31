@@ -6,6 +6,7 @@ import { ContactListType } from '@/resources/queries/contact-lists/contact-list.
  */
 export type ContactType = {
   id: string
+  external_id: string | null
   first_name: string
   middle_name: string
   last_name: string
