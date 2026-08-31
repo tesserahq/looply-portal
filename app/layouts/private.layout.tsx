@@ -9,9 +9,12 @@ import {
   Filter,
   LucideIcon,
   Megaphone,
+  Radio,
   SlidersHorizontal,
   SquareUser,
   Users2,
+  Waypoints,
+  Zap,
 } from 'lucide-react'
 import { Outlet, useLocation, useNavigate, useParams, useSubmit } from 'react-router'
 import { Layout, MainItemProps } from 'tessera-ui'
@@ -57,6 +60,21 @@ export default function PrivateLayout() {
       icon: asMenuIcon(SlidersHorizontal),
     },
     {
+      title: 'Custom Events',
+      path: '/custom-events',
+      icon: asMenuIcon(Zap),
+    },
+    {
+      title: 'Tracked Event Types',
+      path: '/tracked-event-types',
+      icon: asMenuIcon(Radio),
+    },
+    {
+      title: 'Event Field Mappings',
+      path: '/event-field-mappings',
+      icon: asMenuIcon(Waypoints),
+    },
+    {
       title: 'Contact Lists',
       path: '/contact-lists',
       icon: asMenuIcon(BookUser),
@@ -92,6 +110,11 @@ export default function PrivateLayout() {
     ) ||
     location.pathname.includes(`/segments/${params['segment_id']}/overview`) ||
     location.pathname.includes(`/custom-fields/${params['definition_id']}/overview`) ||
+    location.pathname.includes(`/custom-events/${params['event_id']}/overview`) ||
+    location.pathname.includes(
+      `/tracked-event-types/${params['tracked_event_type_id']}/overview`
+    ) ||
+    location.pathname.includes(`/event-field-mappings/${params['mapping_id']}/overview`) ||
     location.pathname.includes(`/campaigns/${params['campaign_id']}/overview`)
   )
 
