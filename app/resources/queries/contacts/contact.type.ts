@@ -25,6 +25,7 @@ export type ContactType = {
   country: string
   notes: string
   is_active: boolean
+  tags: string[]
   created_by_id: string
   created_at: string
   updated_at: string
@@ -56,6 +57,8 @@ export interface ContactQueryParams {
   page?: number
   size?: number
   q?: string
+  /** Comma-separated tag names. Returns contacts having any of them (OR semantics). */
+  tags?: string
 }
 
 /**

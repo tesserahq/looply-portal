@@ -15,10 +15,12 @@ import { IPaging } from '@/resources/types/pagination'
  */
 export async function fetchContacts(config: ContactQueryConfig, params: ContactQueryParams) {
   const { apiUrl, token, nodeEnv } = config
-  const { page, size, q } = params
+  const { page, size, q, tags } = params
 
-  // Use search endpoint if query parameter is provided
-  const hasSearchQuery = q && q.trim() !== ''
+  // Tag filtering only exists on /contacts, not /contacts/search - the two
+  // facets are mutually exclusive in the UI, so this never has to combine them.
+  const hasTagsFilter = tags && tags.trim() !== ''
+  const hasSearchQuery = !hasTagsFilter && q && q.trim() !== ''
   const endpoint = hasSearchQuery ? `${apiUrl}/contacts/search` : `${apiUrl}/contacts`
 
   const response = await fetchApi(endpoint, token, nodeEnv, {
@@ -26,8 +28,7 @@ export async function fetchContacts(config: ContactQueryConfig, params: ContactQ
       page,
       size,
     },
-    // For search endpoint, include q as a query parameter
-    params: hasSearchQuery ? { q } : undefined,
+    params: hasSearchQuery ? { q } : hasTagsFilter ? { tags } : undefined,
   })
 
   return response as IPaging<ContactType>

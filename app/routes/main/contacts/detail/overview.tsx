@@ -320,6 +320,22 @@ export default function ContactDetailOverview() {
                   <dd className="d-content capitalize">{contact.contact_type || 'N/A'}</dd>
                 </div>
                 <div className="d-item">
+                  <dt className="d-label">Tags</dt>
+                  <dd className="d-content">
+                    {contact.tags && contact.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {contact.tags.map((tag) => (
+                          <Badge key={tag} variant="outline">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      'N/A'
+                    )}
+                  </dd>
+                </div>
+                <div className="d-item">
                   <dt className="d-label">Created At</dt>
                   <dd className="d-content">
                     <TesseraDateTime date={contact.created_at} />
