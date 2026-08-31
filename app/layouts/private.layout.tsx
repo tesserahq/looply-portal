@@ -9,6 +9,7 @@ import {
   Filter,
   LucideIcon,
   Megaphone,
+  SlidersHorizontal,
   SquareUser,
   Users2,
 } from 'lucide-react'
@@ -69,6 +70,11 @@ export default function PrivateLayout() {
       title: 'Segments',
       path: '/segments',
       icon: asMenuIcon(Filter),
+    },
+    {
+      title: 'Custom Fields',
+      path: '/custom-fields',
+      icon: asMenuIcon(SlidersHorizontal),
     },
     {
       title: 'Campaigns',

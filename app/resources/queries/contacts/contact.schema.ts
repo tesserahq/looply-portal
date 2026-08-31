@@ -8,6 +8,7 @@ import { z } from 'zod/v4'
  * Base contact schema with common fields
  */
 const baseContactSchema = z.object({
+  external_id: z.string().optional(),
   first_name: z.string().min(1, 'First name is required'),
   middle_name: z.string().optional(),
   last_name: z.string().optional(),
@@ -47,6 +48,7 @@ export const updateContactSchema = baseContactSchema.partial()
  */
 export const contactFormSchema = z.object({
   id: z.string().optional(),
+  external_id: z.string().optional(),
   first_name: z.string().min(1, 'First name is required'),
   middle_name: z.string().optional(),
   last_name: z.string().optional(),
@@ -120,6 +122,7 @@ export type ContactFormValue = z.infer<typeof contactFormSchema>
  * Default form values for contact form
  */
 export const defaultContactFormValues: ContactFormValue = {
+  external_id: '',
   first_name: '',
   middle_name: '',
   last_name: '',

@@ -70,6 +70,12 @@ export default [
       ]),
     ]),
 
+    // Custom Fields
+    route('/custom-fields', 'routes/main/custom-fields/layout.tsx', [
+      index('routes/main/custom-fields/index.tsx'),
+      route('new', 'routes/main/custom-fields/new.tsx'),
+    ]),
+
     // Campaigns
     route('/campaigns', 'routes/main/campaigns/layout.tsx', [
       index('routes/main/campaigns/index.tsx'),
