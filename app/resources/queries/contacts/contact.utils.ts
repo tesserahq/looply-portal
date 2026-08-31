@@ -38,7 +38,7 @@ export function contactToFormValues(contact: ContactType): ContactFormValue {
  */
 export function formValuesToContactData(
   formValues: ContactFormValue
-): Omit<ContactType, 'id' | 'created_by_id' | 'created_at' | 'updated_at'> {
+): Omit<ContactType, 'id' | 'created_by_id' | 'created_at' | 'updated_at' | 'source'> {
   return {
     external_id: formValues.external_id || null,
     first_name: formValues.first_name,

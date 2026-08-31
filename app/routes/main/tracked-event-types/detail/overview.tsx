@@ -110,6 +110,12 @@ export default function TrackedEventTypeDetailOverview() {
                 <dd className="d-content">{tracked.event_type}</dd>
               </div>
               <div className="d-item">
+                <dt className="d-label">Source</dt>
+                <dd className="d-content">
+                  {tracked.source || <span className="text-muted-foreground">Unset</span>}
+                </dd>
+              </div>
+              <div className="d-item">
                 <dt className="d-label">Created At</dt>
                 <dd className="d-content">
                   {tracked.created_at ? <DateTime date={tracked.created_at} /> : 'N/A'}

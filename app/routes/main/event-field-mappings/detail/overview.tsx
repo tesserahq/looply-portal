@@ -45,7 +45,7 @@ export default function EventFieldMappingDetailOverview() {
 
     deleteModalRef.current?.open({
       title: 'Remove Event Field Mapping',
-      description: `Newly ingested "${mapping.event_type}" events will stop updating "${mapping.field_name}". This action cannot be undone.`,
+      description: `Newly ingested "${mapping.event_type}" events will stop updating "${mapping.target_type === 'contact_field' ? mapping.target_field : mapping.field_name}". This action cannot be undone.`,
       onDelete: async () => {
         deleteModalRef.current?.updateConfig({ isLoading: true })
         await deleteMapping(mapping.id)
@@ -112,8 +112,22 @@ export default function EventFieldMappingDetailOverview() {
                 <dd className="d-content">{mapping.source_path}</dd>
               </div>
               <div className="d-item">
-                <dt className="d-label">Target Custom Field</dt>
-                <dd className="d-content">{mapping.field_name}</dd>
+                <dt className="d-label">Target</dt>
+                <dd className="d-content">
+                  {mapping.target_type === 'contact_field' ? (
+                    <>Contact field: {mapping.target_field}</>
+                  ) : (
+                    <>Custom field: {mapping.field_name}</>
+                  )}
+                </dd>
+              </div>
+              <div className="d-item">
+                <dt className="d-label">Identity Key</dt>
+                <dd className="d-content">
+                  {mapping.is_identity_key
+                    ? 'Yes - resolves/creates the Contact for this event_type'
+                    : 'No'}
+                </dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Created At</dt>

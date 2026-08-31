@@ -272,6 +272,12 @@ export default function ContactDetailOverview() {
                   <dd className="d-content">{fullName || 'N/A'}</dd>
                 </div>
                 <div className="d-item">
+                  <dt className="d-label">Source</dt>
+                  <dd className="d-content">
+                    {contact.source || <span className="text-muted-foreground">Unset</span>}
+                  </dd>
+                </div>
+                <div className="d-item">
                   <dt className="d-label">Phone</dt>
                   <dd className="d-content">
                     {contact.phone ? (

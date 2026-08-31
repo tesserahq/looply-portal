@@ -23,7 +23,10 @@ export const TrackedEventTypeForm = ({ onSubmit }: TrackedEventTypeFormProps) =>
     setIsSubmitting(true)
 
     try {
-      await onSubmit({ event_type: data.event_type })
+      await onSubmit({
+        event_type: data.event_type,
+        source: data.source || undefined,
+      })
     } catch {
       // Error handling is done by parent component
     } finally {
@@ -44,6 +47,13 @@ export const TrackedEventTypeForm = ({ onSubmit }: TrackedEventTypeFormProps) =>
           description="The exact event_type Looply should start acting on. Everything else received on the shared NATS stream is ignored - no contact resolution, no event recorded, no field mapping applied. Cannot be changed later - delete and recreate instead."
           required
           autoFocus
+        />
+
+        <Form.Input
+          field="source"
+          label="Source"
+          placeholder="e.g. linden"
+          description="Stamped onto every contact auto-created from this event_type (like 'manual', 'website', or 'phone' are for other creation paths). Optional - leave blank to leave newly auto-created contacts' source unset."
         />
 
         <div className="mt-5 flex items-center justify-end gap-2">
