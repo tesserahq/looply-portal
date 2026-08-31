@@ -26,6 +26,7 @@ export function contactToFormValues(contact: ContactType): ContactFormValue {
     country: contact.country || '',
     notes: contact.notes || '',
     is_active: contact.is_active ?? true,
+    tags: contact.tags || [],
     created_by_id: contact.created_by_id || '',
     created_at: contact.created_at || '',
     updated_at: contact.updated_at || '',
@@ -58,5 +59,6 @@ export function formValuesToContactData(
     country: formValues.country || '',
     notes: formValues.notes || '',
     is_active: formValues.is_active ?? true,
+    tags: formValues.tags || [],
   }
 }

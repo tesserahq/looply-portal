@@ -12,6 +12,8 @@ import { useCallback, useEffect, useMemo, useRef, useState as useReactState, use
 import { GetCity, GetCountries, GetState } from 'react-country-state-city'
 import { City, Country, State } from 'react-country-state-city/dist/esm/types'
 import { useApp } from 'tessera-ui'
+import { TagsInput } from 'tessera-ui/components'
+import { Label } from '@shadcn/ui/label'
 import { Form } from '../form'
 import { FormLayout } from '../form/form-layout'
 
@@ -74,6 +76,7 @@ export const ContactForm = ({
   const [countries, setCountries] = useReactState<Country[]>([])
   const [states, setStates] = useReactState<ComboboxOption<State>[]>([])
   const [cities, setCities] = useReactState<ComboboxOption<City>[]>([])
+  const [tags, setTags] = useReactState<string[]>(defaultValues?.tags ?? [])
 
   const title = defaultValues?.id ? 'Edit Contact' : 'New Contact'
 
@@ -187,6 +190,7 @@ export const ContactForm = ({
         country: selectedCountry?.data?.name || data.country || '',
         state: selectedState?.data?.name || data.state || '',
         city: selectedCity?.data?.name || data.city || '',
+        tags,
       }
       const contactData = formValuesToContactData(formDataWithLocation)
 
@@ -240,6 +244,18 @@ export const ContactForm = ({
             </div>
 
             <Form.Textarea field="notes" label="Notes" placeholder="Enter notes (optional)" />
+          </CardContent>
+        </Card>
+
+        <h2 className="mt-5 mb-3 text-lg font-medium">Tags</h2>
+        <Card className="shadow-none">
+          <CardContent className="space-y-4 pt-4">
+            <div>
+              <Label>Tags</Label>
+              <div className="mt-1.5">
+                <TagsInput value={tags} onChange={setTags} disabled={isSubmitting} />
+              </div>
+            </div>
           </CardContent>
         </Card>
 

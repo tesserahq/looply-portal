@@ -15,10 +15,12 @@ import { Link, useLoaderData, useNavigate, useSearchParams } from 'react-router'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@shadcn/ui/input-group'
+import { Label } from '@shadcn/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Contact, Edit, Ellipsis, EyeIcon, Import, Search, Trash2, X } from 'lucide-react'
+import { Contact, Edit, Ellipsis, EyeIcon, Import, Search, Tag, Trash2, X } from 'lucide-react'
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { TagsInput } from 'tessera-ui/components'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -41,6 +43,12 @@ export default function Contacts() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [contactSearch, setContactSearch] = useState<string>(searchParams.get('q') || '')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
+  const [tagFilter, setTagFilter] = useState<string[]>(
+    (searchParams.get('tags') || '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean)
+  )
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const contactInteractionRef = useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
@@ -55,7 +63,9 @@ export default function Contacts() {
     {
       page,
       size,
-      ...(debouncedSearch.length >= 3 && { q: debouncedSearch }),
+      ...(tagFilter.length > 0
+        ? { tags: tagFilter.join(',') }
+        : debouncedSearch.length >= 3 && { q: debouncedSearch }),
     },
     {
       enabled: !!token,
@@ -86,11 +96,33 @@ export default function Contacts() {
     setContactSearch(search)
   }
 
+  const handleTagFilterChange = (tags: string[]) => {
+    setTagFilter(tags)
+    // Tag filtering and text search are mutually exclusive (the backend only
+    // supports one at a time - see contact.queries.ts), so picking a tag
+    // clears any in-progress text search.
+    if (tags.length > 0) {
+      setContactSearch('')
+      setDebouncedSearch('')
+      searchParams.delete('q')
+    }
+    if (tags.length > 0) {
+      searchParams.set('tags', tags.join(','))
+    } else {
+      searchParams.delete('tags')
+    }
+    setSearchParams(searchParams)
+  }
+
   // Debounce search query - only trigger API call when search is >= 3 characters
   useDebounce(
     () => {
       if (contactSearch.length >= 3) {
         setDebouncedSearch(contactSearch)
+        if (tagFilter.length > 0) {
+          setTagFilter([])
+          searchParams.delete('tags')
+        }
         // setSearchParams({ q: contactSearch })
         searchParams.set('q', contactSearch)
         setSearchParams(searchParams)
@@ -109,6 +141,8 @@ export default function Contacts() {
   const hasSearchQuery = useMemo(() => {
     return searchParams.get('q') !== null && searchParams.get('q') !== ''
   }, [searchParams])
+
+  const hasTagFilter = tagFilter.length > 0
 
   const hasData = useMemo(() => {
     return data && data.items && data.items.length > 0
@@ -166,6 +200,23 @@ export default function Contacts() {
             <div className="flex items-center gap-2">
               <span className="text-sm">{phone}</span>
               {phone_type && <span className="text-muted-foreground text-xs">({phone_type})</span>}
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'tags',
+        header: 'Tags',
+        cell: ({ row }) => {
+          const { tags } = row.original
+          if (!tags || tags.length === 0) return <span className="text-muted-foreground">-</span>
+          return (
+            <div className="flex flex-wrap gap-1">
+              {tags.map((tag) => (
+                <Badge key={tag} variant="outline">
+                  {tag}
+                </Badge>
+              ))}
             </div>
           )
         },
@@ -275,31 +326,48 @@ export default function Contacts() {
     <div className="page-content h-full">
       <div className="mb-5 animate-slide-up flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
-        {(hasSearchQuery || hasData) && (
+        {(hasSearchQuery || hasTagFilter || hasData) && (
           <div
             className="flex flex-col flex-col-reverse -mt-11 md:mt-0 md:flex-row items-end
               md:items-center gap-3 justify-between">
-            <InputGroup className="dark:bg-card max-w-96 bg-white">
-              <InputGroupInput
-                placeholder="Search contacts"
-                value={contactSearch}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              <InputGroupAddon>
-                <Search />
-              </InputGroupAddon>
-              {contactSearch && (
-                <InputGroupAddon align="inline-end">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-transparent"
-                    onClick={() => handleSearchChange('')}>
-                    <X />
-                  </Button>
+            <div className="flex items-center gap-2">
+              <InputGroup className="dark:bg-card max-w-96 bg-white">
+                <InputGroupInput
+                  placeholder="Search contacts"
+                  value={contactSearch}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                />
+                <InputGroupAddon>
+                  <Search />
                 </InputGroupAddon>
-              )}
-            </InputGroup>
+                {contactSearch && (
+                  <InputGroupAddon align="inline-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="hover:bg-transparent"
+                      onClick={() => handleSearchChange('')}>
+                      <X />
+                    </Button>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant={hasTagFilter ? 'default' : 'outline'} size="icon">
+                    <Tag size={16} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-80 p-3">
+                  <Label className="mb-1.5 block">Filter by tag</Label>
+                  <TagsInput
+                    value={tagFilter}
+                    onChange={handleTagFilterChange}
+                    placeholder="Add a tag to filter by"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="flex items-center gap-2">
               <NewButton
                 label="Import Contacts"
@@ -320,7 +388,7 @@ export default function Contacts() {
             message={apiError?.message ?? 'Access denied.'}
             rawMessage={apiError?.rawMessage}
           />
-        ) : !hasData && !hasSearchQuery ? (
+        ) : !hasData && !hasSearchQuery && !hasTagFilter ? (
           emptyContent
         ) : (
           <DataTable
