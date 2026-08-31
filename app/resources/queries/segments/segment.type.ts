@@ -9,6 +9,23 @@ export type CampaignActivityEvent = 'opened' | 'clicked'
 export type CampaignActivityOp = 'has' | 'has_not'
 export type LogicalOp = 'and' | 'or'
 
+/** Fixed set of Contact columns a contact_field condition can filter on -
+ * mirrors the backend's ContactFieldName (app/schemas/segment_rule.py). */
+export type ContactFieldName =
+  | 'contact_type'
+  | 'company'
+  | 'city'
+  | 'state'
+  | 'country'
+  | 'is_active'
+
+/** Shared by contact_field and custom_field - mirrors the backend's
+ * ContactFieldOp. Which ops are valid for a given field/value_type is
+ * enforced by ALLOWED_OPS_BY_CONTACT_FIELD (contact_field, static) or the
+ * selected definition's value_type (custom_field, dynamic) - see
+ * segment-rule-builder.tsx. */
+export type ContactFieldOp = '==' | '!=' | 'ilike' | 'in' | '>' | '>=' | '<' | '<='
+
 export type ListMembershipCondition = {
   type: 'list_membership'
   list_id: string
@@ -22,7 +39,25 @@ export type CampaignActivityCondition = {
   op: CampaignActivityOp
 }
 
-export type SegmentLeaf = ListMembershipCondition | CampaignActivityCondition
+export type ContactFieldCondition = {
+  type: 'contact_field'
+  field: ContactFieldName
+  operator: ContactFieldOp
+  value: string | boolean | string[]
+}
+
+export type CustomFieldCondition = {
+  type: 'custom_field'
+  field_name: string
+  operator: ContactFieldOp
+  value: string | number | boolean
+}
+
+export type SegmentLeaf =
+  | ListMembershipCondition
+  | CampaignActivityCondition
+  | ContactFieldCondition
+  | CustomFieldCondition
 
 export type SegmentRuleGroup = {
   op: LogicalOp

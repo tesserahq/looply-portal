@@ -2,11 +2,68 @@ import { NodeENVType } from '@/libraries/fetch'
 import { ContactListSelect } from '@/components/form/form-contact-lists'
 import { CampaignSelect } from '@/components/form/form-campaigns'
 import { defaultListMembershipLeaf } from '@/resources/queries/segments'
-import { SegmentLeaf, SegmentRuleNode } from '@/resources/queries/segments/segment.type'
+import {
+  ContactFieldCondition,
+  ContactFieldName,
+  ContactFieldOp,
+  CustomFieldCondition,
+  SegmentLeaf,
+  SegmentRuleNode,
+} from '@/resources/queries/segments/segment.type'
+import { FieldValueType } from '@/resources/queries/custom-fields'
+import { useContactTypes } from '@/resources/hooks/contacts'
+import { useCustomFieldDefinitions } from '@/resources/hooks/custom-fields/use-custom-field'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent } from '@shadcn/ui/card'
+import { Input } from '@shadcn/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import { Plus, X } from 'lucide-react'
+import { useApp } from 'tessera-ui'
+
+/** Mirrors the backend's ALLOWED_OPS_BY_FIELD (app/schemas/segment_rule.py) -
+ * none of contact_field's own columns are numeric/ordered, so none of them
+ * ever grant >, >=, <, <=. */
+const STRING_FIELD_OPS: ContactFieldOp[] = ['==', '!=', 'ilike', 'in']
+const ALLOWED_OPS_BY_CONTACT_FIELD: Record<ContactFieldName, ContactFieldOp[]> = {
+  contact_type: STRING_FIELD_OPS,
+  company: STRING_FIELD_OPS,
+  city: STRING_FIELD_OPS,
+  state: STRING_FIELD_OPS,
+  country: STRING_FIELD_OPS,
+  is_active: ['==', '!='],
+}
+
+const CONTACT_FIELD_LABELS: Record<ContactFieldName, string> = {
+  contact_type: 'Contact type',
+  company: 'Company',
+  city: 'City',
+  state: 'State',
+  country: 'Country',
+  is_active: 'Is active',
+}
+
+/** Mirrors the backend's ALLOWED_OPS_BY_VALUE_TYPE
+ * (app/repositories/segment_resolver.py) MINUS "in" - unlike contact_field,
+ * CustomFieldCondition.value (app/schemas/segment_rule.py) has no list
+ * variant, so "in" has no value shape that would actually validate; it's
+ * left off here rather than offered and always rejected. */
+const ALLOWED_OPS_BY_VALUE_TYPE: Record<FieldValueType, ContactFieldOp[]> = {
+  string: ['==', '!=', 'ilike'],
+  number: ['==', '!=', '>', '>=', '<', '<='],
+  boolean: ['==', '!='],
+  date: ['==', '!=', '>', '>=', '<', '<='],
+}
+
+const OP_LABELS: Record<ContactFieldOp, string> = {
+  '==': 'Is',
+  '!=': 'Is not',
+  ilike: 'Contains',
+  in: 'Is any of',
+  '>': '>',
+  '>=': '>=',
+  '<': '<',
+  '<=': '<=',
+}
 
 /** Index path into nested `.conditions` arrays - [] addresses the root. */
 type Path = number[]
@@ -261,14 +318,24 @@ function LeafEditor({
   nodeEnv,
   disabled,
 }: LeafEditorProps) {
-  const handleTypeChange = (type: 'list_membership' | 'campaign_activity') => {
+  const handleTypeChange = (type: SegmentLeaf['type']) => {
     if (type === node.type) return
-    onChange(
-      path,
-      type === 'list_membership'
-        ? { type: 'list_membership', list_id: '', op: 'in' }
-        : { type: 'campaign_activity', campaign_id: '', event: 'opened', op: 'has_not' }
-    )
+    let next: SegmentLeaf
+    switch (type) {
+      case 'list_membership':
+        next = { type: 'list_membership', list_id: '', op: 'in' }
+        break
+      case 'campaign_activity':
+        next = { type: 'campaign_activity', campaign_id: '', event: 'opened', op: 'has_not' }
+        break
+      case 'contact_field':
+        next = { type: 'contact_field', field: 'company', operator: '==', value: '' }
+        break
+      case 'custom_field':
+        next = { type: 'custom_field', field_name: '', operator: '==', value: '' }
+        break
+    }
+    onChange(path, next)
   }
 
   return (
@@ -280,6 +347,8 @@ function LeafEditor({
         <SelectContent>
           <SelectItem value="list_membership">List membership</SelectItem>
           <SelectItem value="campaign_activity">Campaign activity</SelectItem>
+          <SelectItem value="contact_field">Contact field</SelectItem>
+          <SelectItem value="custom_field">Custom field</SelectItem>
         </SelectContent>
       </Select>
 
@@ -307,7 +376,7 @@ function LeafEditor({
             />
           </div>
         </>
-      ) : (
+      ) : node.type === 'campaign_activity' ? (
         <>
           <Select
             value={node.op}
@@ -343,6 +412,22 @@ function LeafEditor({
             />
           </div>
         </>
+      ) : node.type === 'contact_field' ? (
+        <ContactFieldEditor
+          node={node}
+          onChange={(value) => onChange(path, value)}
+          apiUrl={apiUrl}
+          nodeEnv={nodeEnv}
+          disabled={disabled}
+        />
+      ) : (
+        <CustomFieldEditor
+          node={node}
+          onChange={(value) => onChange(path, value)}
+          apiUrl={apiUrl}
+          nodeEnv={nodeEnv}
+          disabled={disabled}
+        />
       )}
 
       {!isRoot && !disabled && (
@@ -356,5 +441,255 @@ function LeafEditor({
         </Button>
       )}
     </div>
+  )
+}
+
+interface ContactFieldEditorProps {
+  node: ContactFieldCondition
+  onChange: (value: ContactFieldCondition) => void
+  apiUrl: string
+  nodeEnv: NodeENVType
+  disabled: boolean
+}
+
+/** field/operator/value editor for a `contact_field` leaf - field and its
+ * allowed operators are a static, fixed set (ALLOWED_OPS_BY_CONTACT_FIELD),
+ * so unlike custom_field this needs no lookup to know what's valid. */
+function ContactFieldEditor({
+  node,
+  onChange,
+  apiUrl,
+  nodeEnv,
+  disabled,
+}: ContactFieldEditorProps) {
+  const { token } = useApp()
+  const allowedOps = ALLOWED_OPS_BY_CONTACT_FIELD[node.field]
+  const { data: contactTypes, isLoading: isLoadingContactTypes } = useContactTypes({
+    apiUrl,
+    token: token!,
+    nodeEnv,
+  })
+
+  const handleFieldChange = (field: ContactFieldName) => {
+    const operator = ALLOWED_OPS_BY_CONTACT_FIELD[field].includes(node.operator)
+      ? node.operator
+      : ALLOWED_OPS_BY_CONTACT_FIELD[field][0]
+    const value = field === 'is_active' ? false : operator === 'in' ? [] : ''
+    onChange({ ...node, field, operator, value })
+  }
+
+  const handleOperatorChange = (operator: ContactFieldOp) => {
+    let value: ContactFieldCondition['value']
+    if (node.field === 'is_active') {
+      value = typeof node.value === 'boolean' ? node.value : false
+    } else if (operator === 'in') {
+      value = Array.isArray(node.value) ? node.value : node.value ? [node.value as string] : []
+    } else {
+      value = Array.isArray(node.value) ? (node.value[0] ?? '') : node.value
+    }
+    onChange({ ...node, operator, value })
+  }
+
+  return (
+    <>
+      <Select value={node.field} disabled={disabled} onValueChange={handleFieldChange}>
+        <SelectTrigger className="w-36">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(CONTACT_FIELD_LABELS).map(([field, label]) => (
+            <SelectItem key={field} value={field}>
+              {label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={node.operator} disabled={disabled} onValueChange={handleOperatorChange}>
+        <SelectTrigger className="w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {allowedOps.map((op) => (
+            <SelectItem key={op} value={op}>
+              {OP_LABELS[op]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div className="min-w-56 flex-1">
+        {node.field === 'is_active' ? (
+          <Select
+            value={String(node.value)}
+            disabled={disabled}
+            onValueChange={(value) => onChange({ ...node, value: value === 'true' })}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">True</SelectItem>
+              <SelectItem value="false">False</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : node.field === 'contact_type' ? (
+          <Select
+            value={node.operator === 'in' ? undefined : (node.value as string)}
+            disabled={disabled || isLoadingContactTypes}
+            onValueChange={(value) =>
+              onChange({
+                ...node,
+                value:
+                  node.operator === 'in'
+                    ? [...new Set([...(node.value as string[]), value])]
+                    : value,
+              })
+            }>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a contact type" />
+            </SelectTrigger>
+            <SelectContent>
+              {contactTypes?.items.map((opt) => (
+                <SelectItem key={opt.id} value={opt.name}>
+                  {opt.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : node.operator === 'in' ? (
+          <Input
+            value={(node.value as string[]).join(', ')}
+            disabled={disabled}
+            placeholder="Comma-separated values"
+            onChange={(e) =>
+              onChange({
+                ...node,
+                value: e.target.value
+                  .split(',')
+                  .map((v) => v.trim())
+                  .filter(Boolean),
+              })
+            }
+          />
+        ) : (
+          <Input
+            value={node.value as string}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...node, value: e.target.value })}
+          />
+        )}
+      </div>
+    </>
+  )
+}
+
+interface CustomFieldEditorProps {
+  node: CustomFieldCondition
+  onChange: (value: CustomFieldCondition) => void
+  apiUrl: string
+  nodeEnv: NodeENVType
+  disabled: boolean
+}
+
+/** field_name/operator/value editor for a `custom_field` leaf - field_name is
+ * a free-form string on a CustomFieldDefinition row, so (unlike
+ * contact_field) its allowed operators and value shape depend on a lookup
+ * into that row's value_type, done here client-side against the same
+ * definitions list the picker below is populated from. */
+function CustomFieldEditor({ node, onChange, apiUrl, nodeEnv, disabled }: CustomFieldEditorProps) {
+  const { token } = useApp()
+  const { data: definitions, isLoading: isLoadingDefinitions } = useCustomFieldDefinitions(
+    { apiUrl, token: token!, nodeEnv },
+    { page: 1, size: 100 }
+  )
+
+  const selectedDefinition = definitions?.items.find((d) => d.name === node.field_name)
+  const valueType = selectedDefinition?.value_type
+  const allowedOps = valueType
+    ? ALLOWED_OPS_BY_VALUE_TYPE[valueType]
+    : STRING_FIELD_OPS.filter((op) => op !== 'in')
+
+  const handleFieldNameChange = (field_name: string) => {
+    const definition = definitions?.items.find((d) => d.name === field_name)
+    const nextAllowedOps = definition
+      ? ALLOWED_OPS_BY_VALUE_TYPE[definition.value_type]
+      : allowedOps
+    const operator = nextAllowedOps.includes(node.operator) ? node.operator : nextAllowedOps[0]
+    const value = definition?.value_type === 'boolean' ? false : ''
+    onChange({ ...node, field_name, operator, value })
+  }
+
+  const handleOperatorChange = (operator: ContactFieldOp) => {
+    onChange({ ...node, operator })
+  }
+
+  return (
+    <>
+      <Select
+        value={node.field_name}
+        disabled={disabled || isLoadingDefinitions}
+        onValueChange={handleFieldNameChange}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="Select a field" />
+        </SelectTrigger>
+        <SelectContent>
+          {definitions?.items.map((definition) => (
+            <SelectItem key={definition.id} value={definition.name}>
+              {definition.label || definition.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={node.operator} disabled={disabled} onValueChange={handleOperatorChange}>
+        <SelectTrigger className="w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {allowedOps.map((op) => (
+            <SelectItem key={op} value={op}>
+              {OP_LABELS[op]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div className="min-w-56 flex-1">
+        {valueType === 'boolean' ? (
+          <Select
+            value={String(node.value)}
+            disabled={disabled}
+            onValueChange={(value) => onChange({ ...node, value: value === 'true' })}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">True</SelectItem>
+              <SelectItem value="false">False</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : valueType === 'number' ? (
+          <Input
+            type="number"
+            value={node.value as number}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...node, value: e.target.valueAsNumber })}
+          />
+        ) : valueType === 'date' ? (
+          <Input
+            type="date"
+            value={node.value as string}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...node, value: e.target.value })}
+          />
+        ) : (
+          <Input
+            value={node.value as string}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...node, value: e.target.value })}
+          />
+        )}
+      </div>
+    </>
   )
 }

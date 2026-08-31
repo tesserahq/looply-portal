@@ -39,7 +39,25 @@ export function isRuleComplete(node: SegmentRuleNode): boolean {
   if ('conditions' in node) {
     return node.conditions.every(isRuleComplete)
   }
-  return node.type === 'list_membership' ? !!node.list_id : !!node.campaign_id
+  switch (node.type) {
+    case 'list_membership':
+      return !!node.list_id
+    case 'campaign_activity':
+      return !!node.campaign_id
+    case 'contact_field':
+      return !!node.field && hasValue(node.value)
+    case 'custom_field':
+      return !!node.field_name && hasValue(node.value)
+  }
+}
+
+/** Whether a contact_field/custom_field leaf's value has been filled in - a
+ * boolean is always "filled" (it defaults to a real value, not empty), a
+ * list needs at least one item, a string needs to be non-empty. */
+function hasValue(value: string | number | boolean | string[]): boolean {
+  if (typeof value === 'boolean' || typeof value === 'number') return true
+  if (Array.isArray(value)) return value.length > 0
+  return value !== ''
 }
 
 /**
