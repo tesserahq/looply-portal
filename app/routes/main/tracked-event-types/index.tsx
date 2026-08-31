@@ -84,6 +84,14 @@ export default function TrackedEventTypes() {
         ),
       },
       {
+        accessorKey: 'source',
+        header: 'Source',
+        size: 150,
+        cell: ({ row }) => (
+          <span className="text-muted-foreground text-sm">{row.original.source || '-'}</span>
+        ),
+      },
+      {
         accessorKey: 'created_at',
         header: 'Created At',
         size: 100,

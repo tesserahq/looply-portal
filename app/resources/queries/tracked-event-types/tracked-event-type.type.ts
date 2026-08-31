@@ -6,6 +6,7 @@
 export type TrackedEventTypeType = {
   id: string
   event_type: string
+  source: string | null
   created_by_id: string | null
   created_at: string
   updated_at: string
@@ -17,4 +18,5 @@ export type TrackedEventTypeType = {
  */
 export type CreateTrackedEventTypePayload = {
   event_type: string
+  source?: string
 }

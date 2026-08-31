@@ -26,6 +26,9 @@ export type ContactType = {
   notes: string
   is_active: boolean
   tags: string[]
+  /** Provenance: "manual", "website", "phone", or an event-derived value stamped
+   * from TrackedEventType.source. Unset for contacts that predate this field. */
+  source: string | null
   created_by_id: string
   created_at: string
   updated_at: string
@@ -66,7 +69,7 @@ export interface ContactQueryParams {
  */
 export type CreateContactData = Omit<
   ContactType,
-  'id' | 'created_by_id' | 'created_at' | 'updated_at'
+  'id' | 'source' | 'created_by_id' | 'created_at' | 'updated_at'
 >
 
 /**

@@ -6,10 +6,12 @@ import { z } from 'zod/v4'
  */
 export const trackedEventTypeFormSchema = z.object({
   event_type: z.string().min(1, 'Event type is required'),
+  source: z.string().optional(),
 })
 
 export type TrackedEventTypeFormValue = z.infer<typeof trackedEventTypeFormSchema>
 
 export const defaultTrackedEventTypeFormValues: TrackedEventTypeFormValue = {
   event_type: '',
+  source: '',
 }

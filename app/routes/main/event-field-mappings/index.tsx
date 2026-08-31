@@ -13,7 +13,7 @@ import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { ArrowRight, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
+import { ArrowRight, Ellipsis, EyeIcon, KeyRound, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate } from 'react-router'
@@ -61,7 +61,7 @@ export default function EventFieldMappings() {
     (mapping: EventFieldMappingType) => {
       deleteModalRef.current?.open({
         title: 'Remove Event Field Mapping',
-        description: `Newly ingested "${mapping.event_type}" events will stop updating "${mapping.field_name}". This action cannot be undone.`,
+        description: `Newly ingested "${mapping.event_type}" events will stop updating "${mapping.target_type === 'contact_field' ? mapping.target_field : mapping.field_name}". This action cannot be undone.`,
         onDelete: async () => {
           deleteModalRef.current?.updateConfig({ isLoading: true })
           await deleteMapping(mapping.id)
@@ -91,9 +91,24 @@ export default function EventFieldMappings() {
       },
       {
         accessorKey: 'field_name',
-        header: 'Custom Field',
+        header: 'Target',
         size: 220,
-        cell: ({ row }) => <span className="text-sm font-medium">{row.original.field_name}</span>,
+        cell: ({ row }) => {
+          const { target_type, target_field, field_name, is_identity_key } = row.original
+          const target = target_type === 'contact_field' ? target_field : field_name
+          return (
+            <span className="flex items-center gap-1.5 text-sm font-medium">
+              {is_identity_key && (
+                <KeyRound
+                  size={12}
+                  className="text-muted-foreground shrink-0"
+                  aria-label="Identity key"
+                />
+              )}
+              {target}
+            </span>
+          )
+        },
       },
       {
         accessorKey: 'source_path',
