@@ -3,13 +3,16 @@ import {
   deleteContactCustomFieldValue,
   deleteCustomFieldDefinition,
   getContactCustomFieldValues,
+  getCustomFieldDefinition,
   getCustomFieldDefinitions,
   setContactCustomFieldValue,
+  updateCustomFieldDefinition,
 } from '@/resources/queries/custom-fields/custom-field.queries'
 import {
   ContactCustomFieldValueType,
   CreateCustomFieldDefinitionPayload,
   CustomFieldDefinitionType,
+  UpdateCustomFieldDefinitionPayload,
 } from '@/resources/queries/custom-fields/custom-field.type'
 import { IQueryConfig, IQueryParams, QueryError } from '@/resources/queries'
 import { toApiError } from '@/libraries/fetch'
@@ -25,6 +28,8 @@ export const customFieldQueryKeys = {
     lists: () => [...customFieldQueryKeys.definitions.all, 'list'] as const,
     list: (config: IQueryConfig, params?: IQueryParams) =>
       [...customFieldQueryKeys.definitions.lists(), config, params] as const,
+    details: () => [...customFieldQueryKeys.definitions.all, 'detail'] as const,
+    detail: (id: string) => [...customFieldQueryKeys.definitions.details(), id] as const,
   },
   contactValues: {
     all: ['contact-custom-field-values'] as const,
@@ -70,6 +75,42 @@ export function useCustomFieldDefinitions(
 }
 
 /**
+ * Hook for fetching a single custom field definition
+ */
+export function useCustomFieldDefinitionDetail(
+  config: IQueryConfig,
+  id: string,
+  options?: {
+    enabled?: boolean
+    staleTime?: number
+  }
+) {
+  const query = useQuery({
+    queryKey: customFieldQueryKeys.definitions.detail(id),
+    queryFn: async () => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await getCustomFieldDefinition(config, id)
+      } catch (error) {
+        throw new QueryError(
+          'Failed to fetch custom field definition',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'custom field definition')
+        )
+      }
+    },
+    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled !== false && !!id && !!config.token,
+  })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
+}
+
+/**
  * Hook for creating a custom field definition
  */
 export function useCreateCustomFieldDefinition(
@@ -99,6 +140,49 @@ export function useCreateCustomFieldDefinition(
     },
     onError: (error: QueryError) => {
       toast.error('Failed to create custom field', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for updating a custom field definition's label
+ */
+export function useUpdateCustomFieldDefinition(
+  config: IQueryConfig,
+  options?: {
+    onSuccess?: (data: CustomFieldDefinitionType) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      updateData,
+    }: {
+      id: string
+      updateData: UpdateCustomFieldDefinitionPayload
+    }): Promise<CustomFieldDefinitionType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await updateCustomFieldDefinition(config, id, updateData)
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(customFieldQueryKeys.definitions.detail(data.id), data)
+      queryClient.invalidateQueries({ queryKey: customFieldQueryKeys.definitions.lists() })
+
+      toast.success(`Custom field "${data.name}" updated successfully!`)
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to update custom field', {
         description: error?.message || 'Please try again.',
       })
 

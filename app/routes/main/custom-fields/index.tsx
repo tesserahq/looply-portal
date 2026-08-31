@@ -14,10 +14,10 @@ import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Ellipsis, Trash2 } from 'lucide-react'
+import { Edit, Ellipsis, EyeIcon, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
-import { useLoaderData, useNavigate } from 'react-router'
+import { Link, useLoaderData, useNavigate } from 'react-router'
 import { ResourceID, useApp, DateTime } from 'tessera-ui'
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -81,7 +81,11 @@ export default function CustomFields() {
         accessorKey: 'name',
         header: 'Name',
         size: 250,
-        cell: ({ row }) => <span className="text-sm font-medium">{row.original.name}</span>,
+        cell: ({ row }) => (
+          <Link to={`/custom-fields/${row.original.id}`} className="button-link">
+            <span className="text-sm font-medium">{row.original.name}</span>
+          </Link>
+        ),
       },
       {
         accessorKey: 'label',
@@ -132,6 +136,20 @@ export default function CustomFields() {
               <PopoverContent align="start" side="right" className="w-40 p-2">
                 <Button
                   variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/custom-fields/${row.original.id}`)}>
+                  <EyeIcon size={18} />
+                  <span>View</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => navigate(`/custom-fields/${row.original.id}/edit`)}>
+                  <Edit size={18} />
+                  <span>Edit</span>
+                </Button>
+                <Button
+                  variant="ghost"
                   className="hover:bg-destructive hover:text-destructive-foreground flex w-full
                     justify-start gap-2"
                   onClick={() => handleDelete(row.original)}>
@@ -144,7 +162,7 @@ export default function CustomFields() {
         },
       },
     ],
-    [handleDelete]
+    [handleDelete, navigate]
   )
 
   if (isLoading) {

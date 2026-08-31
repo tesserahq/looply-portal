@@ -1,7 +1,9 @@
 // Query functions
 export {
   getCustomFieldDefinitions,
+  getCustomFieldDefinition,
   createCustomFieldDefinition,
+  updateCustomFieldDefinition,
   deleteCustomFieldDefinition,
   getContactCustomFieldValues,
   setContactCustomFieldValue,
@@ -13,5 +15,6 @@ export type {
   FieldValueType,
   CustomFieldDefinitionType,
   CreateCustomFieldDefinitionPayload,
+  UpdateCustomFieldDefinitionPayload,
   ContactCustomFieldValueType,
 } from './custom-field.type'

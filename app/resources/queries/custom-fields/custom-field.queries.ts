@@ -5,6 +5,7 @@ import {
   ContactCustomFieldValueType,
   CreateCustomFieldDefinitionPayload,
   CustomFieldDefinitionType,
+  UpdateCustomFieldDefinitionPayload,
 } from './custom-field.type'
 
 const CUSTOM_FIELD_DEFINITIONS_ENDPOINT = '/custom-field-definitions'
@@ -28,6 +29,25 @@ export async function getCustomFieldDefinitions(
 }
 
 /**
+ * Get a custom field definition by ID.
+ */
+export async function getCustomFieldDefinition(
+  config: IQueryConfig,
+  id: string
+): Promise<CustomFieldDefinitionType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${CUSTOM_FIELD_DEFINITIONS_ENDPOINT}/${id}`,
+    token,
+    nodeEnv,
+    { method: 'GET' }
+  )
+
+  return response as CustomFieldDefinitionType
+}
+
+/**
  * Create a new custom field definition.
  */
 export async function createCustomFieldDefinition(
@@ -40,6 +60,29 @@ export async function createCustomFieldDefinition(
     method: 'POST',
     body: JSON.stringify(data),
   })
+
+  return response as CustomFieldDefinitionType
+}
+
+/**
+ * Update a custom field definition's label.
+ */
+export async function updateCustomFieldDefinition(
+  config: IQueryConfig,
+  id: string,
+  data: UpdateCustomFieldDefinitionPayload
+): Promise<CustomFieldDefinitionType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${CUSTOM_FIELD_DEFINITIONS_ENDPOINT}/${id}`,
+    token,
+    nodeEnv,
+    {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }
+  )
 
   return response as CustomFieldDefinitionType
 }

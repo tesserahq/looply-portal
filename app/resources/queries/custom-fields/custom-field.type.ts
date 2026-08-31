@@ -26,6 +26,14 @@ export type CreateCustomFieldDefinitionPayload = {
 }
 
 /**
+ * Payload for updating a custom field definition. name and value_type are
+ * immutable once set - only label can be changed after creation.
+ */
+export type UpdateCustomFieldDefinitionPayload = {
+  label?: string
+}
+
+/**
  * A contact's current value for one custom field definition.
  */
 export type ContactCustomFieldValueType = {
