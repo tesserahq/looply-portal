@@ -25,7 +25,7 @@ export function contactToFormValues(contact: ContactType): ContactFormValue {
     zip_code: contact.zip_code || '',
     country: contact.country || '',
     notes: contact.notes || '',
-    is_active: contact.is_active ?? true,
+    status: contact.status || 'active',
     tags: contact.tags || [],
     created_by_id: contact.created_by_id || '',
     created_at: contact.created_at || '',
@@ -58,7 +58,7 @@ export function formValuesToContactData(
     zip_code: formValues.zip_code || '',
     country: formValues.country || '',
     notes: formValues.notes || '',
-    is_active: formValues.is_active ?? true,
+    status: formValues.status || 'active',
     tags: formValues.tags || [],
   }
 }

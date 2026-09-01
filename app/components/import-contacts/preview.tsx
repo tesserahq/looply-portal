@@ -62,11 +62,7 @@ export function ImportContactsPreview({ transformedData, isLoading, onBack, onIm
                       <TableCell
                         key={prop.key}
                         className="text-navy-800 dark:text-navy-100 py-2 ps-4 whitespace-nowrap">
-                        {prop.key === 'is_active'
-                          ? contact[prop.key]
-                            ? 'Yes'
-                            : 'No'
-                          : contact[prop.key]?.toString() || '-'}
+                        {contact[prop.key]?.toString() || '-'}
                       </TableCell>
                     ))}
                   </TableRow>

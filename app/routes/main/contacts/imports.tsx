@@ -40,7 +40,7 @@ export type ContactProperty =
   | 'zip_code'
   | 'country'
   | 'notes'
-  | 'is_active'
+  | 'status'
 
 export type IContactPropertyMapping = Partial<Record<string, string>>
 
@@ -62,7 +62,7 @@ export const CONTACT_PROPERTIES: { key: ContactProperty; label: string; required
   { key: 'zip_code', label: 'Zip Code' },
   { key: 'country', label: 'Country' },
   { key: 'notes', label: 'Notes' },
-  { key: 'is_active', label: 'Is Active' },
+  { key: 'status', label: 'Status' },
 ]
 
 const MAX_FILE_SIZE = 500 * 1024 // 500KB in bytes
@@ -146,7 +146,7 @@ export default function ImportContactsPage() {
         zip_code: '',
         country: '',
         notes: '',
-        is_active: true,
+        status: 'active',
       }
 
       // Iterate through columnMapping to map CSV columns to contact properties
@@ -159,14 +159,9 @@ export default function ImportContactsPage() {
         // Get the value from CSV row using the original CSV column name
         const value = row[csvColumn]
 
-        // Handle boolean conversion for is_active
-        if (contactProperty === 'is_active') {
-          contact['is_active'] = true
-        } else {
-          // Convert to string for other fields, send empty string if value is empty
-          const stringValue = value !== undefined && value !== null ? String(value).trim() : ''
-          contact[contactProperty] = stringValue
-        }
+        // Convert to string, send empty string if value is empty
+        const stringValue = value !== undefined && value !== null ? String(value).trim() : ''
+        contact[contactProperty] = stringValue
       })
 
       return contact

@@ -12,7 +12,7 @@ import {
   SegmentRuleNode,
 } from '@/resources/queries/segments/segment.type'
 import { FieldValueType } from '@/resources/queries/custom-fields'
-import { useContactTypes } from '@/resources/hooks/contacts'
+import { useContactTypes, useContactStatuses } from '@/resources/hooks/contacts'
 import { useCustomFieldDefinitions } from '@/resources/hooks/custom-fields/use-custom-field'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent } from '@shadcn/ui/card'
@@ -25,13 +25,16 @@ import { useApp } from 'tessera-ui'
  * none of contact_field's own columns are numeric/ordered, so none of them
  * ever grant >, >=, <, <=. */
 const STRING_FIELD_OPS: ContactFieldOp[] = ['==', '!=', 'ilike', 'in']
+/** status is a fixed enum (active/inactive/pending), not free text - ilike
+ * doesn't apply, but in is genuinely useful (e.g. "active or pending"). */
+const STATUS_FIELD_OPS: ContactFieldOp[] = ['==', '!=', 'in']
 const ALLOWED_OPS_BY_CONTACT_FIELD: Record<ContactFieldName, ContactFieldOp[]> = {
   contact_type: STRING_FIELD_OPS,
   company: STRING_FIELD_OPS,
   city: STRING_FIELD_OPS,
   state: STRING_FIELD_OPS,
   country: STRING_FIELD_OPS,
-  is_active: ['==', '!='],
+  status: STATUS_FIELD_OPS,
 }
 
 const CONTACT_FIELD_LABELS: Record<ContactFieldName, string> = {
@@ -40,7 +43,7 @@ const CONTACT_FIELD_LABELS: Record<ContactFieldName, string> = {
   city: 'City',
   state: 'State',
   country: 'Country',
-  is_active: 'Is active',
+  status: 'Status',
 }
 
 /** Mirrors the backend's ALLOWED_OPS_BY_VALUE_TYPE
@@ -498,20 +501,23 @@ function ContactFieldEditor({
     token: token!,
     nodeEnv,
   })
+  const { data: contactStatuses, isLoading: isLoadingContactStatuses } = useContactStatuses({
+    apiUrl,
+    token: token!,
+    nodeEnv,
+  })
 
   const handleFieldChange = (field: ContactFieldName) => {
     const operator = ALLOWED_OPS_BY_CONTACT_FIELD[field].includes(node.operator)
       ? node.operator
       : ALLOWED_OPS_BY_CONTACT_FIELD[field][0]
-    const value = field === 'is_active' ? false : operator === 'in' ? [] : ''
+    const value = field === 'status' ? 'active' : operator === 'in' ? [] : ''
     onChange({ ...node, field, operator, value })
   }
 
   const handleOperatorChange = (operator: ContactFieldOp) => {
     let value: ContactFieldCondition['value']
-    if (node.field === 'is_active') {
-      value = typeof node.value === 'boolean' ? node.value : false
-    } else if (operator === 'in') {
+    if (operator === 'in') {
       value = Array.isArray(node.value) ? node.value : node.value ? [node.value as string] : []
     } else {
       value = Array.isArray(node.value) ? (node.value[0] ?? '') : node.value
@@ -548,17 +554,28 @@ function ContactFieldEditor({
       </Select>
 
       <div className="min-w-56 flex-1">
-        {node.field === 'is_active' ? (
+        {node.field === 'status' ? (
           <Select
-            value={String(node.value)}
-            disabled={disabled}
-            onValueChange={(value) => onChange({ ...node, value: value === 'true' })}>
+            value={node.operator === 'in' ? undefined : (node.value as string)}
+            disabled={disabled || isLoadingContactStatuses}
+            onValueChange={(value) =>
+              onChange({
+                ...node,
+                value:
+                  node.operator === 'in'
+                    ? [...new Set([...(node.value as string[]), value])]
+                    : value,
+              })
+            }>
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue placeholder="Select a status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="true">True</SelectItem>
-              <SelectItem value="false">False</SelectItem>
+              {contactStatuses?.items.map((opt) => (
+                <SelectItem key={opt.id} value={opt.id}>
+                  {opt.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         ) : node.field === 'contact_type' ? (
