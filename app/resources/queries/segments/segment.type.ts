@@ -8,6 +8,7 @@ export type ListMembershipOp = 'in' | 'not_in'
 export type CampaignActivityEvent = 'opened' | 'clicked'
 export type CampaignActivityOp = 'has' | 'has_not'
 export type LogicalOp = 'and' | 'or'
+export type TagMembershipOp = 'in' | 'not_in'
 
 /** Fixed set of Contact columns a contact_field condition can filter on -
  * mirrors the backend's ContactFieldName (app/schemas/segment_rule.py). */
@@ -53,11 +54,21 @@ export type CustomFieldCondition = {
   value: string | number | boolean
 }
 
+/** ANY-of (OR) semantics: `in` means "has at least one of tag_ids", `not_in`
+ * means "has none of tag_ids". ALL-of-multiple-tags is expressed by nesting
+ * multiple single-tag `in` conditions under an AND group instead. */
+export type TagMembershipCondition = {
+  type: 'tags'
+  tag_ids: string[]
+  op: TagMembershipOp
+}
+
 export type SegmentLeaf =
   | ListMembershipCondition
   | CampaignActivityCondition
   | ContactFieldCondition
   | CustomFieldCondition
+  | TagMembershipCondition
 
 export type SegmentRuleGroup = {
   op: LogicalOp
