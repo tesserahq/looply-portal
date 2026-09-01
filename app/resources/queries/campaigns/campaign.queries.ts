@@ -1,7 +1,13 @@
 import { fetchApi } from '@/libraries/fetch'
 import { IPaging } from '@/resources/types'
 import { IQueryConfig, IQueryParams } from '..'
-import { CampaignType, CreateCampaignPayload, UpdateCampaignPayload } from './campaign.type'
+import {
+  CampaignEngagementTimelineType,
+  CampaignStatsType,
+  CampaignType,
+  CreateCampaignPayload,
+  UpdateCampaignPayload,
+} from './campaign.type'
 
 const CAMPAIGNS_ENDPOINT = '/campaigns'
 
@@ -34,6 +40,41 @@ export async function getCampaign(config: IQueryConfig, id: string): Promise<Cam
   })
 
   return response as CampaignType
+}
+
+/**
+ * Get computed engagement metrics for a campaign.
+ */
+export async function getCampaignStats(
+  config: IQueryConfig,
+  id: string
+): Promise<CampaignStatsType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(`${apiUrl}${CAMPAIGNS_ENDPOINT}/${id}/stats`, token, nodeEnv, {
+    method: 'GET',
+  })
+
+  return response as CampaignStatsType
+}
+
+/**
+ * Get a campaign's opens/clicks bucketed by time elapsed since send.
+ */
+export async function getCampaignEngagementTimeline(
+  config: IQueryConfig,
+  id: string
+): Promise<CampaignEngagementTimelineType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${CAMPAIGNS_ENDPOINT}/${id}/stats/engagement-timeline`,
+    token,
+    nodeEnv,
+    { method: 'GET' }
+  )
+
+  return response as CampaignEngagementTimelineType
 }
 
 /**
