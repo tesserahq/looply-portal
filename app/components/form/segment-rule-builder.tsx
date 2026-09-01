@@ -1,6 +1,7 @@
 import { NodeENVType } from '@/libraries/fetch'
 import { ContactListSelect } from '@/components/form/form-contact-lists'
 import { CampaignSelect } from '@/components/form/form-campaigns'
+import { TagMultiSelect } from '@/components/form/form-tags'
 import { defaultListMembershipLeaf } from '@/resources/queries/segments'
 import {
   ContactFieldCondition,
@@ -334,6 +335,9 @@ function LeafEditor({
       case 'custom_field':
         next = { type: 'custom_field', field_name: '', operator: '==', value: '' }
         break
+      case 'tags':
+        next = { type: 'tags', tag_ids: [], op: 'in' }
+        break
     }
     onChange(path, next)
   }
@@ -349,10 +353,35 @@ function LeafEditor({
           <SelectItem value="campaign_activity">Campaign activity</SelectItem>
           <SelectItem value="contact_field">Contact field</SelectItem>
           <SelectItem value="custom_field">Custom field</SelectItem>
+          <SelectItem value="tags">Tags</SelectItem>
         </SelectContent>
       </Select>
 
-      {node.type === 'list_membership' ? (
+      {node.type === 'tags' ? (
+        <>
+          <Select
+            value={node.op}
+            disabled={disabled}
+            onValueChange={(op: 'in' | 'not_in') => onChange(path, { ...node, op })}>
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="in">Has any of</SelectItem>
+              <SelectItem value="not_in">Has none of</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="min-w-56 flex-1">
+            <TagMultiSelect
+              value={node.tag_ids}
+              onChange={(tagIds) => onChange(path, { ...node, tag_ids: tagIds })}
+              apiUrl={apiUrl}
+              nodeEnv={nodeEnv}
+              disabled={disabled}
+            />
+          </div>
+        </>
+      ) : node.type === 'list_membership' ? (
         <>
           <Select
             value={node.op}

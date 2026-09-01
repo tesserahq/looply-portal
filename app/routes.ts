@@ -37,6 +37,13 @@ export default [
       ]),
     ]),
 
+    // Tags
+    route('/tags', 'routes/main/tags/layout.tsx', [
+      index('routes/main/tags/index.tsx'),
+      route('new', 'routes/main/tags/new.tsx'),
+      route(':tag_id/edit', 'routes/main/tags/edit.tsx'),
+    ]),
+
     // Custom Events
     route('/custom-events', 'routes/main/custom-events/layout.tsx', [
       index('routes/main/custom-events/index.tsx'),

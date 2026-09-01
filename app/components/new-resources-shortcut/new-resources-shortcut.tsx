@@ -9,6 +9,7 @@ import {
   Plus,
   SlidersHorizontal,
   SquareUser,
+  Tag,
   Users2,
   Waypoints,
 } from 'lucide-react'
@@ -28,6 +29,7 @@ type ResourceType = {
     | 'contact-interactions'
     | 'segments'
     | 'custom-fields'
+    | 'tags'
     | 'event-mappings'
     | 'campaigns'
   name: string
@@ -37,6 +39,7 @@ type ResourceType = {
 
 const resourceTypes: ResourceType[] = [
   { id: 'contacts', name: 'Contacts', icon: SquareUser, href: '/contacts/new' },
+  { id: 'tags', name: 'Tags', icon: Tag, href: '/tags/new' },
   {
     id: 'custom-fields',
     name: 'Custom Fields',

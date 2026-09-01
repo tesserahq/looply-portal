@@ -11,6 +11,7 @@ import {
   Megaphone,
   SlidersHorizontal,
   SquareUser,
+  Tag,
   Users2,
   Waypoints,
   Zap,
@@ -52,6 +53,11 @@ export default function PrivateLayout() {
       title: 'Contacts',
       path: '/contacts',
       icon: asMenuIcon(SquareUser),
+    },
+    {
+      title: 'Tags',
+      path: '/tags',
+      icon: asMenuIcon(Tag),
     },
     {
       title: 'Custom Fields',

@@ -48,6 +48,8 @@ export function isRuleComplete(node: SegmentRuleNode): boolean {
       return !!node.field && hasValue(node.value)
     case 'custom_field':
       return !!node.field_name && hasValue(node.value)
+    case 'tags':
+      return node.tag_ids.length > 0
   }
 }
 
