@@ -15,6 +15,7 @@ import {
   useContactInteractionsByContactId,
 } from '@/resources/hooks/contact-interactions'
 import { useContactDetail, useDeleteContact } from '@/resources/hooks/contacts'
+import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { ContactInteractionType } from '@/resources/queries/contact-interactions'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { humanizeText } from '@/utils/helpers/text.helper'
@@ -260,11 +261,9 @@ export default function ContactDetailOverview() {
                   <dd className="d-content">{contact.email}</dd>
                 </div>
                 <div className="d-item">
-                  <dt className="d-label">State</dt>
+                  <dt className="d-label">Status</dt>
                   <dd className="d-content">
-                    <Badge variant={contact?.is_active ? 'active' : 'outline'}>
-                      {contact.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
+                    <ContactStatusBadge status={contact.status} />
                   </dd>
                 </div>
                 <div className="d-item">

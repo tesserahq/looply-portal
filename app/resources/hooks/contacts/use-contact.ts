@@ -2,6 +2,7 @@ import {
   fetchContacts,
   fetchContactDetail,
   fetchContactTypes,
+  fetchContactStatuses,
   createContact,
   createBatchContacts,
   updateContact,
@@ -29,6 +30,7 @@ export const contactQueryKeys = {
   details: () => [...contactQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...contactQueryKeys.details(), id] as const,
   types: () => [...contactQueryKeys.all, 'contact-types'] as const,
+  statuses: () => [...contactQueryKeys.all, 'contact-statuses'] as const,
 }
 
 /**
@@ -128,6 +130,44 @@ export function useContactTypes(
           'FETCH_ERROR',
           error,
           toApiError(error, 'contact types')
+        )
+      }
+    },
+    // The set is a fixed enum on the backend, not user data — no need to ever refetch
+    // within a session.
+    staleTime: Infinity,
+    enabled: options?.enabled !== false && !!config.token,
+  })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
+}
+
+/**
+ * Hook for fetching the fixed list of contact statuses (active/inactive/pending).
+ * @config - Contact query configuration
+ * @options - Contact query options
+ */
+export function useContactStatuses(
+  config: ContactQueryConfig,
+  options?: {
+    enabled?: boolean
+  }
+) {
+  const query = useQuery({
+    queryKey: contactQueryKeys.statuses(),
+    queryFn: async () => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await fetchContactStatuses(config)
+      } catch (error) {
+        throw new QueryError(
+          'Failed to fetch contact statuses',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'contact statuses')
         )
       }
     },

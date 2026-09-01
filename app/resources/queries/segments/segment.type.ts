@@ -12,13 +12,7 @@ export type TagMembershipOp = 'in' | 'not_in'
 
 /** Fixed set of Contact columns a contact_field condition can filter on -
  * mirrors the backend's ContactFieldName (app/schemas/segment_rule.py). */
-export type ContactFieldName =
-  | 'contact_type'
-  | 'company'
-  | 'city'
-  | 'state'
-  | 'country'
-  | 'is_active'
+export type ContactFieldName = 'contact_type' | 'company' | 'city' | 'state' | 'country' | 'status'
 
 /** Shared by contact_field and custom_field - mirrors the backend's
  * ContactFieldOp. Which ops are valid for a given field/value_type is
@@ -44,7 +38,7 @@ export type ContactFieldCondition = {
   type: 'contact_field'
   field: ContactFieldName
   operator: ContactFieldOp
-  value: string | boolean | string[]
+  value: string | string[]
 }
 
 export type CustomFieldCondition = {

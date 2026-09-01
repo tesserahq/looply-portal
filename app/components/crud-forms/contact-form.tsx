@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/modules/shadcn/ui/card'
 import { contactFormSchema, ContactFormValue } from '@/resources/queries/contacts/contact.schema'
 import { ContactFormData } from '@/resources/queries/contacts/contact.type'
 import { formValuesToContactData } from '@/resources/queries/contacts/contact.utils'
-import { useContactTypes } from '@/resources/hooks/contacts'
+import { useContactTypes, useContactStatuses } from '@/resources/hooks/contacts'
 import { NodeENVType } from '@/libraries/fetch'
 import { useNavigate } from 'react-router'
 import { Combobox, type ComboboxOption } from '@shadcn/ui/Combobox'
@@ -67,6 +67,20 @@ export const ContactForm = ({
         value: option.id,
       })),
     [contactTypesData]
+  )
+  const { data: contactStatusesData, isLoading: isLoadingContactStatuses } = useContactStatuses({
+    apiUrl,
+    token: token!,
+    nodeEnv,
+  })
+  const contactStatusOptions: ComboboxOption[] = useMemo(
+    () =>
+      (contactStatusesData?.items || []).map((option) => ({
+        id: option.id,
+        label: option.name,
+        value: option.id,
+      })),
+    [contactStatusesData]
   )
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const submitActionRef = useRef<'save' | 'saveAndAddNew'>('save')
@@ -231,12 +245,21 @@ export const ContactForm = ({
             <Form.Input field="job" label="Job" />
             <Form.Input field="website" label="Website" placeholder="https://example.com" />
 
-            <div className="mb-3">
+            <div className="mb-3 grid gap-4 lg:grid-cols-2">
               <Form.Select
                 field="contact_type"
                 label="Contact Type"
                 isLoading={isLoadingContactTypes}
                 options={contactTypeOptions.map((opt) => ({
+                  value: opt.value,
+                  label: opt.label,
+                }))}
+              />
+              <Form.Select
+                field="status"
+                label="Status"
+                isLoading={isLoadingContactStatuses}
+                options={contactStatusOptions.map((opt) => ({
                   value: opt.value,
                   label: opt.label,
                 }))}

@@ -19,6 +19,7 @@ import {
   useDeleteContactList,
 } from '@/resources/hooks/contact-lists'
 import { ContactListMemberType } from '@/resources/queries/contact-lists'
+import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import type { LoaderFunctionArgs } from 'react-router'
@@ -166,11 +167,11 @@ export default function ContactListDetail() {
         },
       },
       {
-        accessorKey: 'state',
-        header: 'State',
+        accessorKey: 'status',
+        header: 'Status',
         size: 100,
         cell: ({ row }) => {
-          return <Badge variant="outline">{row.original.is_active ? 'Active' : 'Inactive'}</Badge>
+          return <ContactStatusBadge status={row.original.status} />
         },
       },
       {

@@ -4,6 +4,7 @@ import {
   ContactQueryConfig,
   ContactType,
   ContactTypeOption,
+  ContactStatusOption,
   CreateContactData,
   UpdateContactData,
 } from './contact.type'
@@ -45,6 +46,20 @@ export async function fetchContactTypes(config: ContactQueryConfig) {
   })
 
   return response as IPaging<ContactTypeOption>
+}
+
+/**
+ * List the fixed set of contact statuses (active/inactive/pending) available
+ * to assign to a contact.
+ */
+export async function fetchContactStatuses(config: ContactQueryConfig) {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(`${apiUrl}/contacts/contact-statuses`, token, nodeEnv, {
+    pagination: { page: 1, size: 100 },
+  })
+
+  return response as IPaging<ContactStatusOption>
 }
 
 /**

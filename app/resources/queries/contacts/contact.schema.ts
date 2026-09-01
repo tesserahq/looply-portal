@@ -26,7 +26,7 @@ const baseContactSchema = z.object({
   zip_code: z.string().optional(),
   country: z.string().optional(),
   notes: z.string().optional(),
-  is_active: z.boolean().optional(),
+  status: z.string().optional(),
   tags: z.array(z.string()).optional(),
 })
 
@@ -111,7 +111,7 @@ export const contactFormSchema = z.object({
   zip_code: z.string().optional(),
   country: z.string().optional(),
   notes: z.string().optional(),
-  is_active: z.boolean().optional(),
+  status: z.string().optional(),
   tags: z.array(z.string()).optional(),
   created_by_id: z.string().optional(),
   created_at: z.string().optional(),
@@ -142,6 +142,6 @@ export const defaultContactFormValues: ContactFormValue = {
   zip_code: '',
   country: '',
   notes: '',
-  is_active: true,
+  status: 'active',
   tags: [],
 }

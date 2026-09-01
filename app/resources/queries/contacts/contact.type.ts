@@ -24,7 +24,10 @@ export type ContactType = {
   zip_code: string
   country: string
   notes: string
-  is_active: boolean
+  /** Lifecycle status: "active" | "inactive" | "pending". Only "active"
+   * contacts are campaign-send-eligible. Not to be confused with `state`
+   * above (US mailing-address state/province). */
+  status: string
   tags: string[]
   /** Provenance: "manual", "website", "phone", or an event-derived value stamped
    * from EventMapping.source. Unset for contacts that predate this field. */
@@ -39,6 +42,14 @@ export type ContactType = {
  * A single selectable contact type, as returned by GET /contacts/contact-types.
  */
 export type ContactTypeOption = {
+  id: string
+  name: string
+}
+
+/**
+ * A single selectable contact status, as returned by GET /contacts/contact-statuses.
+ */
+export type ContactStatusOption = {
   id: string
   name: string
 }

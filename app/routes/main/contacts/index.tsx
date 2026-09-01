@@ -9,6 +9,7 @@ import { ResourceID, useApp } from 'tessera-ui'
 import useDebounce from '@/hooks/useDebounce'
 import { useContacts, useDeleteContact } from '@/resources/hooks/contacts'
 import { ContactType } from '@/resources/queries/contacts/contact.type'
+import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate, useSearchParams } from 'react-router'
@@ -166,11 +167,11 @@ export default function Contacts() {
         },
       },
       {
-        accessorKey: 'state',
-        header: 'State',
+        accessorKey: 'status',
+        header: 'Status',
         size: 100,
         cell: ({ row }) => {
-          return <Badge variant="active">{row.original.is_active ? 'Active' : 'Inactive'}</Badge>
+          return <ContactStatusBadge status={row.original.status} />
         },
       },
       {
