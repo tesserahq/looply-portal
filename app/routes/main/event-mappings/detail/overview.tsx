@@ -3,6 +3,8 @@ import DeleteConfirmation from '@/components/delete-confirmation/delete-confirma
 import { useApp, DateTime } from 'tessera-ui'
 import { ResourceID } from 'tessera-ui/components'
 import { useDeleteEventMapping, useEventMappingDetail } from '@/resources/hooks/event-mappings'
+import { ContactStatusBadge } from '@/components/contact-status/contact-status'
+import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
@@ -134,6 +136,32 @@ export default function EventMappingDetailOverview() {
                 <dd className="d-content">
                   {eventMapping.identity_source_path || (
                     <span className="text-muted-foreground">-</span>
+                  )}
+                </dd>
+              </div>
+              <div className="d-item">
+                <dt className="d-label">Default Status</dt>
+                <dd className="d-content">
+                  {eventMapping.default_status ? (
+                    <ContactStatusBadge status={eventMapping.default_status} />
+                  ) : (
+                    <span className="text-muted-foreground">Unset</span>
+                  )}
+                </dd>
+              </div>
+              <div className="d-item">
+                <dt className="d-label">Default Tags</dt>
+                <dd className="d-content">
+                  {eventMapping.default_tags && eventMapping.default_tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {eventMapping.default_tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">None</span>
                   )}
                 </dd>
               </div>

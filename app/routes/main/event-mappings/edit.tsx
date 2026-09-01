@@ -1,7 +1,9 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { Button } from '@/modules/shadcn/ui/button'
 import { useApp } from 'tessera-ui'
+import { TagsInput } from 'tessera-ui/components'
 import { useEventMappingDetail, useUpdateEventMapping } from '@/resources/hooks/event-mappings'
+import { useContactStatuses } from '@/resources/hooks/contacts'
 import { IDENTITY_KEY_TARGETS } from '@/resources/queries/event-mappings'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Input } from '@/modules/shadcn/ui/input'
@@ -14,7 +16,7 @@ import {
   SelectValue,
 } from '@/modules/shadcn/ui/select'
 import { Loader2 } from 'lucide-react'
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
 
 export function loader() {
@@ -41,12 +43,25 @@ export default function EventMappingEdit() {
   const [source, setSource] = useState('')
   const [identityTargetField, setIdentityTargetField] = useState('')
   const [identitySourcePath, setIdentitySourcePath] = useState('')
+  const [defaultStatus, setDefaultStatus] = useState('')
+  const [defaultTags, setDefaultTags] = useState<string[]>([])
+
+  const { data: contactStatusesData, isLoading: isLoadingContactStatuses } = useContactStatuses(
+    config,
+    { enabled: !!config.token }
+  )
+  const contactStatusOptions = useMemo(
+    () => contactStatusesData?.items || [],
+    [contactStatusesData]
+  )
 
   useEffect(() => {
     if (eventMapping) {
       setSource(eventMapping.source || '')
       setIdentityTargetField(eventMapping.identity_target_field || '')
       setIdentitySourcePath(eventMapping.identity_source_path || '')
+      setDefaultStatus(eventMapping.default_status || '')
+      setDefaultTags(eventMapping.default_tags || [])
     }
   }, [eventMapping])
 
@@ -68,6 +83,8 @@ export default function EventMappingEdit() {
         source: source || undefined,
         identity_target_field: identityTargetField || undefined,
         identity_source_path: identitySourcePath || undefined,
+        default_status: defaultStatus || undefined,
+        default_tags: defaultTags,
       },
     })
   }
@@ -145,6 +162,39 @@ export default function EventMappingEdit() {
                   Identity Field and Identity Source Path must be set together, or both left blank.
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Default Status</Label>
+              <Select
+                value={defaultStatus || NONE_VALUE}
+                onValueChange={(value) => setDefaultStatus(value === NONE_VALUE ? '' : value)}
+                disabled={isLoadingContactStatuses}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Leave unset" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE_VALUE}>Leave unset</SelectItem>
+                  {contactStatusOptions.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-muted-foreground text-xs">
+                Stamped onto a contact auto-created from this event_type. Only applies on creation -
+                never changes an existing contact matched by a later event.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Default Tags</Label>
+              <TagsInput value={defaultTags} onChange={setDefaultTags} disabled={isPending} />
+              <p className="text-muted-foreground text-xs">
+                Stamped onto a contact auto-created from this event_type. Only applies on creation -
+                never changes an existing contact matched by a later event.
+              </p>
             </div>
 
             <div className="mt-5 flex items-center justify-end gap-2">

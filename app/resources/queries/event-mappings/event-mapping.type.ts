@@ -23,6 +23,14 @@ export type EventMappingType = {
   source: string | null
   identity_target_field: string | null
   identity_source_path: string | null
+  /** Lifecycle status stamped onto a contact auto-created from this event_type.
+   * One of the values from GET /contacts/contact-statuses. Only applied on
+   * creation - never touches an existing contact matched by a later event. */
+  default_status: string | null
+  /** Tag names stamped onto a contact auto-created from this event_type.
+   * Only applied on creation - never touches an existing contact matched by a
+   * later event. */
+  default_tags: string[]
   created_by_id: string | null
   created_at: string
   updated_at: string
@@ -39,6 +47,8 @@ export type CreateEventMappingPayload = {
   source?: string
   identity_target_field?: string
   identity_source_path?: string
+  default_status?: string
+  default_tags?: string[]
 }
 
 /**
@@ -49,4 +59,6 @@ export type UpdateEventMappingPayload = {
   source?: string
   identity_target_field?: string
   identity_source_path?: string
+  default_status?: string
+  default_tags?: string[]
 }
