@@ -12,6 +12,7 @@ export const eventMappingFormSchema = z
     source: z.string().optional(),
     identity_target_field: z.string().optional(),
     identity_source_path: z.string().optional(),
+    default_status: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (Boolean(data.identity_target_field) !== Boolean(data.identity_source_path)) {
@@ -32,4 +33,5 @@ export const defaultEventMappingFormValues: EventMappingFormValue = {
   source: '',
   identity_target_field: '',
   identity_source_path: '',
+  default_status: '',
 }

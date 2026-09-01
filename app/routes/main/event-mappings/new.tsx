@@ -28,5 +28,5 @@ export default function EventMappingNew() {
     await createEventMapping(data)
   }
 
-  return <EventMappingForm onSubmit={handleSubmit} />
+  return <EventMappingForm onSubmit={handleSubmit} apiUrl={apiUrl!} nodeEnv={nodeEnv} />
 }

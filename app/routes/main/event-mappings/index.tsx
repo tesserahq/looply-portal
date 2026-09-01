@@ -6,6 +6,7 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { useDeleteEventMapping, useEventMappings } from '@/resources/hooks/event-mappings'
 import { EventMappingType } from '@/resources/queries/event-mappings'
+import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
@@ -105,6 +106,38 @@ export default function EventMappings() {
         cell: ({ row }) => (
           <span className="text-muted-foreground text-sm">{row.original.source || '-'}</span>
         ),
+      },
+      {
+        accessorKey: 'default_status',
+        header: 'Default Status',
+        size: 140,
+        cell: ({ row }) => {
+          const { default_status } = row.original
+          if (!default_status) {
+            return <span className="text-muted-foreground text-sm">-</span>
+          }
+          return <ContactStatusBadge status={default_status} />
+        },
+      },
+      {
+        accessorKey: 'default_tags',
+        header: 'Default Tags',
+        size: 200,
+        cell: ({ row }) => {
+          const { default_tags } = row.original
+          if (!default_tags || default_tags.length === 0) {
+            return <span className="text-muted-foreground text-sm">-</span>
+          }
+          return (
+            <div className="flex flex-wrap gap-1">
+              {default_tags.map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'created_at',
