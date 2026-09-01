@@ -15,10 +15,10 @@ interface EventMappingFormProps {
   onSubmit: (data: CreateEventMappingPayload) => Promise<void> | void
 }
 
-const IDENTITY_TARGET_OPTIONS = [
-  { value: '', label: 'None yet - configure later' },
-  ...IDENTITY_KEY_TARGETS.map((field) => ({ value: field, label: field })),
-]
+const IDENTITY_TARGET_OPTIONS = IDENTITY_KEY_TARGETS.map((field) => ({
+  value: field,
+  label: field,
+}))
 
 export const EventMappingForm = ({ onSubmit }: EventMappingFormProps) => {
   const navigate = useNavigate()
@@ -68,6 +68,7 @@ export const EventMappingForm = ({ onSubmit }: EventMappingFormProps) => {
             <Form.Select
               field="identity_target_field"
               label="Identity Field"
+              placeholder="None yet - configure later"
               options={IDENTITY_TARGET_OPTIONS}
               description="Which Contact column identifies the contact for this event_type. Without one, every event for this event_type is dropped until you set it (here or later)."
             />
