@@ -4,16 +4,14 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
-import {
-  useDeleteEventFieldMapping,
-  useEventFieldMappings,
-} from '@/resources/hooks/event-field-mappings'
-import { EventFieldMappingType } from '@/resources/queries/event-field-mappings'
+import { useDeleteEventMapping, useEventMappings } from '@/resources/hooks/event-mappings'
+import { EventMappingType } from '@/resources/queries/event-mappings'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
+import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { ArrowRight, Ellipsis, EyeIcon, KeyRound, Trash2 } from 'lucide-react'
+import { Ellipsis, EyeIcon, KeyRound, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate } from 'react-router'
@@ -33,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { apiUrl, nodeEnv, size: canonical.size, page: canonical.page }
 }
 
-export default function EventFieldMappings() {
+export default function EventMappings() {
   const { apiUrl, nodeEnv, size, page } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
@@ -45,77 +43,67 @@ export default function EventFieldMappings() {
     token: token!,
   }
 
-  const { data, isLoading, apiError } = useEventFieldMappings(config, { page, size })
+  const { data, isLoading, apiError } = useEventMappings(config, { page, size })
 
   const hasData = useMemo(() => {
     return data && data.items && data.items.length > 0
   }, [data])
 
-  const { mutate: deleteMapping } = useDeleteEventFieldMapping(config, {
+  const { mutate: deleteEventMapping } = useDeleteEventMapping(config, {
     onSuccess: () => {
       deleteModalRef.current?.close()
     },
   })
 
   const handleDelete = useCallback(
-    (mapping: EventFieldMappingType) => {
+    (eventMapping: EventMappingType) => {
       deleteModalRef.current?.open({
-        title: 'Remove Event Field Mapping',
-        description: `Newly ingested "${mapping.event_type}" events will stop updating "${mapping.target_type === 'contact_field' ? mapping.target_field : mapping.field_name}". This action cannot be undone.`,
+        title: 'Remove Event Mapping',
+        description: `Looply will stop acting on "${eventMapping.event_type}" events - no more contacts resolved, events recorded, or field mappings applied for it. All of its field mappings are removed too. This action cannot be undone.`,
         onDelete: async () => {
           deleteModalRef.current?.updateConfig({ isLoading: true })
-          await deleteMapping(mapping.id)
+          await deleteEventMapping(eventMapping.id)
         },
       })
     },
-    [deleteMapping]
+    [deleteEventMapping]
   )
 
-  const columns: ColumnDef<EventFieldMappingType>[] = useMemo(
+  const columns: ColumnDef<EventMappingType>[] = useMemo(
     () => [
       {
         accessorKey: 'event_type',
         header: 'Event Type',
-        size: 220,
+        size: 320,
         cell: ({ row }) => (
-          <Link to={`/event-field-mappings/${row.original.id}`} className="button-link">
+          <Link to={`/event-mappings/${row.original.id}`} className="button-link">
             <span className="text-sm font-medium">{row.original.event_type}</span>
           </Link>
         ),
       },
       {
-        accessorKey: 'source_path',
-        header: '',
-        size: 30,
-        cell: () => <ArrowRight size={14} className="text-muted-foreground" />,
-      },
-      {
-        accessorKey: 'field_name',
-        header: 'Target',
-        size: 220,
+        accessorKey: 'identity_target_field',
+        header: 'Identity',
+        size: 180,
         cell: ({ row }) => {
-          const { target_type, target_field, field_name, is_identity_key } = row.original
-          const target = target_type === 'contact_field' ? target_field : field_name
+          const { identity_target_field } = row.original
+          if (!identity_target_field) {
+            return <Badge variant="outline">Not configured</Badge>
+          }
           return (
-            <span className="flex items-center gap-1.5 text-sm font-medium">
-              {is_identity_key && (
-                <KeyRound
-                  size={12}
-                  className="text-muted-foreground shrink-0"
-                  aria-label="Identity key"
-                />
-              )}
-              {target}
+            <span className="flex items-center gap-1.5 text-sm">
+              <KeyRound size={12} className="text-muted-foreground shrink-0" />
+              {identity_target_field}
             </span>
           )
         },
       },
       {
-        accessorKey: 'source_path',
-        header: 'Source Path',
-        size: 220,
+        accessorKey: 'source',
+        header: 'Source',
+        size: 150,
         cell: ({ row }) => (
-          <span className="text-muted-foreground text-sm">{row.original.source_path}</span>
+          <span className="text-muted-foreground text-sm">{row.original.source || '-'}</span>
         ),
       },
       {
@@ -150,7 +138,7 @@ export default function EventFieldMappings() {
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"
-                  onClick={() => navigate(`/event-field-mappings/${row.original.id}`)}>
+                  onClick={() => navigate(`/event-mappings/${row.original.id}`)}>
                   <EyeIcon size={18} />
                   <span>View</span>
                 </Button>
@@ -178,10 +166,10 @@ export default function EventFieldMappings() {
   const emptyContent = (
     <EmptyContent
       image="/images/empty-contacts.svg"
-      title="No event field mappings"
-      description="Derive a custom field value directly from a tracked event's data, instead of writing it separately">
-      <Button variant="black" onClick={() => navigate('/event-field-mappings/new')}>
-        New Mapping
+      title="No event mappings"
+      description="Looply ignores everything on the NATS stream until you register an event_type here">
+      <Button variant="black" onClick={() => navigate('/event-mappings/new')}>
+        Register Event Mapping
       </Button>
     </EmptyContent>
   )
@@ -189,9 +177,12 @@ export default function EventFieldMappings() {
   return (
     <div className="page-content h-full">
       <div className="mb-5 animate-slide-up flex items-center justify-between">
-        <h1 className="page-title">Event Field Mappings</h1>
+        <h1 className="page-title">Event Mappings</h1>
         {hasData && (
-          <NewButton label="New Mapping" onClick={() => navigate('/event-field-mappings/new')} />
+          <NewButton
+            label="Register Event Mapping"
+            onClick={() => navigate('/event-mappings/new')}
+          />
         )}
       </div>
       <div className="animate-slide-up">

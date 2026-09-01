@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router'
 
-export default function TrackedEventTypesLayout() {
+export default function EventMappingsLayout() {
   return <Outlet />
 }

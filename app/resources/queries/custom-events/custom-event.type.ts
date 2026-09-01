@@ -2,7 +2,7 @@
  * An append-only occurrence ingested from a Linden domain event over NATS, tied to
  * the contact it was resolved against - matches the backend's CustomEvent
  * (app/models/custom_event.py in the looply API). Only recorded for event_types
- * registered as a TrackedEventType.
+ * with a registered EventMapping.
  */
 export type CustomEventType = {
   id: string
