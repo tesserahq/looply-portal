@@ -2,7 +2,9 @@ import {
   createCampaign,
   deleteCampaign,
   getCampaign,
+  getCampaignEngagementTimeline,
   getCampaigns,
+  getCampaignStats,
   sendCampaign,
   updateCampaign,
 } from '@/resources/queries/campaigns/campaign.queries'
@@ -26,6 +28,9 @@ export const campaignQueryKeys = {
     [...campaignQueryKeys.lists(), config, params] as const,
   details: () => [...campaignQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...campaignQueryKeys.details(), id] as const,
+  stats: (id: string) => [...campaignQueryKeys.detail(id), 'stats'] as const,
+  engagementTimeline: (id: string) =>
+    [...campaignQueryKeys.detail(id), 'engagement-timeline'] as const,
 }
 
 /**
@@ -92,6 +97,71 @@ export function useCampaignDetail(
         return await getCampaign(config, campaignId)
       } catch (error) {
         throw new QueryError('Failed to fetch campaign detail', 'FETCH_ERROR', error)
+      }
+    },
+    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled !== false && !!campaignId && !!config.token,
+  })
+}
+
+/**
+ * Hook for fetching a campaign's computed engagement metrics
+ * @config - Campaign query configuration
+ * @campaignId - Campaign ID
+ * @options - Campaign query options
+ */
+export function useCampaignStats(
+  config: IQueryConfig,
+  campaignId: string,
+  options?: {
+    enabled?: boolean
+    staleTime?: number
+  }
+) {
+  return useQuery({
+    queryKey: campaignQueryKeys.stats(campaignId),
+    queryFn: async () => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await getCampaignStats(config, campaignId)
+      } catch (error) {
+        throw new QueryError('Failed to fetch campaign stats', 'FETCH_ERROR', error)
+      }
+    },
+    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled !== false && !!campaignId && !!config.token,
+  })
+}
+
+/**
+ * Hook for fetching a campaign's engagement timeline (opens/clicks bucketed
+ * by time elapsed since send)
+ * @config - Campaign query configuration
+ * @campaignId - Campaign ID
+ * @options - Campaign query options
+ */
+export function useCampaignEngagementTimeline(
+  config: IQueryConfig,
+  campaignId: string,
+  options?: {
+    enabled?: boolean
+    staleTime?: number
+  }
+) {
+  return useQuery({
+    queryKey: campaignQueryKeys.engagementTimeline(campaignId),
+    queryFn: async () => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await getCampaignEngagementTimeline(config, campaignId)
+      } catch (error) {
+        throw new QueryError('Failed to fetch campaign engagement timeline', 'FETCH_ERROR', error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes

@@ -35,6 +35,41 @@ export type CampaignType = {
 }
 
 /**
+ * Computed engagement metrics for a campaign. Not persisted - computed
+ * fresh server-side from Campaign's aggregate counts and its recipient
+ * snapshot. See docs/prds/0006-campaign-analytics.md in the looply repo.
+ */
+export type CampaignStatsType = {
+  recipient_count: number
+  delivered_count: number
+  bounced_count: number
+  complained_count: number
+  opened_count: number
+  clicked_count: number
+  delivery_rate: number
+  bounce_rate: number
+  open_rate: number
+  click_rate: number
+  click_to_open_rate: number
+  complaint_rate: number
+  engagement_last_synced_at: string | null
+}
+
+/**
+ * Opens/clicks bucketed by time elapsed since the campaign was sent.
+ * opened_at/clicked_at are first-occurrence timestamps only.
+ */
+export type CampaignEngagementTimelineBucket = {
+  label: string
+  opened_count: number
+  clicked_count: number
+}
+
+export type CampaignEngagementTimelineType = {
+  buckets: CampaignEngagementTimelineBucket[]
+}
+
+/**
  * Payload for creating a campaign
  */
 export type CreateCampaignPayload = {

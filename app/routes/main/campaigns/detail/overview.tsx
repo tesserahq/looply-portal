@@ -10,7 +10,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { useApp } from 'tessera-ui'
 import { DateTime, ResourceID } from 'tessera-ui/components'
 import { useBroadcast } from '@/resources/hooks/broadcasts'
-import { useCampaignDetail, useDeleteCampaign, useSendCampaign } from '@/resources/hooks/campaigns'
+import {
+  useCampaignDetail,
+  useCampaignEngagementTimeline,
+  useCampaignStats,
+  useDeleteCampaign,
+  useSendCampaign,
+} from '@/resources/hooks/campaigns'
+import { CampaignFunnelChart } from '@/components/campaign-analytics/campaign-funnel-chart'
+import { CampaignEngagementTimelineChart } from '@/components/campaign-analytics/campaign-engagement-timeline-chart'
 import { useSegmentDetail, useSegmentPreviewById } from '@/resources/hooks/segments'
 import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
@@ -18,6 +26,11 @@ import { buildResourceUrl } from '@/utils/helpers/url.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import { Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
 import { Activity, useCallback, useRef, useState } from 'react'
+
+function formatRate(rate: number | undefined): string {
+  if (rate === undefined) return 'N/A'
+  return `${(rate * 100).toFixed(1)}%`
+}
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -78,6 +91,14 @@ export default function CampaignDetail() {
 
   const { data: segmentPreview } = useSegmentPreviewById(config, campaign?.segment_id ?? '', {
     enabled: !!campaign?.segment_id,
+  })
+
+  const { data: stats } = useCampaignStats(config, campaignId, {
+    enabled: !!campaignId && !!token && !!campaign?.batch_id,
+  })
+
+  const { data: engagementTimeline } = useCampaignEngagementTimeline(config, campaignId, {
+    enabled: !!campaignId && !!token && !!campaign?.batch_id,
   })
 
   const {
@@ -355,8 +376,38 @@ export default function CampaignDetail() {
               <CardHeader>
                 <h2 className="text-xl font-bold lg:text-2xl">Engagement</h2>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-6">
                 <div className="d-list">
+                  <div className="d-item">
+                    <dt className="d-label">Delivery rate</dt>
+                    <dd className="d-content">{formatRate(stats?.delivery_rate)}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Bounce rate</dt>
+                    <dd className="d-content">{formatRate(stats?.bounce_rate)}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Open rate</dt>
+                    <dd className="d-content">{formatRate(stats?.open_rate)}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Click rate</dt>
+                    <dd className="d-content">{formatRate(stats?.click_rate)}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Click-to-open rate</dt>
+                    <dd className="d-content">{formatRate(stats?.click_to_open_rate)}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Complaint rate</dt>
+                    <dd className="d-content">{formatRate(stats?.complaint_rate)}</dd>
+                  </div>
+                  <div className="d-item">
+                    <dt className="d-label">Recipients</dt>
+                    <dd className="d-content">
+                      {stats?.recipient_count ?? campaign.delivered_count}
+                    </dd>
+                  </div>
                   <div className="d-item">
                     <dt className="d-label">Delivered</dt>
                     <dd className="d-content">{campaign.delivered_count}</dd>
@@ -398,6 +449,22 @@ export default function CampaignDetail() {
                     </dd>
                   </div>
                 </div>
+
+                {stats && (
+                  <div>
+                    <h3 className="mb-2 text-sm font-semibold text-muted-foreground">Funnel</h3>
+                    <CampaignFunnelChart stats={stats} />
+                  </div>
+                )}
+
+                {engagementTimeline && (
+                  <div>
+                    <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
+                      Engagement over time
+                    </h3>
+                    <CampaignEngagementTimelineChart timeline={engagementTimeline} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </Activity>
