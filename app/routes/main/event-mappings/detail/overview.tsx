@@ -2,14 +2,11 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { useApp, DateTime } from 'tessera-ui'
 import { ResourceID } from 'tessera-ui/components'
-import {
-  useDeleteEventFieldMapping,
-  useEventFieldMappingDetail,
-} from '@/resources/hooks/event-field-mappings'
+import { useDeleteEventMapping, useEventMappingDetail } from '@/resources/hooks/event-mappings'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
-import { EllipsisVertical, Trash2 } from 'lucide-react'
+import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { useCallback, useRef } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
 
@@ -20,7 +17,7 @@ export function loader() {
   return { apiUrl, nodeEnv }
 }
 
-export default function EventFieldMappingDetailOverview() {
+export default function EventMappingDetailOverview() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
@@ -29,40 +26,42 @@ export default function EventFieldMappingDetailOverview() {
 
   const config = { apiUrl: apiUrl!, nodeEnv, token: token! }
 
-  const { data: mapping, isLoading } = useEventFieldMappingDetail(config, params.mapping_id!, {
-    enabled: !!params.mapping_id && !!token,
-  })
+  const { data: eventMapping, isLoading } = useEventMappingDetail(
+    config,
+    params.event_mapping_id!,
+    { enabled: !!params.event_mapping_id && !!token }
+  )
 
-  const { mutate: deleteMapping } = useDeleteEventFieldMapping(config, {
+  const { mutate: deleteEventMapping } = useDeleteEventMapping(config, {
     onSuccess: () => {
       deleteModalRef.current?.close()
-      navigate('/event-field-mappings')
+      navigate('/event-mappings')
     },
   })
 
   const handleDelete = useCallback(() => {
-    if (!mapping) return
+    if (!eventMapping) return
 
     deleteModalRef.current?.open({
-      title: 'Remove Event Field Mapping',
-      description: `Newly ingested "${mapping.event_type}" events will stop updating "${mapping.target_type === 'contact_field' ? mapping.target_field : mapping.field_name}". This action cannot be undone.`,
+      title: 'Remove Event Mapping',
+      description: `Looply will stop acting on "${eventMapping.event_type}" events - no more contacts resolved, events recorded, or field mappings applied for it. All of its field mappings are removed too. This action cannot be undone.`,
       onDelete: async () => {
         deleteModalRef.current?.updateConfig({ isLoading: true })
-        await deleteMapping(mapping.id)
+        await deleteEventMapping(eventMapping.id)
       },
     })
-  }, [mapping, deleteMapping])
+  }, [eventMapping, deleteEventMapping])
 
   if (isLoading) {
     return <AppPreloader />
   }
 
-  if (!mapping) {
+  if (!eventMapping) {
     return (
       <div className="animate-slide-up flex h-full items-center justify-center">
         <Card>
           <CardContent className="p-6">
-            <p className="text-muted-foreground">Event field mapping not found</p>
+            <p className="text-muted-foreground">Event mapping not found</p>
           </CardContent>
         </Card>
       </div>
@@ -85,6 +84,13 @@ export default function EventFieldMappingDetailOverview() {
                 <PopoverContent align="start" side="left" className="w-40 p-2">
                   <Button
                     variant="ghost"
+                    className="flex w-full justify-start gap-2"
+                    onClick={() => navigate(`/event-mappings/${eventMapping.id}/edit`)}>
+                    <Pencil size={18} />
+                    <span>Edit</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
                     className="hover:bg-destructive hover:text-destructive-foreground flex w-full
                       justify-start gap-2"
                     onClick={handleDelete}>
@@ -100,45 +106,47 @@ export default function EventFieldMappingDetailOverview() {
               <div className="d-item">
                 <dt className="d-label">ID</dt>
                 <dd className="d-content">
-                  <ResourceID value={mapping.id} />
+                  <ResourceID value={eventMapping.id} />
                 </dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Event Type</dt>
-                <dd className="d-content">{mapping.event_type}</dd>
+                <dd className="d-content">{eventMapping.event_type}</dd>
               </div>
               <div className="d-item">
-                <dt className="d-label">Source Path</dt>
-                <dd className="d-content">{mapping.source_path}</dd>
-              </div>
-              <div className="d-item">
-                <dt className="d-label">Target</dt>
+                <dt className="d-label">Source</dt>
                 <dd className="d-content">
-                  {mapping.target_type === 'contact_field' ? (
-                    <>Contact field: {mapping.target_field}</>
-                  ) : (
-                    <>Custom field: {mapping.field_name}</>
+                  {eventMapping.source || <span className="text-muted-foreground">Unset</span>}
+                </dd>
+              </div>
+              <div className="d-item">
+                <dt className="d-label">Identity Field</dt>
+                <dd className="d-content">
+                  {eventMapping.identity_target_field || (
+                    <span className="text-muted-foreground">
+                      Not configured - events are dropped until set
+                    </span>
                   )}
                 </dd>
               </div>
               <div className="d-item">
-                <dt className="d-label">Identity Key</dt>
+                <dt className="d-label">Identity Source Path</dt>
                 <dd className="d-content">
-                  {mapping.is_identity_key
-                    ? 'Yes - resolves/creates the Contact for this event_type'
-                    : 'No'}
+                  {eventMapping.identity_source_path || (
+                    <span className="text-muted-foreground">-</span>
+                  )}
                 </dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Created At</dt>
                 <dd className="d-content">
-                  {mapping.created_at ? <DateTime date={mapping.created_at} /> : 'N/A'}
+                  {eventMapping.created_at ? <DateTime date={eventMapping.created_at} /> : 'N/A'}
                 </dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Updated At</dt>
                 <dd className="d-content">
-                  {mapping.updated_at ? <DateTime date={mapping.updated_at} /> : 'N/A'}
+                  {eventMapping.updated_at ? <DateTime date={eventMapping.updated_at} /> : 'N/A'}
                 </dd>
               </div>
             </div>

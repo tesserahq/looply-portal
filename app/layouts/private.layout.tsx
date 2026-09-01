@@ -9,7 +9,6 @@ import {
   Filter,
   LucideIcon,
   Megaphone,
-  Radio,
   SlidersHorizontal,
   SquareUser,
   Users2,
@@ -65,13 +64,8 @@ export default function PrivateLayout() {
       icon: asMenuIcon(Zap),
     },
     {
-      title: 'Tracked Event Types',
-      path: '/tracked-event-types',
-      icon: asMenuIcon(Radio),
-    },
-    {
-      title: 'Event Field Mappings',
-      path: '/event-field-mappings',
+      title: 'Event Mappings',
+      path: '/event-mappings',
       icon: asMenuIcon(Waypoints),
     },
     {
@@ -111,10 +105,8 @@ export default function PrivateLayout() {
     location.pathname.includes(`/segments/${params['segment_id']}/overview`) ||
     location.pathname.includes(`/custom-fields/${params['definition_id']}/overview`) ||
     location.pathname.includes(`/custom-events/${params['event_id']}/overview`) ||
-    location.pathname.includes(
-      `/tracked-event-types/${params['tracked_event_type_id']}/overview`
-    ) ||
-    location.pathname.includes(`/event-field-mappings/${params['mapping_id']}/overview`) ||
+    location.pathname.includes(`/event-mappings/${params['event_mapping_id']}/overview`) ||
+    location.pathname.includes(`/event-mappings/${params['event_mapping_id']}/fields`) ||
     location.pathname.includes(`/campaigns/${params['campaign_id']}/overview`)
   )
 

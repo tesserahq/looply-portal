@@ -4,14 +4,9 @@ import {
   eventFieldMappingFormSchema,
   EventFieldMappingFormValue,
 } from '@/resources/queries/event-field-mappings/event-field-mapping.schema'
-import {
-  CONTACT_FIELD_TARGETS,
-  CreateEventFieldMappingPayload,
-  IDENTITY_KEY_TARGETS,
-} from '@/resources/queries/event-field-mappings'
+import { CONTACT_FIELD_TARGETS } from '@/resources/queries/event-field-mappings'
 import { useCustomFieldDefinitions } from '@/resources/hooks/custom-fields'
 import { IQueryConfig } from '@/resources/queries'
-import { useNavigate } from 'react-router'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Form } from '../form'
@@ -19,7 +14,10 @@ import { FormLayout } from '../form/form-layout'
 
 interface EventFieldMappingFormProps {
   config: IQueryConfig
-  onSubmit: (data: CreateEventFieldMappingPayload) => Promise<void> | void
+  title?: string
+  defaultValues?: EventFieldMappingFormValue
+  onSubmit: (data: EventFieldMappingFormValue) => Promise<void> | void
+  onCancel: () => void
 }
 
 const TARGET_TYPE_OPTIONS = [
@@ -32,8 +30,13 @@ const CONTACT_FIELD_OPTIONS = CONTACT_FIELD_TARGETS.map((field) => ({
   label: field,
 }))
 
-export const EventFieldMappingForm = ({ config, onSubmit }: EventFieldMappingFormProps) => {
-  const navigate = useNavigate()
+export const EventFieldMappingForm = ({
+  config,
+  title = 'New Field Mapping',
+  defaultValues = defaultEventFieldMappingFormValues,
+  onSubmit,
+  onCancel,
+}: EventFieldMappingFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const { data: definitionsData, isLoading: isLoadingDefinitions } = useCustomFieldDefinitions(
@@ -54,24 +57,7 @@ export const EventFieldMappingForm = ({ config, onSubmit }: EventFieldMappingFor
     setIsSubmitting(true)
 
     try {
-      const payload: CreateEventFieldMappingPayload =
-        data.target_type === 'contact_field'
-          ? {
-              event_type: data.event_type,
-              source_path: data.source_path,
-              target_type: 'contact_field',
-              target_field: data.target_field,
-              is_identity_key: data.is_identity_key,
-            }
-          : {
-              event_type: data.event_type,
-              source_path: data.source_path,
-              target_type: 'custom_field',
-              field_name: data.field_name,
-              is_identity_key: false,
-            }
-
-      await onSubmit(payload)
+      await onSubmit(data)
     } catch {
       // Error handling is done by parent component
     } finally {
@@ -82,49 +68,31 @@ export const EventFieldMappingForm = ({ config, onSubmit }: EventFieldMappingFor
   return (
     <Form
       schema={eventFieldMappingFormSchema}
-      defaultValues={defaultEventFieldMappingFormValues}
+      defaultValues={defaultValues}
       onSubmit={handleSubmit}>
       {(form) => {
         const targetType = form.watch('target_type')
-        const targetField = form.watch('target_field')
-        const canBeIdentityKey =
-          targetType === 'contact_field' &&
-          IDENTITY_KEY_TARGETS.includes(targetField as (typeof IDENTITY_KEY_TARGETS)[number])
 
-        // Clear fields that only apply to the other target_type, and drop
-        // is_identity_key once the target field can no longer carry it.
+        // Clear the field that only applies to the other target_type whenever
+        // it changes, so a stale value from the previous target_type can't be
+        // submitted alongside the new one.
         useEffect(() => {
           if (targetType === 'contact_field') {
             form.setValue('field_name', '')
           } else {
             form.setValue('target_field', '')
-            form.setValue('is_identity_key', false)
           }
         }, [targetType])
 
-        useEffect(() => {
-          if (!canBeIdentityKey) {
-            form.setValue('is_identity_key', false)
-          }
-        }, [canBeIdentityKey])
-
         return (
-          <FormLayout title="New Event Field Mapping">
-            <Form.Input
-              field="event_type"
-              label="Event Type"
-              placeholder="e.g. com.mylinden.person.updated"
-              description="Only takes effect once this event_type is also registered on the Tracked Event Types page."
-              required
-              autoFocus
-            />
-
+          <FormLayout title={title}>
             <Form.Input
               field="source_path"
               label="Source Path"
               placeholder="e.g. person.account.family_member_count"
-              description="Dot-path into the event's data. If it doesn't resolve for a given event, that event is still recorded - the mapping is just skipped (or, for an identity-key mapping, the whole event is dropped)."
+              description="Dot-path into the event's data. If it doesn't resolve for a given event, that event is still recorded - this mapping is just skipped."
               required
+              autoFocus
             />
 
             <Form.Select
@@ -136,22 +104,13 @@ export const EventFieldMappingForm = ({ config, onSubmit }: EventFieldMappingFor
             />
 
             {targetType === 'contact_field' ? (
-              <>
-                <Form.Select
-                  field="target_field"
-                  label="Target Contact Field"
-                  options={CONTACT_FIELD_OPTIONS}
-                  description="The built-in Contact column to write the extracted value to."
-                  required
-                />
-
-                <Form.Switch
-                  field="is_identity_key"
-                  label="Identity Key"
-                  description="Use this mapping's resolved value to look up/create the Contact for this event_type, instead of just filling in an attribute. Only one mapping per event_type may be the identity key, and it must target External ID or Email."
-                  disabled={!canBeIdentityKey}
-                />
-              </>
+              <Form.Select
+                field="target_field"
+                label="Target Contact Field"
+                options={CONTACT_FIELD_OPTIONS}
+                description="The built-in Contact column to write the extracted value to."
+                required
+              />
             ) : (
               <Form.Select
                 field="field_name"
@@ -164,10 +123,7 @@ export const EventFieldMappingForm = ({ config, onSubmit }: EventFieldMappingFor
             )}
 
             <div className="mt-5 flex items-center justify-end gap-2">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={() => navigate('/event-field-mappings')}>
+              <Button variant="secondary" type="button" onClick={onCancel}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>

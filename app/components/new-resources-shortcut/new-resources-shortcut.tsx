@@ -7,7 +7,6 @@ import {
   Filter,
   Megaphone,
   Plus,
-  Radio,
   SlidersHorizontal,
   SquareUser,
   Users2,
@@ -29,8 +28,7 @@ type ResourceType = {
     | 'contact-interactions'
     | 'segments'
     | 'custom-fields'
-    | 'tracked-event-types'
-    | 'event-field-mappings'
+    | 'event-mappings'
     | 'campaigns'
   name: string
   href: string
@@ -46,16 +44,10 @@ const resourceTypes: ResourceType[] = [
     href: '/custom-fields/new',
   },
   {
-    id: 'tracked-event-types',
-    name: 'Tracked Event Types',
-    icon: Radio,
-    href: '/tracked-event-types/new',
-  },
-  {
-    id: 'event-field-mappings',
-    name: 'Event Field Mappings',
+    id: 'event-mappings',
+    name: 'Event Mappings',
     icon: Waypoints,
-    href: '/event-field-mappings/new',
+    href: '/event-mappings/new',
   },
   {
     id: 'contact-lists',

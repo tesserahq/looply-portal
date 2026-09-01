@@ -27,7 +27,7 @@ export type ContactType = {
   is_active: boolean
   tags: string[]
   /** Provenance: "manual", "website", "phone", or an event-derived value stamped
-   * from TrackedEventType.source. Unset for contacts that predate this field. */
+   * from EventMapping.source. Unset for contacts that predate this field. */
   source: string | null
   created_by_id: string
   created_at: string
