@@ -27,6 +27,7 @@ export function contactToFormValues(contact: ContactType): ContactFormValue {
     notes: contact.notes || '',
     status: contact.status || 'active',
     tags: contact.tags || [],
+    source: contact.source || '',
     created_by_id: contact.created_by_id || '',
     created_at: contact.created_at || '',
     updated_at: contact.updated_at || '',
@@ -38,7 +39,7 @@ export function contactToFormValues(contact: ContactType): ContactFormValue {
  */
 export function formValuesToContactData(
   formValues: ContactFormValue
-): Omit<ContactType, 'id' | 'created_by_id' | 'created_at' | 'updated_at' | 'source'> {
+): Omit<ContactType, 'id' | 'created_by_id' | 'created_at' | 'updated_at'> {
   return {
     external_id: formValues.external_id || null,
     first_name: formValues.first_name,
@@ -60,5 +61,6 @@ export function formValuesToContactData(
     notes: formValues.notes || '',
     status: formValues.status || 'active',
     tags: formValues.tags || [],
+    source: formValues.source || null,
   }
 }
