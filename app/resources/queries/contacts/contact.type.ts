@@ -80,7 +80,7 @@ export interface ContactQueryParams {
  */
 export type CreateContactData = Omit<
   ContactType,
-  'id' | 'source' | 'created_by_id' | 'created_at' | 'updated_at'
+  'id' | 'created_by_id' | 'created_at' | 'updated_at'
 >
 
 /**

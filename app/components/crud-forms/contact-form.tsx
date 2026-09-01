@@ -348,6 +348,13 @@ export const ContactForm = ({
               placeholder="Set automatically by host platform events, if any"
               description="This contact's identity in an external host platform (e.g. a Linden account/user id). Usually set automatically - only edit this if you know what you're doing."
             />
+
+            <Form.Input
+              field="source"
+              label="Source"
+              placeholder="e.g. manual, website, phone"
+              description="Provenance of this contact - defaults to 'manual' when left blank on creation."
+            />
           </CardContent>
         </Card>
 

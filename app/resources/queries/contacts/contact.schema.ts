@@ -28,6 +28,7 @@ const baseContactSchema = z.object({
   notes: z.string().optional(),
   status: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  source: z.string().optional(),
 })
 
 /**
@@ -113,6 +114,7 @@ export const contactFormSchema = z.object({
   notes: z.string().optional(),
   status: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  source: z.string().optional(),
   created_by_id: z.string().optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
@@ -144,4 +146,5 @@ export const defaultContactFormValues: ContactFormValue = {
   notes: '',
   status: 'active',
   tags: [],
+  source: '',
 }
