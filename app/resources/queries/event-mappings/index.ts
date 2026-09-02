@@ -4,6 +4,7 @@ export {
   getEventMapping,
   createEventMapping,
   updateEventMapping,
+  cloneEventMapping,
   deleteEventMapping,
 } from './event-mapping.queries'
 
@@ -12,6 +13,7 @@ export type {
   EventMappingType,
   CreateEventMappingPayload,
   UpdateEventMappingPayload,
+  CloneEventMappingPayload,
 } from './event-mapping.type'
 
 // Constants
