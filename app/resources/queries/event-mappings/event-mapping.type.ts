@@ -31,6 +31,10 @@ export type EventMappingType = {
    * Only applied on creation - never touches an existing contact matched by a
    * later event. */
   default_tags: string[]
+  /** Pauses ingestion for this event_type without deleting the row - false
+   * means every event for it is dropped, but event_type stays reserved and
+   * every field mapping is left intact for when it's re-enabled. */
+  is_active: boolean
   created_by_id: string | null
   created_at: string
   updated_at: string
@@ -61,6 +65,7 @@ export type UpdateEventMappingPayload = {
   identity_source_path?: string
   default_status?: string
   default_tags?: string[]
+  is_active?: boolean
 }
 
 /**
