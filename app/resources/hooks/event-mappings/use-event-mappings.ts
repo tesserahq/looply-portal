@@ -1,4 +1,5 @@
 import {
+  cloneEventMapping,
   createEventMapping,
   deleteEventMapping,
   getEventMapping,
@@ -6,6 +7,7 @@ import {
   updateEventMapping,
 } from '@/resources/queries/event-mappings/event-mapping.queries'
 import {
+  CloneEventMappingPayload,
   CreateEventMappingPayload,
   EventMappingType,
   UpdateEventMappingPayload,
@@ -170,6 +172,49 @@ export function useUpdateEventMapping(
     },
     onError: (error: QueryError) => {
       toast.error('Failed to update event mapping', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for cloning an event mapping under a new event_type - copies source,
+ * identity configuration, defaults, and every active field mapping verbatim.
+ */
+export function useCloneEventMapping(
+  config: IQueryConfig,
+  options?: {
+    onSuccess?: (data: EventMappingType) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: CloneEventMappingPayload
+    }): Promise<EventMappingType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await cloneEventMapping(config, id, data)
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: eventMappingQueryKeys.lists() })
+
+      toast.success(`"${data.event_type}" cloned successfully!`)
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to clone event mapping', {
         description: error?.message || 'Please try again.',
       })
 

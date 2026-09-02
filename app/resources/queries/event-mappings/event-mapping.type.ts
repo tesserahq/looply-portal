@@ -62,3 +62,12 @@ export type UpdateEventMappingPayload = {
   default_status?: string
   default_tags?: string[]
 }
+
+/**
+ * Payload for cloning an existing EventMapping under a new event_type. Every
+ * other field (source, identity configuration, defaults, and all active field
+ * mappings) is copied verbatim from the source - only event_type is supplied.
+ */
+export type CloneEventMappingPayload = {
+  event_type: string
+}

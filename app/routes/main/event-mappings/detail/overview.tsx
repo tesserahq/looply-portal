@@ -1,4 +1,5 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
+import { CloneEventMappingDialog } from '@/components/dialog/clone-event-mapping-dialog'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { useApp, DateTime } from 'tessera-ui'
 import { ResourceID } from 'tessera-ui/components'
@@ -8,8 +9,8 @@ import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
-import { useCallback, useRef } from 'react'
+import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
 
 export function loader() {
@@ -25,6 +26,7 @@ export default function EventMappingDetailOverview() {
   const navigate = useNavigate()
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false)
 
   const config = { apiUrl: apiUrl!, nodeEnv, token: token! }
 
@@ -90,6 +92,13 @@ export default function EventMappingDetailOverview() {
                     onClick={() => navigate(`/event-mappings/${eventMapping.id}/edit`)}>
                     <Pencil size={18} />
                     <span>Edit</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="flex w-full justify-start gap-2"
+                    onClick={() => setIsCloneDialogOpen(true)}>
+                    <Copy size={18} />
+                    <span>Duplicate</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -183,6 +192,16 @@ export default function EventMappingDetailOverview() {
       </div>
 
       <DeleteConfirmation ref={deleteModalRef} />
+
+      <CloneEventMappingDialog
+        open={isCloneDialogOpen}
+        onOpenChange={setIsCloneDialogOpen}
+        apiUrl={config.apiUrl}
+        nodeEnv={config.nodeEnv}
+        token={config.token}
+        sourceEventMapping={eventMapping}
+        onCloned={(clone) => navigate(`/event-mappings/${clone.id}`)}
+      />
     </div>
   )
 }

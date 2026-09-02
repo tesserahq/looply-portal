@@ -2,6 +2,7 @@ import { fetchApi } from '@/libraries/fetch'
 import { IPaging } from '@/resources/types'
 import { IQueryConfig, IQueryParams } from '..'
 import {
+  CloneEventMappingPayload,
   CreateEventMappingPayload,
   EventMappingType,
   UpdateEventMappingPayload,
@@ -71,6 +72,30 @@ export async function updateEventMapping(
     method: 'PATCH',
     body: JSON.stringify(data),
   })
+
+  return response as EventMappingType
+}
+
+/**
+ * Clone an event mapping under a new event_type - copies source, identity
+ * configuration, defaults, and every active field mapping verbatim.
+ */
+export async function cloneEventMapping(
+  config: IQueryConfig,
+  id: string,
+  data: CloneEventMappingPayload
+): Promise<EventMappingType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${EVENT_MAPPINGS_ENDPOINT}/${id}/clone`,
+    token,
+    nodeEnv,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }
+  )
 
   return response as EventMappingType
 }

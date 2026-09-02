@@ -1,4 +1,5 @@
 import { DataTable } from '@/components/data-table'
+import { CloneEventMappingDialog } from '@/components/dialog/clone-event-mapping-dialog'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
@@ -12,8 +13,8 @@ import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Ellipsis, EyeIcon, KeyRound, Trash2 } from 'lucide-react'
-import { useCallback, useMemo, useRef } from 'react'
+import { Copy, Ellipsis, EyeIcon, KeyRound, Trash2 } from 'lucide-react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate } from 'react-router'
 import { ResourceID, useApp, DateTime } from 'tessera-ui'
@@ -37,6 +38,7 @@ export default function EventMappings() {
   const { token } = useApp()
   const navigate = useNavigate()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const [cloneTarget, setCloneTarget] = useState<EventMappingType | null>(null)
 
   const config = {
     nodeEnv,
@@ -177,6 +179,13 @@ export default function EventMappings() {
                 </Button>
                 <Button
                   variant="ghost"
+                  className="flex w-full justify-start gap-2"
+                  onClick={() => setCloneTarget(row.original)}>
+                  <Copy size={18} />
+                  <span>Duplicate</span>
+                </Button>
+                <Button
+                  variant="ghost"
                   className="hover:bg-destructive hover:text-destructive-foreground flex w-full
                     justify-start gap-2"
                   onClick={() => handleDelete(row.original)}>
@@ -243,6 +252,18 @@ export default function EventMappings() {
       </div>
 
       <DeleteConfirmation ref={deleteModalRef} />
+
+      {cloneTarget && (
+        <CloneEventMappingDialog
+          open={!!cloneTarget}
+          onOpenChange={(open) => !open && setCloneTarget(null)}
+          apiUrl={config.apiUrl}
+          nodeEnv={config.nodeEnv}
+          token={config.token}
+          sourceEventMapping={cloneTarget}
+          onCloned={(clone) => navigate(`/event-mappings/${clone.id}`)}
+        />
+      )}
     </div>
   )
 }
