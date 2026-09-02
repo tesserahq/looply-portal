@@ -5,13 +5,18 @@ import EmptyContent from '@/components/empty-content/empty-content'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
-import { useDeleteEventMapping, useEventMappings } from '@/resources/hooks/event-mappings'
+import {
+  useDeleteEventMapping,
+  useEventMappings,
+  useUpdateEventMapping,
+} from '@/resources/hooks/event-mappings'
 import { EventMappingType } from '@/resources/queries/event-mappings'
 import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import { Switch } from '@shadcn/ui/switch'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Copy, Ellipsis, EyeIcon, KeyRound, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -56,6 +61,12 @@ export default function EventMappings() {
     onSuccess: () => {
       deleteModalRef.current?.close()
     },
+  })
+
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+  const { mutate: updateEventMapping } = useUpdateEventMapping(config, {
+    onSuccess: () => setTogglingId(null),
+    onError: () => setTogglingId(null),
   })
 
   const handleDelete = useCallback(
@@ -142,6 +153,24 @@ export default function EventMappings() {
         },
       },
       {
+        accessorKey: 'is_active',
+        header: 'Enabled',
+        size: 90,
+        cell: ({ row }) => (
+          <Switch
+            checked={row.original.is_active}
+            disabled={togglingId === row.original.id}
+            onCheckedChange={(checked) => {
+              setTogglingId(row.original.id)
+              updateEventMapping({
+                id: row.original.id,
+                updateData: { is_active: checked },
+              })
+            }}
+          />
+        ),
+      },
+      {
         accessorKey: 'created_at',
         header: 'Created At',
         size: 100,
@@ -198,7 +227,7 @@ export default function EventMappings() {
         },
       },
     ],
-    [handleDelete, navigate]
+    [handleDelete, navigate, updateEventMapping, togglingId]
   )
 
   if (isLoading) {

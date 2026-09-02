@@ -3,12 +3,17 @@ import { CloneEventMappingDialog } from '@/components/dialog/clone-event-mapping
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { useApp, DateTime } from 'tessera-ui'
 import { ResourceID } from 'tessera-ui/components'
-import { useDeleteEventMapping, useEventMappingDetail } from '@/resources/hooks/event-mappings'
+import {
+  useDeleteEventMapping,
+  useEventMappingDetail,
+  useUpdateEventMapping,
+} from '@/resources/hooks/event-mappings'
 import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader } from '@shadcn/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import { Switch } from '@shadcn/ui/switch'
 import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { useCallback, useRef, useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
@@ -42,6 +47,8 @@ export default function EventMappingDetailOverview() {
       navigate('/event-mappings')
     },
   })
+
+  const { mutate: updateEventMapping, isPending: isTogglingActive } = useUpdateEventMapping(config)
 
   const handleDelete = useCallback(() => {
     if (!eventMapping) return
@@ -79,37 +86,54 @@ export default function EventMappingDetailOverview() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-bold lg:text-3xl">Overview</h1>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button size="icon" variant="ghost" className="px-0">
-                    <EllipsisVertical size={18} />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="start" side="left" className="w-40 p-2">
-                  <Button
-                    variant="ghost"
-                    className="flex w-full justify-start gap-2"
-                    onClick={() => navigate(`/event-mappings/${eventMapping.id}/edit`)}>
-                    <Pencil size={18} />
-                    <span>Edit</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="flex w-full justify-start gap-2"
-                    onClick={() => setIsCloneDialogOpen(true)}>
-                    <Copy size={18} />
-                    <span>Duplicate</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="hover:bg-destructive hover:text-destructive-foreground flex w-full
-                      justify-start gap-2"
-                    onClick={handleDelete}>
-                    <Trash2 size={18} />
-                    <span>Delete</span>
-                  </Button>
-                </PopoverContent>
-              </Popover>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={eventMapping.is_active}
+                    disabled={isTogglingActive}
+                    onCheckedChange={(checked) =>
+                      updateEventMapping({
+                        id: eventMapping.id,
+                        updateData: { is_active: checked },
+                      })
+                    }
+                  />
+                  <span className="text-muted-foreground text-sm">
+                    {eventMapping.is_active ? 'Enabled' : 'Disabled'}
+                  </span>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button size="icon" variant="ghost" className="px-0">
+                      <EllipsisVertical size={18} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" side="left" className="w-40 p-2">
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      onClick={() => navigate(`/event-mappings/${eventMapping.id}/edit`)}>
+                      <Pencil size={18} />
+                      <span>Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      onClick={() => setIsCloneDialogOpen(true)}>
+                      <Copy size={18} />
+                      <span>Duplicate</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="hover:bg-destructive hover:text-destructive-foreground flex w-full
+                        justify-start gap-2"
+                      onClick={handleDelete}>
+                      <Trash2 size={18} />
+                      <span>Delete</span>
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 px-6 pt-4">
@@ -123,6 +147,14 @@ export default function EventMappingDetailOverview() {
               <div className="d-item">
                 <dt className="d-label">Event Type</dt>
                 <dd className="d-content">{eventMapping.event_type}</dd>
+              </div>
+              <div className="d-item">
+                <dt className="d-label">Status</dt>
+                <dd className="d-content">
+                  <Badge variant={eventMapping.is_active ? 'secondary' : 'outline'}>
+                    {eventMapping.is_active ? 'Enabled' : 'Disabled'}
+                  </Badge>
+                </dd>
               </div>
               <div className="d-item">
                 <dt className="d-label">Source</dt>
