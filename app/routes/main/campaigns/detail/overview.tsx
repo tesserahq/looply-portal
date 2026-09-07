@@ -184,7 +184,6 @@ export default function CampaignDetail() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h1 className="text-xl font-bold lg:text-3xl">Overview</h1>
-                  <CampaignStatusBadge status={campaign.status} className="shadow-sm" />
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -232,6 +231,12 @@ export default function CampaignDetail() {
                 <div className="d-item">
                   <dt className="d-label">Name</dt>
                   <dd className="d-content">{campaign.name || 'N/A'}</dd>
+                </div>
+                <div className="d-item">
+                  <dt className="d-label">Status</dt>
+                  <dd className="d-content">
+                    <CampaignStatusBadge status={campaign.status} />
+                  </dd>
                 </div>
                 <div className="d-item">
                   <dt className="d-label">Segment</dt>
