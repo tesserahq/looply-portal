@@ -7,7 +7,12 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { ResourceID, useApp } from 'tessera-ui'
 import useDebounce from '@/hooks/useDebounce'
-import { useContacts, useDeleteContact } from '@/resources/hooks/contacts'
+import {
+  useContacts,
+  useContactStatuses,
+  useContactTypes,
+  useDeleteContact,
+} from '@/resources/hooks/contacts'
 import { ContactType } from '@/resources/queries/contacts/contact.type'
 import { ContactStatusBadge } from '@/components/contact-status/contact-status'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
@@ -18,10 +23,14 @@ import { Button } from '@shadcn/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@shadcn/ui/input-group'
 import { Label } from '@shadcn/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Contact, Edit, Ellipsis, EyeIcon, Import, Search, Tag, Trash2, X } from 'lucide-react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { TagsInput } from 'tessera-ui/components'
+
+const ALL_STATUSES = '__all_statuses__'
+const ALL_CONTACT_TYPES = '__all_contact_types__'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const canonical = ensureCanonicalPagination(request, {
@@ -50,6 +59,10 @@ export default function Contacts() {
       .map((t) => t.trim())
       .filter(Boolean)
   )
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || '')
+  const [contactTypeFilter, setContactTypeFilter] = useState<string>(
+    searchParams.get('contact_type') || ''
+  )
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const contactInteractionRef = useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
 
@@ -59,6 +72,9 @@ export default function Contacts() {
     token: token!,
   }
 
+  const { data: contactStatusesData } = useContactStatuses(config)
+  const { data: contactTypesData } = useContactTypes(config)
+
   const { data, isLoading, apiError } = useContacts(
     config,
     {
@@ -67,6 +83,8 @@ export default function Contacts() {
       ...(tagFilter.length > 0
         ? { tags: tagFilter.join(',') }
         : debouncedSearch.length >= 3 && { q: debouncedSearch }),
+      ...(statusFilter && { status: statusFilter }),
+      ...(contactTypeFilter && { contact_type: contactTypeFilter }),
     },
     {
       enabled: !!token,
@@ -99,8 +117,9 @@ export default function Contacts() {
 
   const handleTagFilterChange = (tags: string[]) => {
     setTagFilter(tags)
-    // Tag filtering and text search are mutually exclusive (the backend only
-    // supports one at a time - see contact.queries.ts), so picking a tag
+    // Tag filtering and text search stay mutually exclusive in this UI (the
+    // backend can combine them, but a tag filter plus free text is a
+    // confusing combination for a user to reason about), so picking a tag
     // clears any in-progress text search.
     if (tags.length > 0) {
       setContactSearch('')
@@ -111,6 +130,28 @@ export default function Contacts() {
       searchParams.set('tags', tags.join(','))
     } else {
       searchParams.delete('tags')
+    }
+    setSearchParams(searchParams)
+  }
+
+  const handleStatusFilterChange = (value: string) => {
+    const status = value === ALL_STATUSES ? '' : value
+    setStatusFilter(status)
+    if (status) {
+      searchParams.set('status', status)
+    } else {
+      searchParams.delete('status')
+    }
+    setSearchParams(searchParams)
+  }
+
+  const handleContactTypeFilterChange = (value: string) => {
+    const contactType = value === ALL_CONTACT_TYPES ? '' : value
+    setContactTypeFilter(contactType)
+    if (contactType) {
+      searchParams.set('contact_type', contactType)
+    } else {
+      searchParams.delete('contact_type')
     }
     setSearchParams(searchParams)
   }
@@ -144,6 +185,9 @@ export default function Contacts() {
   }, [searchParams])
 
   const hasTagFilter = tagFilter.length > 0
+  const hasStatusFilter = !!statusFilter
+  const hasContactTypeFilter = !!contactTypeFilter
+  const hasAnyFilter = hasSearchQuery || hasTagFilter || hasStatusFilter || hasContactTypeFilter
 
   const hasData = useMemo(() => {
     return data && data.items && data.items.length > 0
@@ -327,7 +371,7 @@ export default function Contacts() {
     <div className="page-content h-full">
       <div className="mb-5 animate-slide-up flex flex-col gap-y-4">
         <h1 className="page-title">Contacts</h1>
-        {(hasSearchQuery || hasTagFilter || hasData) && (
+        {(hasAnyFilter || hasData) && (
           <div
             className="flex flex-col flex-col-reverse -mt-11 md:mt-0 md:flex-row items-end
               md:items-center gap-3 justify-between">
@@ -368,6 +412,34 @@ export default function Contacts() {
                   />
                 </PopoverContent>
               </Popover>
+              <Select value={statusFilter || ALL_STATUSES} onValueChange={handleStatusFilterChange}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_STATUSES}>All statuses</SelectItem>
+                  {(contactStatusesData?.items || []).map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={contactTypeFilter || ALL_CONTACT_TYPES}
+                onValueChange={handleContactTypeFilterChange}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_CONTACT_TYPES}>All types</SelectItem>
+                  {(contactTypesData?.items || []).map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center gap-2">
               <NewButton
@@ -389,7 +461,7 @@ export default function Contacts() {
             message={apiError?.message ?? 'Access denied.'}
             rawMessage={apiError?.rawMessage}
           />
-        ) : !hasData && !hasSearchQuery && !hasTagFilter ? (
+        ) : !hasData && !hasAnyFilter ? (
           emptyContent
         ) : (
           <DataTable
