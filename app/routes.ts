@@ -111,6 +111,7 @@ export default [
       route(':segment_id', 'routes/main/segments/detail/layout.tsx', [
         index('routes/main/segments/detail/index.tsx'),
         route('overview', 'routes/main/segments/detail/overview.tsx'),
+        route('contacts', 'routes/main/segments/detail/contacts.tsx'),
       ]),
     ]),
 
