@@ -36,9 +36,9 @@ export function ContactMultiSelect({
   const [search, setSearch] = useState<string>('')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
 
-  // /contacts/search needs a fairly complete term to match, so only fire it
-  // once the user has typed enough characters - a shorter query just falls
-  // back to the default (unfiltered) view below.
+  // The q full-text search needs a fairly complete term to match, so only
+  // fire it once the user has typed enough characters - a shorter query just
+  // falls back to the default (unfiltered) view below.
   useDebounce(
     () => {
       const trimmed = search.trim()

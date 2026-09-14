@@ -11,25 +11,25 @@ import {
 import { IPaging } from '@/resources/types/pagination'
 
 /**
- * List all contacts with pagination.
- * Uses /contacts endpoint for listing and /contacts/search for search queries.
+ * List all contacts with pagination. /contacts now accepts q, status,
+ * contact_type, and tags together (all filters AND together server-side).
  */
 export async function fetchContacts(config: ContactQueryConfig, params: ContactQueryParams) {
   const { apiUrl, token, nodeEnv } = config
-  const { page, size, q, tags } = params
+  const { page, size, q, status, contact_type, tags } = params
 
-  // Tag filtering only exists on /contacts, not /contacts/search - the two
-  // facets are mutually exclusive in the UI, so this never has to combine them.
-  const hasTagsFilter = tags && tags.trim() !== ''
-  const hasSearchQuery = !hasTagsFilter && q && q.trim() !== ''
-  const endpoint = hasSearchQuery ? `${apiUrl}/contacts/search` : `${apiUrl}/contacts`
+  const filterParams: Record<string, string> = {}
+  if (q && q.trim() !== '') filterParams.q = q
+  if (status && status.trim() !== '') filterParams.status = status
+  if (contact_type && contact_type.trim() !== '') filterParams.contact_type = contact_type
+  if (tags && tags.trim() !== '') filterParams.tags = tags
 
-  const response = await fetchApi(endpoint, token, nodeEnv, {
+  const response = await fetchApi(`${apiUrl}/contacts`, token, nodeEnv, {
     pagination: {
       page,
       size,
     },
-    params: hasSearchQuery ? { q } : hasTagsFilter ? { tags } : undefined,
+    params: Object.keys(filterParams).length > 0 ? filterParams : undefined,
   })
 
   return response as IPaging<ContactType>

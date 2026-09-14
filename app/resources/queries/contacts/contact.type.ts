@@ -71,6 +71,10 @@ export interface ContactQueryParams {
   page?: number
   size?: number
   q?: string
+  /** Exact contact status to filter by. */
+  status?: string
+  /** Exact contact type to filter by. */
+  contact_type?: string
   /** Comma-separated tag names. Returns contacts having any of them (OR semantics). */
   tags?: string
 }
