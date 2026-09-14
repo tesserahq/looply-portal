@@ -2,6 +2,7 @@ import {
   createSegment,
   deleteSegment,
   getSegment,
+  getSegmentContacts,
   getSegments,
   previewSegment,
   previewSegmentById,
@@ -30,6 +31,9 @@ export const segmentQueryKeys = {
   detail: (id: string) => [...segmentQueryKeys.details(), id] as const,
   previews: () => [...segmentQueryKeys.all, 'preview'] as const,
   preview: (id: string) => [...segmentQueryKeys.previews(), id] as const,
+  contactsLists: (id: string) => [...segmentQueryKeys.detail(id), 'contacts'] as const,
+  contactsList: (id: string, params?: IQueryParams) =>
+    [...segmentQueryKeys.contactsLists(id), params] as const,
 }
 
 /**
@@ -95,6 +99,43 @@ export function useSegmentDetail(
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!segmentId && !!config.token,
   })
+}
+
+/**
+ * Hook for fetching a saved segment's currently matching contacts, paginated.
+ */
+export function useSegmentContacts(
+  config: IQueryConfig,
+  segmentId: string,
+  params: IQueryParams,
+  options?: {
+    enabled?: boolean
+    staleTime?: number
+  }
+) {
+  const query = useQuery({
+    queryKey: segmentQueryKeys.contactsList(segmentId, params),
+    queryFn: async () => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await getSegmentContacts(config, segmentId, params)
+      } catch (error) {
+        throw new QueryError(
+          'Failed to fetch segment contacts',
+          'FETCH_ERROR',
+          error,
+          toApiError(error, 'segment contacts')
+        )
+      }
+    },
+    staleTime: options?.staleTime ?? 0,
+    enabled: options?.enabled !== false && !!segmentId && !!config.token,
+  })
+
+  return { ...query, apiError: (query.error as QueryError | null)?.apiError }
 }
 
 /**

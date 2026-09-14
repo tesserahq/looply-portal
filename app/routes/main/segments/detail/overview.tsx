@@ -12,7 +12,7 @@ import {
   useSegmentDetail,
   useSegmentPreviewById,
 } from '@/resources/hooks/segments'
-import { useLoaderData, useNavigate, useParams } from 'react-router'
+import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
 import { Edit, EllipsisVertical, Trash2, Users } from 'lucide-react'
 import { useCallback, useRef } from 'react'
 
@@ -128,10 +128,12 @@ export default function SegmentDetail() {
                 {isLoadingPreview ? (
                   <span className="text-muted-foreground text-sm">Calculating...</span>
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <Link
+                    to={`/segments/${segmentId}/contacts`}
+                    className="button-link flex w-fit items-center gap-2">
                     <Users size={14} />
                     <Badge variant="outline">{preview?.contact_count ?? 0}</Badge>
-                  </div>
+                  </Link>
                 )}
               </dd>
             </div>

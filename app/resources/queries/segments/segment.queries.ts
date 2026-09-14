@@ -1,6 +1,7 @@
 import { fetchApi } from '@/libraries/fetch'
 import { IPaging } from '@/resources/types'
 import { IQueryConfig, IQueryParams } from '..'
+import { ContactType } from '@/resources/queries/contacts/contact.type'
 import {
   CreateSegmentPayload,
   SegmentPreviewResponse,
@@ -86,6 +87,30 @@ export async function deleteSegment(config: IQueryConfig, id: string): Promise<v
   await fetchApi(`${apiUrl}${SEGMENTS_ENDPOINT}/${id}`, token, nodeEnv, {
     method: 'DELETE',
   })
+}
+
+/**
+ * Paginated list of contacts currently matching a saved segment.
+ */
+export async function getSegmentContacts(
+  config: IQueryConfig,
+  segmentId: string,
+  params: IQueryParams
+): Promise<IPaging<ContactType>> {
+  const { apiUrl, token, nodeEnv } = config
+  const { page, size } = params
+
+  const response = await fetchApi(
+    `${apiUrl}${SEGMENTS_ENDPOINT}/${segmentId}/contacts`,
+    token,
+    nodeEnv,
+    {
+      method: 'GET',
+      pagination: { page, size },
+    }
+  )
+
+  return response as IPaging<ContactType>
 }
 
 /**
