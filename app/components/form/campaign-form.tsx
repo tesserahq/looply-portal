@@ -16,6 +16,7 @@ import {
   useUpdateTemplate,
 } from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
+import { getAssetServeUrl } from '@/resources/queries/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
 import { generateRandomString, generateTemplateAlias } from '@/utils/helpers/slug.helper'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
@@ -141,7 +142,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const handleUploadImage = async (file: File) => {
     const asset = await uploadAsset({ file, expires_in: SIX_MONTHS_IN_SECONDS })
     if (!asset) throw new Error('Upload failed')
-    return { url: asset.url }
+    return { url: getAssetServeUrl(vaultaApiUrl, asset) }
   }
 
   useImperativeHandle(
