@@ -31,3 +31,17 @@ export async function uploadAssets(
 
   return data
 }
+
+/**
+ * Public, long-lived URL for an uploaded asset, suitable for embedding in
+ * emails. Prefer this over `asset.url`: that is a raw S3 presigned URL whose
+ * lifetime is capped by the signing credentials (and AWS's 7-day limit), so
+ * images break in emails once it expires. When the upload passed
+ * `expires_in`, Vaulta returns a signed, relative `/assets/serve/...` path
+ * that it serves for that full duration; otherwise `serve_url` is already
+ * absolute.
+ */
+export function getAssetServeUrl(apiUrl: string, asset: Pick<IAssetResponse, 'serve_url'>) {
+  if (/^https?:\/\//.test(asset.serve_url)) return asset.serve_url
+  return `${apiUrl.replace(/\/+$/, '')}${asset.serve_url}`
+}
