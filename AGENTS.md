@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents (Claude Code, Codex, ...) when working with code in this repository.
 
 ## Commands
 
@@ -66,6 +66,10 @@ Pages get `apiUrl`/`nodeEnv` from a route `loader()` reading `process.env`, and 
 `useHandleApiError` (`app/hooks/useHandleApiError.ts`) only handles **401** globally: it toasts and redirects to `/logout`. It deliberately does *not* handle 403 — the right response to "you can't see this" depends on which part of the UI failed (a full-panel overlay, inline text on a small control, etc.), so 403s are handled locally at the point of failure instead of through one blanket handler.
 
 The pattern for a React Query hook that needs this: the `queryFn` catches the error, calls `toApiError(error, '<context>')`, and attaches the result as an `apiError` field on a thrown `QueryError`; the hook then returns `{ ...query, apiError: (query.error as QueryError | null)?.apiError }` so callers get `isError`/`apiError` directly off the hook. See `useTemplates`/`useTemplate` in `app/resources/hooks/templates/use-template.ts` for the reference implementation. Consumers branch on `isError`/`apiError` to render `ApiErrorOverlay` (`app/components/misc/api-error-overlay.tsx` — replaces the failed panel in place, wraps `EmptyContent`) or inline error text for smaller controls — see `campaign-form.tsx`, `new-campaign-modal.tsx`, and `routes/main/campaigns/detail/overview.tsx` for the variations.
+
+### Images in emails (Vaulta assets)
+
+When an uploaded image goes into email/template HTML, use `getAssetServeUrl(vaultaApiUrl, asset)` from `@/resources/queries/vaulta`, **never `asset.url`**. `asset.url` is a raw S3 presigned URL that expires with the signing credentials (7 days at most), so images break in emails that were already sent. `serve_url` is Vaulta's signed link that honours the upload's `expires_in` (we request 6 months). The resulting URL is baked into sent emails, so don't change how it's built without considering links already in inboxes (see tesserahq/looply-portal#168, tesserahq/vaulta#153).
 
 ### UI layer
 
