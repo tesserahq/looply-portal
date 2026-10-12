@@ -135,3 +135,20 @@ export async function sendCampaign(config: IQueryConfig, id: string): Promise<Ca
 
   return response as CampaignType
 }
+
+/**
+ * Duplicate a campaign into a new draft ("Copy of <name>") with the same
+ * content and audience, but no send history.
+ */
+export async function duplicateCampaign(config: IQueryConfig, id: string): Promise<CampaignType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${CAMPAIGNS_ENDPOINT}/${id}/duplicate`,
+    token,
+    nodeEnv,
+    { method: 'POST' }
+  )
+
+  return response as CampaignType
+}
