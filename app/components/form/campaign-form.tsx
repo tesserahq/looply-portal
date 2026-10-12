@@ -1,4 +1,8 @@
 import {
+  CampaignPreviewDialog,
+  SAMPLE_RECIPIENT_VARIABLES,
+} from '@/components/campaign-preview/campaign-preview-dialog'
+import {
   RichEmailEditor,
   type RichEmailEditorRef,
 } from '@/components/email-editor/rich-email-editor'
@@ -8,15 +12,17 @@ import { JsonEditor, type JsonObject } from '@/components/json/editor'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
+import { useRenderContent } from '@/resources/hooks/render'
 import { useSegmentPreviewById } from '@/resources/hooks/segments'
 import { useTemplate } from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
 import { getAssetServeUrl } from '@/resources/queries/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
+import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Input } from '@shadcn/ui/input'
 import { Label } from '@shadcn/ui/label'
-import { Users } from 'lucide-react'
+import { Eye, Users } from 'lucide-react'
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useApp } from 'tessera-ui'
 import { TagsInput } from 'tessera-ui/components'
@@ -131,6 +137,35 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const { mutateAsync: createCampaign } = useCreateCampaign(config)
   const { mutateAsync: updateCampaign } = useUpdateCampaign(config)
   const { mutateAsync: uploadAsset } = useUploadAsset(vaultaConfig)
+
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const {
+    mutate: renderPreview,
+    data: previewResult,
+    isPending: isRenderingPreview,
+    apiError: previewError,
+    reset: resetPreview,
+  } = useRenderContent(sendlyConfig)
+
+  // On demand, never per keystroke: renders the editor's current content
+  // through Sendly, the same path a real send takes.
+  const handlePreview = async () => {
+    resetPreview()
+    setPreviewOpen(true)
+    let html: string
+    try {
+      html = (await richEditorRef.current?.getHTML()) ?? ''
+    } catch (error) {
+      console.error('Failed to serialize email body', error)
+      html = ''
+    }
+    renderPreview({
+      html,
+      subject,
+      layout_id: layoutId,
+      template_variables: { ...templateVariables, ...SAMPLE_RECIPIENT_VARIABLES },
+    })
+  }
 
   const handleUploadImage = async (file: File) => {
     const asset = await uploadAsset({ file, expires_in: SIX_MONTHS_IN_SECONDS })
@@ -271,7 +306,18 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
           </div>
         </div>
         <div>
-          <Label>Body</Label>
+          <div className="flex items-center justify-between">
+            <Label>Body</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePreview}
+              disabled={!editorReady}>
+              <Eye size={16} />
+              Preview
+            </Button>
+          </div>
           <div className="mt-1.5 overflow-hidden rounded-md border">
             {needsLegacyContent && isLoadingLegacyTemplate ? (
               <AppPreloader className="h-[450px]" />
@@ -302,6 +348,14 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             <TagsInput value={tags} onChange={setTags} disabled={disabled} />
           </div>
         </div>
+
+        <CampaignPreviewDialog
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          isLoading={isRenderingPreview}
+          result={previewResult}
+          error={previewError}
+        />
 
         {footer && (
           <div className="flex items-center justify-between gap-2 pt-2">
