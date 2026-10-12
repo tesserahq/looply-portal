@@ -6,7 +6,14 @@ export type CampaignType = {
   name: string
   segment_id: string
   project_id: string | null
-  template_id: string
+  // The campaign owns its email body; Sendly wraps it in the layout
+  // `layout_id` when sending. Both are required to send, null while drafting.
+  html: string | null
+  layout_id: string | null
+  // Legacy, read-only: the Sendly template the campaign pointed at before
+  // campaigns owned their content. Only used to show not-yet-backfilled
+  // campaigns; never sent or written.
+  template_id: string | null
   template_variables: Record<string, unknown>
   from_email: string
   subject: string
@@ -76,7 +83,8 @@ export type CreateCampaignPayload = {
   name: string
   segment_id: string
   project_id?: string
-  template_id: string
+  html?: string
+  layout_id?: string
   from_email: string
   subject: string
   tags?: string[]
