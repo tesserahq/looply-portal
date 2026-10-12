@@ -7,6 +7,7 @@ import {
   getCampaignStats,
   sendCampaign,
   updateCampaign,
+  duplicateCampaign,
 } from '@/resources/queries/campaigns/campaign.queries'
 import {
   CampaignType,
@@ -321,6 +322,45 @@ export function useSendCampaign(
     },
     onError: (error: QueryError) => {
       toast.error('Failed to send campaign', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for duplicating a campaign into a new draft
+ * @config - Campaign query configuration
+ * @options - Mutation callbacks
+ */
+export function useDuplicateCampaign(
+  config: IQueryConfig,
+  options?: {
+    onSuccess?: (data: CampaignType) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string): Promise<CampaignType> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await duplicateCampaign(config, id)
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(campaignQueryKeys.detail(data.id), data)
+      queryClient.invalidateQueries({ queryKey: campaignQueryKeys.lists() })
+
+      toast.success('Campaign duplicated')
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to duplicate campaign', {
         description: error?.message || 'Please try again.',
       })
 

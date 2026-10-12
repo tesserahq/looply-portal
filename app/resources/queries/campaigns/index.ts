@@ -6,6 +6,7 @@ export {
   updateCampaign,
   deleteCampaign,
   sendCampaign,
+  duplicateCampaign,
 } from './campaign.queries'
 
 // Types

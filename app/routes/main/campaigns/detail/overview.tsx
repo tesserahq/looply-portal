@@ -15,6 +15,7 @@ import {
   useCampaignEngagementTimeline,
   useCampaignStats,
   useDeleteCampaign,
+  useDuplicateCampaign,
   useSendCampaign,
 } from '@/resources/hooks/campaigns'
 import { CampaignFunnelChart } from '@/components/campaign-analytics/campaign-funnel-chart'
@@ -25,7 +26,7 @@ import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
 import { buildResourceUrl } from '@/utils/helpers/url.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
-import { Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
+import { CopyPlus, Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
 import { Activity, useCallback, useRef, useState } from 'react'
 
 function formatRate(rate: number | undefined): string {
@@ -135,6 +136,10 @@ export default function CampaignDetail() {
     },
   })
 
+  const { mutate: duplicateCampaign, isPending: isDuplicating } = useDuplicateCampaign(config, {
+    onSuccess: (copy) => navigate(`/campaigns/${copy.id}/edit`),
+  })
+
   const handleDelete = useCallback(() => {
     if (!campaign) return
 
@@ -224,6 +229,14 @@ export default function CampaignDetail() {
                       onClick={handleSend}>
                       <Send size={18} />
                       <span>Send</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      disabled={isDuplicating}
+                      onClick={() => duplicateCampaign(campaignId)}>
+                      <CopyPlus size={18} />
+                      <span>Duplicate</span>
                     </Button>
                     <Button
                       variant="ghost"
