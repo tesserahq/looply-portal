@@ -2,23 +2,17 @@ import {
   RichEmailEditor,
   type RichEmailEditorRef,
 } from '@/components/email-editor/rich-email-editor'
+import { LayoutSelect } from '@/components/form/layout-select'
 import { SegmentSelect, type SegmentOption } from '@/components/form/form-segments'
 import { JsonEditor, type JsonObject } from '@/components/json/editor'
-import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
 import { useSegmentPreviewById } from '@/resources/hooks/segments'
-import {
-  useCloneTemplate,
-  useCreateTemplate,
-  useTemplate,
-  useUpdateTemplate,
-} from '@/resources/hooks/templates'
+import { useTemplate } from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
 import { getAssetServeUrl } from '@/resources/queries/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
-import { generateRandomString, generateTemplateAlias } from '@/utils/helpers/slug.helper'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Input } from '@shadcn/ui/input'
 import { Label } from '@shadcn/ui/label'
@@ -34,6 +28,8 @@ export interface CampaignFormInitialValues {
   segmentId?: string
   subject: string
   fromEmail: string
+  html?: string | null
+  layoutId?: string | null
   templateVariables?: JsonObject
   tags?: string[]
 }
@@ -44,15 +40,15 @@ export interface CampaignFormProps {
   sendlyApiUrl: string
   vaultaApiUrl: string
   nodeEnv: NodeENVType
-  templateId: string
   campaignId?: string
   initialValues?: CampaignFormInitialValues
+  /** Legacy: the Sendly template a not-yet-backfilled campaign still points
+   * at (it has a template_id but no html of its own). Its body and layout
+   * seed the form, and saving writes them onto the campaign — so editing
+   * such a campaign migrates it. Never written back to Sendly. */
+  legacyTemplateId?: string | null
   footer?: React.ReactNode
   disabled?: boolean
-  /** Clone `templateId` into a campaign-specific copy on save — only when the
-   * user started this campaign from an existing template, as opposed to a
-   * blank template created for a brand-new campaign. */
-  cloneTemplateOnSave?: boolean
 }
 
 export interface CampaignFormRef {
@@ -66,12 +62,11 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     sendlyApiUrl,
     vaultaApiUrl,
     nodeEnv,
-    templateId,
     campaignId,
     initialValues,
+    legacyTemplateId,
     footer,
     disabled = false,
-    cloneTemplateOnSave = false,
   },
   ref
 ) {
@@ -88,18 +83,18 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   const [segmentError, setSegmentError] = useState<string>()
   const [subject, setSubject] = useState(initialValues?.subject ?? '')
   const [fromEmail, setFromEmail] = useState(initialValues?.fromEmail ?? '')
+  const [layoutId, setLayoutId] = useState<string | undefined>(initialValues?.layoutId ?? undefined)
   const [templateVariables, setTemplateVariables] = useState<JsonObject>(
     initialValues?.templateVariables ?? {}
   )
   const [tags, setTags] = useState<string[]>(initialValues?.tags ?? [])
-  const [currentTemplateId, setCurrentTemplateId] = useState(templateId)
 
-  const {
-    data: template,
-    isError: isTemplateError,
-    apiError: templateApiError,
-    isLoading: isLoadingTemplate,
-  } = useTemplate(sendlyConfig, currentTemplateId, { enabled: !!currentTemplateId })
+  const needsLegacyContent = !!legacyTemplateId && !initialValues?.html
+  const { data: legacyTemplate, isLoading: isLoadingLegacyTemplate } = useTemplate(
+    sendlyConfig,
+    legacyTemplateId ?? '',
+    { enabled: needsLegacyContent }
+  )
 
   const handleSegmentChange = (segment?: SegmentOption) => {
     setSegmentId(segment?.id)
@@ -113,31 +108,29 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     enabled: !!segmentId,
   })
 
-  // Seeding the editor is separate from `template` because the editor becomes
-  // ready asynchronously (immediatelyRender: false) — if `template` had already
-  // resolved before the editor mounted, a single effect keyed only on `template`
-  // would silently no-op against a still-null editor.
+  // Seed the editor once it's ready (it becomes ready asynchronously -
+  // immediatelyRender: false - so seeding has to wait on `editorReady`
+  // rather than run on mount). A not-yet-backfilled campaign is seeded from
+  // its legacy template once that has loaded.
+  const hasSeededEditor = useRef(false)
   useEffect(() => {
-    if (template && editorReady) {
-      richEditorRef.current?.setContent(template.html)
+    if (!editorReady || hasSeededEditor.current) return
+    if (needsLegacyContent) {
+      if (!legacyTemplate) return
+      hasSeededEditor.current = true
+      richEditorRef.current?.setContent(legacyTemplate.html)
+      setLayoutId((prev) => prev ?? legacyTemplate.layout_id ?? undefined)
+      setSubject((prev) => prev || legacyTemplate.subject || '')
+      setFromEmail((prev) => prev || legacyTemplate.from_email || '')
+      return
     }
-  }, [template, editorReady])
-
-  const hasPrefilledFromTemplate = useRef(false)
-  useEffect(() => {
-    if (mode === 'create' && template && !hasPrefilledFromTemplate.current) {
-      hasPrefilledFromTemplate.current = true
-      setSubject((prev) => prev || template.subject || '')
-      setFromEmail((prev) => prev || template.from_email || '')
-    }
-  }, [mode, template])
+    hasSeededEditor.current = true
+    if (initialValues?.html) richEditorRef.current?.setContent(initialValues.html)
+  }, [editorReady, needsLegacyContent, legacyTemplate, initialValues?.html])
 
   const { mutateAsync: createCampaign } = useCreateCampaign(config)
   const { mutateAsync: updateCampaign } = useUpdateCampaign(config)
-  const { mutateAsync: createTemplate } = useCreateTemplate(sendlyConfig)
-  const { mutateAsync: updateTemplate } = useUpdateTemplate(sendlyConfig)
   const { mutateAsync: uploadAsset } = useUploadAsset(vaultaConfig)
-  const { mutateAsync: cloneTemplate } = useCloneTemplate(sendlyConfig)
 
   const handleUploadImage = async (file: File) => {
     const asset = await uploadAsset({ file, expires_in: SIX_MONTHS_IN_SECONDS })
@@ -160,7 +153,7 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
         // Serializing the editor's content can throw (a known failure mode of
         // the underlying HTML formatter on certain table structures). Don't
         // let that block saving the rest of the campaign's fields — surface
-        // it and skip only the template/body update.
+        // it and leave the stored body untouched.
         let html: string | undefined
         try {
           html = (await richEditorRef.current?.getHTML()) ?? ''
@@ -168,95 +161,26 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
           console.error('Failed to serialize email body', error)
         }
 
-        // Only sync the campaign name into the template when the template
-        // doesn't already have one of its own (e.g. a blank template created
-        // via the "New" flow) — an existing, named template shouldn't get
-        // renamed just because it's attached to this campaign.
-        const syncTemplateName = !template?.name
+        const content = {
+          name,
+          segment_id: segmentId,
+          subject,
+          from_email: fromEmail,
+          layout_id: layoutId,
+          template_variables: templateVariables,
+          tags,
+          ...(html !== undefined && { html }),
+        }
 
         if (mode === 'create') {
-          const campaign = await createCampaign({
-            name,
-            segment_id: segmentId ?? '',
-            template_id: currentTemplateId,
-            subject,
-            from_email: fromEmail,
-            template_variables: templateVariables,
-            tags,
-          })
-          if (html !== undefined) {
-            await updateTemplate({
-              id: currentTemplateId,
-              updateData: {
-                subject,
-                from_email: fromEmail,
-                html,
-                ...(syncTemplateName && { name }),
-              },
-            })
-          }
-
-          // Clone the source template into a campaign-specific copy so edits
-          // made here don't mutate the template the user picked. Only
-          // applies when starting from an existing template — a blank
-          // template created for a brand-new campaign has nothing worth
-          // preserving under its own name.
-          if (cloneTemplateOnSave) {
-            const randomSuffix = generateRandomString(5)
-            await cloneTemplate({
-              id: currentTemplateId,
-              data: {
-                name: `Campaign: ${name}-${randomSuffix}`,
-                tags: ['broadcast', `campaign:${campaign.id.substring(0, 8)}`],
-                alias: `campaign-${template?.alias}-${randomSuffix}`,
-              },
-            })
-          }
-
-          return campaign
+          return createCampaign(content)
         }
 
-        const campaign = await updateCampaign({
+        return updateCampaign({
           id: campaignId!,
-          updateData: {
-            name,
-            segment_id: segmentId,
-            subject,
-            from_email: fromEmail,
-            template_variables: templateVariables,
-            tags,
-          },
+          updateData: content,
           showSuccessToast,
         })
-
-        if (html !== undefined) {
-          if (!currentTemplateId) {
-            const created = await createTemplate({
-              alias: generateTemplateAlias(name),
-              name,
-              subject: '',
-              html,
-            })
-            setCurrentTemplateId(created.id)
-            await updateCampaign({
-              id: campaignId!,
-              updateData: { template_id: created.id },
-              showSuccessToast: false,
-            })
-          } else {
-            await updateTemplate({
-              id: currentTemplateId,
-              updateData: {
-                subject,
-                from_email: fromEmail,
-                html,
-                ...(syncTemplateName && { name }),
-              },
-            })
-          }
-        }
-
-        return campaign
       },
     }),
     [
@@ -265,17 +189,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
       segmentId,
       subject,
       fromEmail,
+      layoutId,
       templateVariables,
       tags,
-      currentTemplateId,
       campaignId,
-      template,
-      cloneTemplateOnSave,
       createCampaign,
       updateCampaign,
-      createTemplate,
-      updateTemplate,
-      cloneTemplate,
     ]
   )
 
@@ -332,18 +251,30 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
               disabled={disabled}
             />
           </div>
+
+          <div>
+            <Label className='after:text-destructive after:ml-0.5 after:content-["*"]'>
+              Layout
+            </Label>
+            <LayoutSelect
+              value={layoutId}
+              onChange={setLayoutId}
+              sendlyApiUrl={sendlyApiUrl}
+              nodeEnv={nodeEnv}
+              disabled={disabled}
+            />
+            {!layoutId && !disabled && (
+              <p className="text-muted-foreground mt-1 text-sm">
+                A layout is required before this campaign can be sent.
+              </p>
+            )}
+          </div>
         </div>
         <div>
           <Label>Body</Label>
           <div className="mt-1.5 overflow-hidden rounded-md border">
-            {isLoadingTemplate ? (
+            {needsLegacyContent && isLoadingLegacyTemplate ? (
               <AppPreloader className="h-[450px]" />
-            ) : isTemplateError ? (
-              <ApiErrorOverlay
-                statusCode={templateApiError?.statusCode ?? 403}
-                message={templateApiError?.message ?? 'Access denied.'}
-                rawMessage={templateApiError?.rawMessage}
-              />
             ) : (
               <RichEmailEditor
                 ref={richEditorRef}

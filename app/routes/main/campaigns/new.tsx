@@ -18,13 +18,12 @@ export default function CampaignNew() {
   const { apiUrl, sendlyApiUrl, vaultaApiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const templateId = searchParams.get('template_id')
-  const isFromExistingTemplate = searchParams.get('source') === 'template'
+  const layoutId = searchParams.get('layout_id')
 
   const formRef = useRef<CampaignFormRef>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  if (!templateId) {
+  if (!layoutId) {
     return (
       <NewCampaignModal
         open
@@ -60,8 +59,7 @@ export default function CampaignNew() {
       <CampaignForm
         ref={formRef}
         mode="create"
-        templateId={templateId}
-        cloneTemplateOnSave={isFromExistingTemplate}
+        initialValues={{ name: '', subject: '', fromEmail: '', layoutId }}
         apiUrl={apiUrl!}
         sendlyApiUrl={sendlyApiUrl!}
         vaultaApiUrl={vaultaApiUrl!}

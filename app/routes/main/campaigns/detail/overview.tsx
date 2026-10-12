@@ -20,6 +20,7 @@ import {
 import { CampaignFunnelChart } from '@/components/campaign-analytics/campaign-funnel-chart'
 import { CampaignEngagementTimelineChart } from '@/components/campaign-analytics/campaign-engagement-timeline-chart'
 import { useSegmentDetail, useSegmentPreviewById } from '@/resources/hooks/segments'
+import { useLayout } from '@/resources/hooks/layouts'
 import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
 import { buildResourceUrl } from '@/utils/helpers/url.helper'
@@ -75,12 +76,23 @@ export default function CampaignDetail() {
   })
 
   const {
+    data: layout,
+    isLoading: isLoadingLayout,
+    isError: isLayoutError,
+  } = useLayout(sendlyConfig, campaign?.layout_id ?? '', {
+    enabled: !!campaign?.layout_id,
+  })
+
+  // Legacy: a campaign not yet backfilled still has its content in a Sendly
+  // template (template_id, no html). Read-only, just to show it.
+  const isLegacyContent = !!campaign && !campaign.html && !!campaign.template_id
+  const {
     data: template,
     isLoading: isLoadingTemplate,
     isError: isTemplateError,
     apiError: templateApiError,
   } = useTemplate(sendlyConfig, campaign?.template_id ?? '', {
-    enabled: !!campaign?.template_id,
+    enabled: isLegacyContent,
   })
 
   const { data: segment, isLoading: isLoadingSegment } = useSegmentDetail(
@@ -151,7 +163,7 @@ export default function CampaignDetail() {
     })
   }, [campaign, campaignId, segment, segmentPreview, sendCampaign])
 
-  if (isLoading || isLoadingTemplate || isLoadingSegment || isLoadingBroadcast) {
+  if (isLoading || isLoadingLayout || isLoadingTemplate || isLoadingSegment || isLoadingBroadcast) {
     return <AppPreloader />
   }
 
@@ -167,11 +179,16 @@ export default function CampaignDetail() {
     )
   }
 
-  const previewHtml = template
-    ? template.layout?.html
-      ? mergeTemplateIntoLayout(template.layout.html, template.html)
-      : template.html
-    : undefined
+  const previewHtml = campaign.html
+    ? layout
+      ? mergeTemplateIntoLayout(layout.html, campaign.html)
+      : campaign.html
+    : template
+      ? template.layout?.html
+        ? mergeTemplateIntoLayout(template.layout.html, template.html)
+        : template.html
+      : undefined
+  const showTemplateError = isLegacyContent && isTemplateError
 
   const isDraft = campaign.status.toLowerCase() === 'draft'
 
@@ -261,15 +278,13 @@ export default function CampaignDetail() {
                   </div>
                 )}
                 <div className="d-item">
-                  <dt className="d-label">Template</dt>
+                  <dt className="d-label">Layout</dt>
                   <dd className="d-content">
-                    {!campaign.template_id
-                      ? 'N/A'
-                      : isLoadingTemplate
-                        ? 'Loading...'
-                        : isTemplateError
-                          ? 'Unable to load (no access)'
-                          : template?.name || campaign.template_id}
+                    {!campaign.layout_id
+                      ? 'None (required to send)'
+                      : isLayoutError
+                        ? 'Unable to load (deleted or no access)'
+                        : layout?.name || layout?.alias || campaign.layout_id}
                   </dd>
                 </div>
                 <div className="d-item">
@@ -475,13 +490,13 @@ export default function CampaignDetail() {
           </Activity>
         </div>
 
-        {(previewHtml || isTemplateError) && (
+        {(previewHtml || showTemplateError) && (
           <Card className="w-full lg:flex-1">
             <CardHeader>
               <h2 className="text-xl font-bold lg:text-2xl">Email</h2>
             </CardHeader>
             <CardContent>
-              {isTemplateError ? (
+              {showTemplateError ? (
                 <ApiErrorOverlay
                   statusCode={templateApiError?.statusCode ?? 403}
                   message={templateApiError?.message ?? 'Access denied.'}

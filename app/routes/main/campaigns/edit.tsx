@@ -95,12 +95,14 @@ export default function CampaignEdit() {
         ref={formRef}
         mode="edit"
         campaignId={campaign_id!}
-        templateId={campaign.template_id}
+        legacyTemplateId={campaign.template_id}
         initialValues={{
           name: campaign.name,
           segmentId: campaign.segment_id || undefined,
           subject: campaign.subject,
           fromEmail: campaign.from_email,
+          html: campaign.html,
+          layoutId: campaign.layout_id,
           templateVariables: campaign.template_variables,
           tags: campaign.tags,
         }}
