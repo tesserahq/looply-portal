@@ -9,12 +9,10 @@ import {
 import { LayoutSelect } from '@/components/form/layout-select'
 import { SegmentSelect, type SegmentOption } from '@/components/form/form-segments'
 import { JsonEditor, type JsonObject } from '@/components/json/editor'
-import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
 import { useCreateCampaign, useUpdateCampaign } from '@/resources/hooks/campaigns'
 import { useRenderContent } from '@/resources/hooks/render'
 import { useSegmentPreviewById } from '@/resources/hooks/segments'
-import { useTemplate } from '@/resources/hooks/templates'
 import { useUploadAsset } from '@/resources/hooks/vaulta'
 import { getAssetServeUrl } from '@/resources/queries/vaulta'
 import { CampaignType } from '@/resources/queries/campaigns/campaign.type'
@@ -48,11 +46,6 @@ export interface CampaignFormProps {
   nodeEnv: NodeENVType
   campaignId?: string
   initialValues?: CampaignFormInitialValues
-  /** Legacy: the Sendly template a not-yet-backfilled campaign still points
-   * at (it has a template_id but no html of its own). Its body and layout
-   * seed the form, and saving writes them onto the campaign — so editing
-   * such a campaign migrates it. Never written back to Sendly. */
-  legacyTemplateId?: string | null
   footer?: React.ReactNode
   disabled?: boolean
 }
@@ -70,7 +63,6 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
     nodeEnv,
     campaignId,
     initialValues,
-    legacyTemplateId,
     footer,
     disabled = false,
   },
@@ -95,13 +87,6 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   )
   const [tags, setTags] = useState<string[]>(initialValues?.tags ?? [])
 
-  const needsLegacyContent = !!legacyTemplateId && !initialValues?.html
-  const { data: legacyTemplate, isLoading: isLoadingLegacyTemplate } = useTemplate(
-    sendlyConfig,
-    legacyTemplateId ?? '',
-    { enabled: needsLegacyContent }
-  )
-
   const handleSegmentChange = (segment?: SegmentOption) => {
     setSegmentId(segment?.id)
     if (segment?.id) setSegmentError(undefined)
@@ -116,23 +101,13 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
 
   // Seed the editor once it's ready (it becomes ready asynchronously -
   // immediatelyRender: false - so seeding has to wait on `editorReady`
-  // rather than run on mount). A not-yet-backfilled campaign is seeded from
-  // its legacy template once that has loaded.
+  // rather than run on mount).
   const hasSeededEditor = useRef(false)
   useEffect(() => {
     if (!editorReady || hasSeededEditor.current) return
-    if (needsLegacyContent) {
-      if (!legacyTemplate) return
-      hasSeededEditor.current = true
-      richEditorRef.current?.setContent(legacyTemplate.html)
-      setLayoutId((prev) => prev ?? legacyTemplate.layout_id ?? undefined)
-      setSubject((prev) => prev || legacyTemplate.subject || '')
-      setFromEmail((prev) => prev || legacyTemplate.from_email || '')
-      return
-    }
     hasSeededEditor.current = true
     if (initialValues?.html) richEditorRef.current?.setContent(initialValues.html)
-  }, [editorReady, needsLegacyContent, legacyTemplate, initialValues?.html])
+  }, [editorReady, initialValues?.html])
 
   const { mutateAsync: createCampaign } = useCreateCampaign(config)
   const { mutateAsync: updateCampaign } = useUpdateCampaign(config)
@@ -319,17 +294,13 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
             </Button>
           </div>
           <div className="mt-1.5 overflow-hidden rounded-md border">
-            {needsLegacyContent && isLoadingLegacyTemplate ? (
-              <AppPreloader className="h-[450px]" />
-            ) : (
-              <RichEmailEditor
-                ref={richEditorRef}
-                height="450px"
-                onReady={() => setEditorReady(true)}
-                onUploadImage={handleUploadImage}
-                editable={!disabled}
-              />
-            )}
+            <RichEmailEditor
+              ref={richEditorRef}
+              height="450px"
+              onReady={() => setEditorReady(true)}
+              onUploadImage={handleUploadImage}
+              editable={!disabled}
+            />
           </div>
         </div>
         <div>

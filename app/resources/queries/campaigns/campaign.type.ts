@@ -10,10 +10,6 @@ export type CampaignType = {
   // `layout_id` when sending. Both are required to send, null while drafting.
   html: string | null
   layout_id: string | null
-  // Legacy, read-only: the Sendly template the campaign pointed at before
-  // campaigns owned their content. Only used to show not-yet-backfilled
-  // campaigns; never sent or written.
-  template_id: string | null
   template_variables: Record<string, unknown>
   from_email: string
   subject: string
