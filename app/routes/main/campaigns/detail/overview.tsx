@@ -22,7 +22,6 @@ import { CampaignFunnelChart } from '@/components/campaign-analytics/campaign-fu
 import { CampaignEngagementTimelineChart } from '@/components/campaign-analytics/campaign-engagement-timeline-chart'
 import { useSegmentDetail, useSegmentPreviewById } from '@/resources/hooks/segments'
 import { useLayout } from '@/resources/hooks/layouts'
-import { useTemplate } from '@/resources/hooks/templates'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
 import { buildResourceUrl } from '@/utils/helpers/url.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
@@ -82,18 +81,6 @@ export default function CampaignDetail() {
     isError: isLayoutError,
   } = useLayout(sendlyConfig, campaign?.layout_id ?? '', {
     enabled: !!campaign?.layout_id,
-  })
-
-  // Legacy: a campaign not yet backfilled still has its content in a Sendly
-  // template (template_id, no html). Read-only, just to show it.
-  const isLegacyContent = !!campaign && !campaign.html && !!campaign.template_id
-  const {
-    data: template,
-    isLoading: isLoadingTemplate,
-    isError: isTemplateError,
-    apiError: templateApiError,
-  } = useTemplate(sendlyConfig, campaign?.template_id ?? '', {
-    enabled: isLegacyContent,
   })
 
   const { data: segment, isLoading: isLoadingSegment } = useSegmentDetail(
@@ -168,7 +155,7 @@ export default function CampaignDetail() {
     })
   }, [campaign, campaignId, segment, segmentPreview, sendCampaign])
 
-  if (isLoading || isLoadingLayout || isLoadingTemplate || isLoadingSegment || isLoadingBroadcast) {
+  if (isLoading || isLoadingLayout || isLoadingSegment || isLoadingBroadcast) {
     return <AppPreloader />
   }
 
@@ -188,12 +175,7 @@ export default function CampaignDetail() {
     ? layout
       ? mergeTemplateIntoLayout(layout.html, campaign.html)
       : campaign.html
-    : template
-      ? template.layout?.html
-        ? mergeTemplateIntoLayout(template.layout.html, template.html)
-        : template.html
-      : undefined
-  const showTemplateError = isLegacyContent && isTemplateError
+    : undefined
 
   const isDraft = campaign.status.toLowerCase() === 'draft'
 
@@ -503,29 +485,21 @@ export default function CampaignDetail() {
           </Activity>
         </div>
 
-        {(previewHtml || showTemplateError) && (
+        {previewHtml && (
           <Card className="w-full lg:flex-1">
             <CardHeader>
               <h2 className="text-xl font-bold lg:text-2xl">Email</h2>
             </CardHeader>
             <CardContent>
-              {showTemplateError ? (
-                <ApiErrorOverlay
-                  statusCode={templateApiError?.statusCode ?? 403}
-                  message={templateApiError?.message ?? 'Access denied.'}
-                  rawMessage={templateApiError?.rawMessage}
-                />
-              ) : (
-                <iframe
-                  ref={previewIframeRef}
-                  srcDoc={previewHtml}
-                  onLoad={handlePreviewLoad}
-                  className="w-full border-0"
-                  style={{ height: previewHeight ? `${previewHeight}px` : '600px' }}
-                  sandbox="allow-same-origin"
-                  title="Email Content"
-                />
-              )}
+              <iframe
+                ref={previewIframeRef}
+                srcDoc={previewHtml}
+                onLoad={handlePreviewLoad}
+                className="w-full border-0"
+                style={{ height: previewHeight ? `${previewHeight}px` : '600px' }}
+                sandbox="allow-same-origin"
+                title="Email Content"
+              />
             </CardContent>
           </Card>
         )}
