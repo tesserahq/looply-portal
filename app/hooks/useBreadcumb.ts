@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, type QueryKey } from '@tanstack/react-query'
 import { NodeENVType } from '@/libraries/fetch'
 import { BreadcrumbItemData } from 'tessera-ui'
 import { fetchContactDetail } from '@/resources/queries/contacts/contact.queries'
@@ -9,6 +9,11 @@ import { fetchContactListDetail } from '@/resources/queries/contact-lists'
 import { fetchWaitingListDetail } from '@/resources/queries/waiting-lists'
 import { fetchContactInteractionDetail } from '@/resources/queries/contact-interactions'
 import { getCampaign } from '@/resources/queries/campaigns'
+import { contactQueryKeys } from '@/resources/hooks/contacts/use-contact'
+import { contactListQueryKeys } from '@/resources/hooks/contact-lists/use-contact-list'
+import { waitingListQueryKeys } from '@/resources/hooks/waiting-lists/use-waiting-list'
+import { contactInteractionQueryKeys } from '@/resources/hooks/contact-interactions/use-contact-interaction'
+import { campaignQueryKeys } from '@/resources/hooks/campaigns/use-campaign'
 
 /**
  * Resource state per breadcrumb
@@ -35,7 +40,7 @@ interface BreadcrumbConfigType {
  */
 type BreadcrumbQueryConfig = {
   paramKey: string
-  queryKey: string[]
+  queryKey: QueryKey
   queryFn: () => Promise<any>
   enabled: boolean
   staleTime: number
@@ -45,18 +50,30 @@ type BreadcrumbQueryConfig = {
  * Fetcher registry (NO HOOKS)
  */
 const breadcrumbFetchers = {
-  contact_id: (config: IQueryConfig, id: string) => fetchContactDetail(id, config),
-  contact_list_id: (config: IQueryConfig, id: string) => fetchContactListDetail(id, config),
-  waiting_list_id: (config: IQueryConfig, id: string) => fetchWaitingListDetail(id, config),
-  contact_interaction_id: (config: IQueryConfig, id: string) =>
-    fetchContactInteractionDetail(id, config),
-  campaign_id: (config: IQueryConfig, id: string) => getCampaign(config, id),
+  contact_id: {
+    queryKey: contactQueryKeys.detail,
+    fetch: (config: IQueryConfig, id: string) => fetchContactDetail(id, config),
+  },
+  contact_list_id: {
+    queryKey: contactListQueryKeys.detail,
+    fetch: (config: IQueryConfig, id: string) => fetchContactListDetail(id, config),
+  },
+  waiting_list_id: {
+    queryKey: waitingListQueryKeys.detail,
+    fetch: (config: IQueryConfig, id: string) => fetchWaitingListDetail(id, config),
+  },
+  contact_interaction_id: {
+    queryKey: contactInteractionQueryKeys.detail,
+    fetch: (config: IQueryConfig, id: string) => fetchContactInteractionDetail(id, config),
+  },
+  campaign_id: {
+    queryKey: campaignQueryKeys.detail,
+    fetch: (config: IQueryConfig, id: string) => getCampaign(config, id),
+  },
 }
 
 export default function useBreadcrumb(config: BreadcrumbConfigType): BreadcrumbItemData[] {
   const { pathname, params, apiUrl, nodeEnv, token } = config
-
-  if (!token) return []
 
   const pathParts = pathname.split('/').filter(Boolean)
 
@@ -67,15 +84,16 @@ export default function useBreadcrumb(config: BreadcrumbConfigType): BreadcrumbI
       if (!matched) return null
 
       const [paramKey] = matched
-      const fetcher = breadcrumbFetchers[paramKey as keyof typeof breadcrumbFetchers]
+      const id = part
+      const resolver = breadcrumbFetchers[paramKey as keyof typeof breadcrumbFetchers]
 
-      if (!fetcher) return null
+      if (!resolver) return null
 
       return {
         paramKey,
-        queryKey: ['breadcrumb', paramKey, part],
-        queryFn: () => fetcher({ apiUrl, token, nodeEnv }, part),
-        enabled: true,
+        queryKey: resolver.queryKey(id) as QueryKey,
+        queryFn: () => resolver.fetch({ apiUrl, token, nodeEnv }, id),
+        enabled: Boolean(token),
         staleTime: 5 * 60 * 1000,
       }
     })
