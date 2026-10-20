@@ -75,7 +75,6 @@ const breadcrumbFetchers = {
 export default function useBreadcrumb(config: BreadcrumbConfigType): BreadcrumbItemData[] {
   const { pathname, params, apiUrl, nodeEnv, token } = config
 
-
   const pathParts = pathname.split('/').filter(Boolean)
 
   const queriesConfig = pathParts
