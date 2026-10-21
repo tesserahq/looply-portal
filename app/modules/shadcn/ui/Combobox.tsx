@@ -239,8 +239,8 @@ export function Combobox<T = unknown>({
                       value={searchValue}
                       disabled={option.disabled}
                       className={cn(
-                        `dark:hover:bg-navy-300/20 cursor-pointer text-base capitalize
-                        hover:bg-slate-300/20`,
+                        `dark:hover:bg-muted/50 cursor-pointer text-base capitalize
+                        hover:bg-muted/50`,
                         isSelected && 'bg-accent',
                         option.disabled && 'cursor-not-allowed opacity-50'
                       )}

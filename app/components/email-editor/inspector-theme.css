@@ -13,11 +13,50 @@
   --re-text: hsl(var(--foreground));
   --re-text-muted: hsl(var(--muted-foreground));
   --re-bg-hover: hsl(var(--muted));
+  --re-hover: hsl(var(--muted) / 0.45);
+  --re-active: hsl(var(--accent));
+  --re-pressed: hsl(var(--accent));
+  --re-separator: hsl(var(--border));
+  --re-danger: hsl(var(--destructive));
+  --re-danger-hover: hsl(var(--destructive) / 0.12);
   --re-bg-active: hsl(var(--accent));
   --re-tooltip-bg: hsl(var(--foreground));
   --re-tooltip-text: hsl(var(--background));
 }
 
+html:not(.dark) {
+  --re-bg: hsl(var(--background));
+  --re-border: hsl(var(--border));
+  --re-text: hsl(var(--foreground));
+  --re-text-muted: hsl(var(--muted-foreground));
+  --re-bg-hover: hsl(var(--muted));
+  --re-bg-active: hsl(var(--accent));
+  --re-hover: hsl(var(--muted) / 0.45);
+  --re-active: hsl(var(--accent));
+  --re-pressed: hsl(var(--accent));
+  --re-separator: hsl(var(--border));
+  --re-danger: hsl(var(--destructive));
+  --re-danger-hover: hsl(var(--destructive) / 0.12);
+  --re-tooltip-bg: hsl(var(--foreground));
+  --re-tooltip-text: hsl(var(--background));
+}
+
+html.dark {
+  --re-bg: hsl(var(--background));
+  --re-border: hsl(var(--border));
+  --re-text: hsl(var(--foreground));
+  --re-text-muted: hsl(var(--muted-foreground));
+  --re-bg-hover: hsl(var(--muted));
+  --re-bg-active: hsl(var(--accent));
+  --re-hover: hsl(var(--muted) / 0.45);
+  --re-active: hsl(var(--accent));
+  --re-pressed: hsl(var(--accent));
+  --re-separator: hsl(var(--border));
+  --re-danger: hsl(var(--destructive));
+  --re-danger-hover: hsl(var(--destructive) / 0.12);
+  --re-tooltip-bg: hsl(var(--foreground));
+  --re-tooltip-text: hsl(var(--background));
+}
 .re-inspector [data-re-inspector-number],
 .re-inspector [data-re-inspector-color-control],
 .re-inspector [data-re-inspector-toggle-group],
@@ -41,4 +80,20 @@
 
 .re-inspector [data-re-inspector-section-toggle] {
   font-size: 0.8rem;
+}
+
+html.dark .tiptap.ProseMirror {
+  background-color: hsl(var(--card));
+  /* Ensure text color is also correct if not inherited */
+  color: hsl(var(--card-foreground));
+}
+
+html.dark .tiptap.ProseMirror .node-container {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+html.dark .tiptap.ProseMirror .node-container .prism.node-codeBlock.language-javascript {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
 }

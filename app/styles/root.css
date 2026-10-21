@@ -1,14 +1,11 @@
 @config '../../tailwind.config.ts';
 @import 'tailwindcss';
+@import 'tessera-ui/theme.css';
 @source '../../node_modules/tessera-ui/src/**/*.{js,jsx,ts,tsx}';
 
 html,
 body {
   @apply bg-background font-geist;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
 }
 
 /* Variables */
@@ -28,73 +25,17 @@ body {
 
 @layer base {
   :root {
-    --background: 220, 27%, 98%; /* #f8f9fb */
-    --foreground: 0, 0%, 9%; /* #171717 */
-    --card: 0, 0%, 100%; /* #ffffff */
-    --card-foreground: 0, 0%, 9%; /* #171717 */
-    --popover: 0, 0%, 100%; /* #ffffff */
-    --popover-foreground: 0, 0%, 9%; /* #171717 */
-    --primary: 193, 100%, 57%; /* #23d1ff */
-    --primary-foreground: 0, 0%, 100%; /* #ffffff */
-    --secondary: 0, 0%, 96%; /* #f5f5f5 */
-    --secondary-foreground: 0, 0%, 9%; /* #171717 */
-    --muted: 0, 0%, 96%; /* #f5f5f5 */
-    --muted-foreground: 0, 0%, 45%; /* #737373 */
-    --accent: 199, 100%, 94%; /* #dff5ff */
-    --accent-foreground: 196, 87%, 24%; /* #085572 */
-    --destructive: 0, 84%, 60%; /* #ef4444 */
-    --destructive-foreground: 0, 0%, 100%; /* #ffffff */
-    --border: 0, 0%, 90%; /* #e5e5e5 */
-    --input: 0, 0%, 90%; /* #e5e5e5 */
-    --ring: 193, 100%, 57%; /* #23d1ff */
-    --chart-1: 193, 100%, 57%; /* #23d1ff */
-    --chart-2: 21, 100%, 75%; /* #ffb380 */
-    --chart-3: 21, 100%, 55%; /* #e66b1a */
-    --chart-4: 21, 100%, 45%; /* #cc5500 */
-    --chart-5: 21, 100%, 35%; /* #993d00 */
-    --radius: 0.75rem;
-    --sidebar-background: 0, 0%, 100%; /* #ffffff */
-    --sidebar-foreground: 0, 0%, 9%; /* #171717 */
-    --sidebar-primary: 193, 100%, 57%; /* #23d1ff */
-    --sidebar-primary-foreground: 0, 0%, 100%; /* #ffffff */
-    --sidebar-accent: 21, 100%, 95%; /* #fff4f0 */
-    --sidebar-accent-foreground: 21, 100%, 20%; /* #4d1a00 */
-    --sidebar-border: 0, 0%, 90%; /* #e5e5e5 */
-    --sidebar-ring: 193, 100%, 57%; /* #23d1ff */
+    --primary: 193 100% 57%;
+    --primary-foreground: 217 35% 10%;
+    --accent: 199 100% 94%;
+    --accent-foreground: 196 87% 24%;
   }
+
   .dark {
-    --background: 219, 29%, 15%; /* #1c2433 */
-    --foreground: 0, 0%, 98%; /* #fafafa */
-    --card: 224, 21%, 21%; /* #2a3040 */
-    --card-foreground: 0, 0%, 90%; /* #e5e5e5 */
-    --popover: 223, 19%, 18%; /* #262b38 */
-    --popover-foreground: 0, 0%, 90%; /* #e5e5e5 */
-    --primary: 193, 100%, 57%; /* #23d1ff */
-    --primary-foreground: 0, 0%, 100%; /* #ffffff */
-    --secondary: 222, 19%, 20%; /* #2a303e */
-    --secondary-foreground: 0 0% 98%; /* #e5e5e5 */
-    --muted: 222, 19%, 20%; /* #2a303e */
-    --muted-foreground: 0, 0%, 64%; /* #a3a3a3 */
-    --accent: 195, 97%, 27%; /* #dff5ff */
-    --accent-foreground: 213, 97%, 87%; /* #bfdbfe */
-    --destructive: 0, 84%, 60%; /* #ef4444 */
-    --destructive-foreground: 0, 0%, 98%; /* #fafafa */
-    --border: 224, 16%, 28%; /* #3d4354 */
-    --input: 224, 16%, 28%; /* #3d4354 */
-    --ring: 193, 100%, 57%; /* #23d1ff */
-    --chart-1: 193, 100%, 57%; /* #23d1ff */
-    --chart-2: 21, 100%, 75%; /* #ffb380 */
-    --chart-3: 21, 100%, 55%; /* #e66b1a */
-    --chart-4: 21, 100%, 45%; /* #cc5500 */
-    --chart-5: 21, 100%, 35%; /* #993d00 */
-    --sidebar-background: 223, 20%, 21%; /* #2a303f */
-    --sidebar-foreground: 0, 0%, 98%; /* #fafafa */
-    --sidebar-primary: 193, 100%, 57%; /* #23d1ff */
-    --sidebar-primary-foreground: 0, 0%, 9%; /* #171717 */
-    --sidebar-accent: 21, 100%, 15%; /* #4d1a00 */
-    --sidebar-accent-foreground: 21, 100%, 95%; /* #fff4f0 */
-    --sidebar-border: 224, 16%, 28%; /* #3d4354 */
-    --sidebar-ring: 193, 100%, 57%; /* #23d1ff */
+    --primary: 193 100% 57%;
+    --primary-foreground: 217 35% 10%;
+    --accent: 195 97% 27%;
+    --accent-foreground: 213 97% 87%;
   }
 }
 
@@ -103,11 +44,11 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground dark:text-primary-foreground;
+    @apply bg-background text-foreground;
   }
 
   body {
-    @apply font-sans text-sm leading-5 text-slate-800 antialiased
+    @apply font-sans text-sm leading-5 text-foreground antialiased
       [text-rendering:optimizeLegibility] dark:[color-scheme:dark];
   }
 
@@ -152,7 +93,7 @@ body {
 }
 
 .sidebar-panel {
-  @apply dark:shadow-navy-900/60 md:animate-slide-left fixed top-[61px] left-0 z-30 h-full
+  @apply md:animate-slide-left fixed top-[61px] left-0 z-30 h-full
     w-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))] -translate-x-full transform-gpu
     transition-transform delay-150 duration-100 ease-in md:delay-0;
 }
@@ -162,10 +103,9 @@ body {
 }
 
 .sidebar-panel-min {
-  @apply dark:shadow-navy-900/60 fixed top-[61px] z-40 h-full w-[var(--sidebar-panel-min-width)]
-    shrink-0 -translate-x-full transform-gpu border-r border-solid border-gray-200
-    transition-transform duration-200 ease-in md:translate-x-[var(--main-sidebar-width)]
-    dark:border-gray-700;
+  @apply fixed top-[61px] z-40 h-full w-[var(--sidebar-panel-min-width)] shrink-0 -translate-x-full
+    transform-gpu border-r border-solid border-border transition-transform duration-200 ease-in
+    md:translate-x-[var(--main-sidebar-width)] dark:border-border;
 }
 
 .is-sidebar-open .sidebar-panel-min {
@@ -174,8 +114,8 @@ body {
 
 /* Header */
 nav.header {
-  @apply border-border dark:border-navy-700 dark:bg-background fixed top-0 right-0 z-20 flex
-    h-[61px] w-full border-b bg-white transition-all duration-200
+  @apply border-border dark:border-border dark:bg-background fixed top-0 right-0 z-20 flex h-[61px]
+    w-full border-b bg-background transition-all duration-200
     md:w-[calc(100%-var(--main-sidebar-width))];
 }
 
@@ -197,7 +137,7 @@ nav.header .header-container {
 
 .is-header-blur nav.header .header-container {
   @apply dark:supports-[backdrop-filter]:bg-background backdrop-blur
-    supports-[backdrop-filter]:bg-white;
+    supports-[backdrop-filter]:bg-background;
 }
 
 .is-header-not-sticky nav.header {
@@ -289,11 +229,11 @@ nav.header .header-container {
 
   .scrollbar-sm:hover::-webkit-scrollbar-thumb,
   .scrollbar-sm:focus-within::-webkit-scrollbar-thumb {
-    @apply dark:bg-navy-400 rounded-full bg-slate-300/80;
+    @apply dark:bg-muted rounded-full bg-muted-foreground/50;
   }
 
   .scrollbar-sm::-webkit-scrollbar-thumb:hover {
-    @apply dark:bg-navy-300 bg-slate-400;
+    @apply dark:bg-muted bg-muted-foreground;
   }
 }
 
@@ -302,7 +242,7 @@ nav.header .header-container {
 }
 
 .d-list .d-item {
-  @apply dark:border-navy-400 flex items-center gap-1 border-b pb-2.5;
+  @apply dark:border-border flex items-center gap-1 border-b pb-2.5;
 }
 
 .d-list .d-item:last-child {
@@ -320,13 +260,13 @@ nav.header .header-container {
 
 .d-list .d-item .d-content {
   word-break: break-all;
-  @apply dark:text-navy-50 line-clamp-1 flex items-center text-sm font-medium text-black;
+  @apply dark:text-foreground line-clamp-1 flex items-center text-sm font-medium text-foreground;
 }
 
 /* app-preloader */
 .app-preloader .app-preloader-inner::after,
 .app-preloader .app-preloader-inner::before {
-  @apply dark:bg-navy-300/50 absolute top-0 left-0 h-full w-full rounded-full bg-slate-300/[.25]
+  @apply dark:bg-muted/50 absolute top-0 left-0 h-full w-full rounded-full bg-muted-foreground/25
     content-[''];
   animation: spinner-grow 3s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
 }
@@ -336,18 +276,18 @@ nav.header .header-container {
 }
 
 .required::after {
-  @apply ml-0.5 font-bold text-red-500;
+  @apply ml-0.5 font-bold text-destructive;
   content: '*';
 }
 
 .input-error {
-  @apply !border-red-500 transition-all duration-200 ease-in-out hover:border-red-500
-    focus-visible:!border-red-500 focus-visible:!ring-red-500 dark:!border-red-400
-    dark:focus-visible:!ring-red-400;
+  @apply !border-destructive transition-all duration-200 ease-in-out hover:border-destructive
+    focus-visible:!border-destructive focus-visible:!ring-destructive dark:!border-destructive
+    dark:focus-visible:!ring-destructive;
 }
 
 .error-message {
-  @apply animate-slide-up text-xs text-red-500 dark:text-red-400;
+  @apply animate-slide-up text-xs text-destructive dark:text-destructive;
 }
 
 .button-link {

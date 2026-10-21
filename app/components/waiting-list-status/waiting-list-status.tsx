@@ -18,24 +18,15 @@ export const getWaitingListStatusBadgeClasses = (status: string, className?: str
   const statusLower = status.toLowerCase() as WaitingListStatus
 
   const statusClasses: Record<WaitingListStatus, string> = {
-    pending:
-      'border-amber-200/50 bg-amber-50/80 text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-300',
-    approved:
-      'border-blue-200/50 bg-blue-50/80 text-blue-700 dark:border-blue-800/50 dark:bg-blue-900/30 dark:text-blue-300',
-    rejected:
-      'border-red-200/50 bg-red-50/80 text-red-700 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-300',
-    notified:
-      'border-purple-200/50 bg-purple-50/80 text-purple-700 dark:border-purple-800/50 dark:bg-purple-900/30 dark:text-purple-300',
-    accepted:
-      'border-green-200/50 bg-green-50/80 text-green-700 dark:border-green-800/50 dark:bg-green-900/30 dark:text-green-300',
-    declined:
-      'border-orange-200/50 bg-orange-50/80 text-orange-700 dark:border-orange-800/50 dark:bg-orange-900/30 dark:text-orange-300',
-    active:
-      'border-emerald-200/50 bg-emerald-50/80 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-300',
-    inactive:
-      'border-gray-200/50 bg-gray-50/80 text-gray-700 dark:border-gray-700/50 dark:bg-gray-800/30 dark:text-gray-300',
-    cancelled:
-      'border-red-200/50 bg-red-50/80 text-red-700 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-300',
+    pending: 'border-warning/30 bg-warning/10 text-warning',
+    approved: 'border-info/30 bg-info/10 text-info',
+    rejected: 'border-destructive/30 bg-destructive/10 text-destructive',
+    notified: 'border-accent bg-accent text-accent-foreground',
+    accepted: 'border-success/30 bg-success/10 text-success',
+    declined: 'border-secondary bg-secondary text-secondary-foreground',
+    active: 'border-success/30 bg-success/10 text-success',
+    inactive: 'border-border bg-muted text-muted-foreground',
+    cancelled: 'border-destructive/30 bg-destructive/10 text-destructive',
   }
 
   const defaultClasses =

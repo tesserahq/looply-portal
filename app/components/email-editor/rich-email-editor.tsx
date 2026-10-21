@@ -146,7 +146,10 @@ export const RichEmailEditor = forwardRef<RichEmailEditorRef, RichEmailEditorPro
       <EditorContext.Provider value={{ editor }}>
         <div className="flex" style={{ height }}>
           <div className={`min-w-0 flex-1 overflow-y-auto ${className ?? ''}`}>
-            <EditorContent editor={editor} className="re-canvas p-4 bg-white rounded-md" />
+            <EditorContent
+              editor={editor}
+              className="re-canvas p-4 bg-card text-card-foreground rounded-md"
+            />
           </div>
 
           {editor && (
