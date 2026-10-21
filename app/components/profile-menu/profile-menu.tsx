@@ -26,16 +26,15 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
   if (isLoadingIdenties) {
     return (
       <div className="animate-pulse">
-        <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+        <div className="h-10 w-10 rounded-full bg-muted"></div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div
-        className="relative flex size-10 shrink-0 overflow-hidden rounded-full ring-1
-          ring-slate-300">
+      <div className="relative flex size-10 shrink-0 overflow-hidden rounded-full ring-1
+        ring-border">
         <img src="/images/default-avatar.jpg" alt="default-avatar" />
       </div>
     )
@@ -57,7 +56,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
             </Avatar>
             {!loaded && (
               <div className="absolute top-0 animate-pulse">
-                <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                <div className="h-10 w-10 rounded-full bg-muted"></div>
               </div>
             )}
           </div>
@@ -88,7 +87,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
                 <div className="p-2">
                   <SelectItem
                     value={'dark'}
-                    className="cursor-pointer rounded px-2 py-1 hover:bg-gray-100">
+                    className="cursor-pointer rounded px-2 py-1 hover:bg-muted">
                     <div className="flex flex-row items-center gap-2">
                       <Moon size={15} />
                       <span>Dark</span>
@@ -96,7 +95,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
                   </SelectItem>
                   <SelectItem
                     value={'light'}
-                    className="cursor-pointer rounded px-2 py-1 hover:bg-gray-100">
+                    className="cursor-pointer rounded px-2 py-1 hover:bg-muted">
                     <div className="flex flex-row items-center gap-2">
                       <Sun size={15} />
                       <span>Light</span>
@@ -104,7 +103,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
                   </SelectItem>
                   <SelectItem
                     value={'system'}
-                    className="cursor-pointer rounded px-2 py-1 hover:bg-gray-100">
+                    className="cursor-pointer rounded px-2 py-1 hover:bg-muted">
                     <div className="flex flex-row items-center gap-2">
                       <Monitor size={15} />
                       <span>System</span>
@@ -140,7 +139,7 @@ export function ProfileMenu({ selectedTheme, onSetTheme, menus }: Props) {
               })}
             <button
               className="hover:bg-destructive flex w-full flex-row items-center gap-2 rounded-sm
-                px-3 py-2 transition-all duration-200 hover:text-white"
+                px-3 py-2 transition-all duration-200 hover:text-destructive-foreground"
               onClick={() => navigate('/logout', { replace: true })}>
               <LogOut size={16} />
               Logout

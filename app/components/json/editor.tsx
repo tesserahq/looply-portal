@@ -106,8 +106,8 @@ export function JsonEditor({
               spellCheck={false}
               className="absolute inset-0 h-full min-h-[150px] w-full resize-none bg-transparent
                 px-3 py-1 font-mono text-sm leading-6 text-foreground outline-hidden
-                selection:bg-primary/20 selection:text-black dark:selection:bg-primary
-                dark:selection:text-white"
+                selection:bg-primary/20 selection:text-foreground dark:selection:bg-primary
+                dark:selection:text-primary-foreground"
               style={{ tabSize: 2 }}
             />
           </div>

@@ -128,7 +128,7 @@ const AddContactToList: React.ForwardRefRenderFunction<FuncProps, IProps> = (
         <DialogHeader>
           <DialogTitle className="mb-2">Add to Contact List</DialogTitle>
           {(hasAnyContactLists || search !== '') && (
-            <InputGroup className="animate-slide-up dark:bg-card w-full bg-white">
+            <InputGroup className="animate-slide-up dark:bg-card w-full bg-background">
               <InputGroupInput
                 placeholder="Search contact lists"
                 value={search}
@@ -173,8 +173,8 @@ const AddContactToList: React.ForwardRefRenderFunction<FuncProps, IProps> = (
                       setSelectedListId(checked ? list.id : null)
                     }}
                     className="data-[state=checked]:border-primary data-[state=checked]:bg-primary
-                      data-[state=checked]:text-white dark:data-[state=checked]:border-primary
-                      dark:data-[state=checked]:bg-primary"
+                      data-[state=checked]:text-primary-foreground
+                      dark:data-[state=checked]:border-primary dark:data-[state=checked]:bg-primary"
                   />
                   <div>
                     <p className="text-xs leading-none font-medium">{list.name}</p>

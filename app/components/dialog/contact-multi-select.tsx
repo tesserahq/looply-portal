@@ -64,7 +64,7 @@ export function ContactMultiSelect({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <InputGroup className="animate-slide-up dark:bg-card w-full shrink-0 bg-white">
+      <InputGroup className="animate-slide-up dark:bg-card w-full shrink-0 bg-background">
         <InputGroupInput
           placeholder="Search members"
           value={search}
@@ -118,8 +118,8 @@ export function ContactMultiSelect({
                 <Label
                   key={contact.id}
                   className="bg-card hover:bg-accent/50 mb-1 flex items-start gap-3 rounded-lg
-                    border p-3 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50
-                    dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
+                    border p-3 has-aria-checked:border-primary has-aria-checked:bg-primary/10
+                    dark:has-aria-checked:border-primary dark:has-aria-checked:bg-primary/10">
                   <Checkbox
                     id="tools"
                     value={contact.id}
@@ -131,9 +131,9 @@ export function ContactMultiSelect({
 
                       onChange(nextIds)
                     }}
-                    className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600
-                      data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700
-                      dark:data-[state=checked]:bg-blue-700"
+                    className="data-[state=checked]:border-primary data-[state=checked]:bg-primary
+                      data-[state=checked]:text-primary-foreground
+                      dark:data-[state=checked]:border-primary dark:data-[state=checked]:bg-primary"
                   />
                   <div>
                     <Link

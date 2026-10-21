@@ -69,18 +69,17 @@ const SendConfirmation = forwardRef<SendConfirmationHandle, SendConfirmationProp
             <div
               className="bg-primary -mt-16 flex h-16 w-16 items-center justify-center rounded-full
                 p-3">
-              <Send size={100} className="text-white" />
+              <Send size={100} className="text-primary-foreground" />
             </div>
             <DialogTitle className="hidden"></DialogTitle>
           </DialogHeader>
           <DialogDescription className="px-3" asChild>
             <div className="flex flex-col items-center">
-              <h1
-                className="dark:text-secondary-foreground text-center text-3xl font-semibold
-                  text-black">
+              <h1 className="dark:text-foreground text-center text-3xl font-semibold
+                text-foreground">
                 {config.title}
               </h1>
-              <p className="dark:text-secondary-foreground mt-3 text-center text-base text-black">
+              <p className="dark:text-foreground mt-3 text-center text-base text-foreground">
                 {config.description}
               </p>
             </div>

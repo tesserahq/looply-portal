@@ -1,14 +1,11 @@
 @config '../../tailwind.config.ts';
 @import 'tailwindcss';
+@import 'tessera-ui/theme.css';
 @source '../../node_modules/tessera-ui/src/**/*.{js,jsx,ts,tsx}';
 
 html,
 body {
   @apply bg-background font-geist;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
 }
 
 /* Variables */
@@ -62,6 +59,7 @@ body {
     --sidebar-border: 0, 0%, 90%; /* #e5e5e5 */
     --sidebar-ring: 193, 100%, 57%; /* #23d1ff */
   }
+
   .dark {
     --background: 219, 29%, 15%; /* #1c2433 */
     --foreground: 0, 0%, 98%; /* #fafafa */
@@ -103,11 +101,11 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground dark:text-primary-foreground;
+    @apply bg-background text-foreground;
   }
 
   body {
-    @apply font-sans text-sm leading-5 text-slate-800 antialiased
+    @apply font-sans text-sm leading-5 text-foreground antialiased
       [text-rendering:optimizeLegibility] dark:[color-scheme:dark];
   }
 
@@ -152,7 +150,7 @@ body {
 }
 
 .sidebar-panel {
-  @apply dark:shadow-navy-900/60 md:animate-slide-left fixed top-[61px] left-0 z-30 h-full
+  @apply md:animate-slide-left fixed top-[61px] left-0 z-30 h-full
     w-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))] -translate-x-full transform-gpu
     transition-transform delay-150 duration-100 ease-in md:delay-0;
 }
@@ -162,10 +160,9 @@ body {
 }
 
 .sidebar-panel-min {
-  @apply dark:shadow-navy-900/60 fixed top-[61px] z-40 h-full w-[var(--sidebar-panel-min-width)]
-    shrink-0 -translate-x-full transform-gpu border-r border-solid border-gray-200
-    transition-transform duration-200 ease-in md:translate-x-[var(--main-sidebar-width)]
-    dark:border-gray-700;
+  @apply fixed top-[61px] z-40 h-full w-[var(--sidebar-panel-min-width)] shrink-0 -translate-x-full
+    transform-gpu border-r border-solid border-border transition-transform duration-200 ease-in
+    md:translate-x-[var(--main-sidebar-width)] dark:border-border;
 }
 
 .is-sidebar-open .sidebar-panel-min {
@@ -174,8 +171,8 @@ body {
 
 /* Header */
 nav.header {
-  @apply border-border dark:border-navy-700 dark:bg-background fixed top-0 right-0 z-20 flex
-    h-[61px] w-full border-b bg-white transition-all duration-200
+  @apply border-border dark:border-border dark:bg-background fixed top-0 right-0 z-20 flex h-[61px]
+    w-full border-b bg-background transition-all duration-200
     md:w-[calc(100%-var(--main-sidebar-width))];
 }
 
@@ -197,7 +194,7 @@ nav.header .header-container {
 
 .is-header-blur nav.header .header-container {
   @apply dark:supports-[backdrop-filter]:bg-background backdrop-blur
-    supports-[backdrop-filter]:bg-white;
+    supports-[backdrop-filter]:bg-background;
 }
 
 .is-header-not-sticky nav.header {
@@ -289,11 +286,11 @@ nav.header .header-container {
 
   .scrollbar-sm:hover::-webkit-scrollbar-thumb,
   .scrollbar-sm:focus-within::-webkit-scrollbar-thumb {
-    @apply dark:bg-navy-400 rounded-full bg-slate-300/80;
+    @apply dark:bg-muted rounded-full bg-muted-foreground/50;
   }
 
   .scrollbar-sm::-webkit-scrollbar-thumb:hover {
-    @apply dark:bg-navy-300 bg-slate-400;
+    @apply dark:bg-muted bg-muted-foreground;
   }
 }
 
@@ -302,7 +299,7 @@ nav.header .header-container {
 }
 
 .d-list .d-item {
-  @apply dark:border-navy-400 flex items-center gap-1 border-b pb-2.5;
+  @apply dark:border-border flex items-center gap-1 border-b pb-2.5;
 }
 
 .d-list .d-item:last-child {
@@ -320,13 +317,13 @@ nav.header .header-container {
 
 .d-list .d-item .d-content {
   word-break: break-all;
-  @apply dark:text-navy-50 line-clamp-1 flex items-center text-sm font-medium text-black;
+  @apply dark:text-foreground line-clamp-1 flex items-center text-sm font-medium text-foreground;
 }
 
 /* app-preloader */
 .app-preloader .app-preloader-inner::after,
 .app-preloader .app-preloader-inner::before {
-  @apply dark:bg-navy-300/50 absolute top-0 left-0 h-full w-full rounded-full bg-slate-300/[.25]
+  @apply dark:bg-muted/50 absolute top-0 left-0 h-full w-full rounded-full bg-muted-foreground/25
     content-[''];
   animation: spinner-grow 3s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
 }
@@ -336,18 +333,18 @@ nav.header .header-container {
 }
 
 .required::after {
-  @apply ml-0.5 font-bold text-red-500;
+  @apply ml-0.5 font-bold text-destructive;
   content: '*';
 }
 
 .input-error {
-  @apply !border-red-500 transition-all duration-200 ease-in-out hover:border-red-500
-    focus-visible:!border-red-500 focus-visible:!ring-red-500 dark:!border-red-400
-    dark:focus-visible:!ring-red-400;
+  @apply !border-destructive transition-all duration-200 ease-in-out hover:border-destructive
+    focus-visible:!border-destructive focus-visible:!ring-destructive dark:!border-destructive
+    dark:focus-visible:!ring-destructive;
 }
 
 .error-message {
-  @apply animate-slide-up text-xs text-red-500 dark:text-red-400;
+  @apply animate-slide-up text-xs text-destructive dark:text-destructive;
 }
 
 .button-link {

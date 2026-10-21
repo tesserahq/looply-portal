@@ -72,7 +72,7 @@ export function Header({
               {action && (
                 <Separator
                   orientation="vertical"
-                  className="mr-1.5 h-3 bg-slate-400 dark:bg-slate-500"
+                  className="mr-1.5 h-3 bg-muted-foreground dark:bg-muted-foreground"
                 />
               )}
               {action}

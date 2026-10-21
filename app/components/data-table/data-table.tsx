@@ -86,16 +86,15 @@ export function DataTable<TData, TValue>({
           <Table
             style={{ '--table-min-width': `${table.getTotalSize()}px` } as CSSProperties}
             className="max-sm:min-w-[var(--table-min-width)]">
-            <TableHeader
-              className="sticky top-0 z-10 w-full bg-slate-100/20 backdrop-blur-md
-                dark:bg-slate-800/50">
+            <TableHeader className="sticky top-0 z-10 w-full bg-muted/50 backdrop-blur-md
+              dark:bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-border dark:hover:bg-navy-700">
+                <TableRow key={headerGroup.id} className="border-border dark:hover:bg-muted">
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
                         key={header.id}
-                        className="text-navy-800 dark:text-navy-100 py-2 font-semibold"
+                        className="text-foreground dark:text-foreground py-2 font-semibold"
                         style={{ width: header.column.columnDef.size }}>
                         {header.column.columnDef.header ? (
                           header.isPlaceholder ? null : (
@@ -110,7 +109,7 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody className="bg-white dark:bg-transparent">
+            <TableBody className="bg-background dark:bg-transparent">
               {isLoading && <TableCellSkeletons table={table} count={skeletonRowCount} />}
 
               {!isLoading &&
@@ -119,11 +118,11 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="dark:border-border dark:hover:bg-navy-600 hover:bg-slate-50">
+                    className="dark:border-border dark:hover:bg-muted hover:bg-muted">
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="text-navy-800 dark:text-navy-100 py-1 ps-4">
+                        className="text-foreground dark:text-foreground py-1 ps-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -142,7 +141,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       {meta?.size && (
-        <div className="border-input bg-card dark:bg-navy-800 sticky bottom-0 z-10 border-t p-3">
+        <div className="border-input bg-card dark:bg-card sticky bottom-0 z-10 border-t p-3">
           <Pagination meta={meta} />
         </div>
       )}

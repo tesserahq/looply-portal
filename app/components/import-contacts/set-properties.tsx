@@ -73,7 +73,8 @@ export function ImportContactsSetProperties({
                   <SelectItem value="__none__">-- None --</SelectItem>
                   {availableProperties.map((prop) => (
                     <SelectItem key={prop.key} value={prop.key}>
-                      {prop.label} {prop.required ? <span className="text-red-500">*</span> : ''}
+                      {prop.label}{' '}
+                      {prop.required ? <span className="text-destructive">*</span> : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>

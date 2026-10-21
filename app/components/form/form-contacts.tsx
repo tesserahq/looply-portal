@@ -193,9 +193,9 @@ const ContactSelect = ({
                         key={contact.id}
                         onClick={() => handleSelect(contact.id)}
                         className={cn(
-                          `dark:hover:bg-navy-300/20 relative flex cursor-pointer items-center gap-2
+                          `dark:hover:bg-muted/50 relative flex cursor-pointer items-center gap-2
                             rounded-sm py-2 ps-4 pe-2 text-sm outline-none select-none
-                            hover:bg-slate-300/20`,
+                            hover:bg-muted/50`,
                           isSelected && 'border-primary bg-accent hover:bg-accent border'
                         )}>
                         <div className="flex flex-1 flex-col truncate">

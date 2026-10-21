@@ -376,7 +376,7 @@ export default function Contacts() {
             className="flex flex-col flex-col-reverse -mt-11 md:mt-0 md:flex-row items-end
               md:items-center gap-3 justify-between">
             <div className="flex items-center gap-2">
-              <InputGroup className="dark:bg-card max-w-96 bg-white">
+              <InputGroup className="dark:bg-card max-w-96 bg-background">
                 <InputGroupInput
                   placeholder="Search contacts"
                   value={contactSearch}

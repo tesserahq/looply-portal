@@ -9,12 +9,9 @@ export const getContactStatusBadgeClasses = (status: string, className?: string)
   const statusLower = status.toLowerCase()
 
   const statusClasses: Record<string, string> = {
-    active:
-      'border-green-200/50 bg-green-50/80 text-green-700 dark:border-green-800/50 dark:bg-green-900/30 dark:text-green-300',
-    inactive:
-      'border-gray-200/50 bg-gray-50/80 text-gray-700 dark:border-gray-700/50 dark:bg-gray-800/30 dark:text-gray-300',
-    pending:
-      'border-amber-200/50 bg-amber-50/80 text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-300',
+    active: 'border-success/30 bg-success/10 text-success',
+    inactive: 'border-border bg-muted text-muted-foreground',
+    pending: 'border-warning/30 bg-warning/10 text-warning',
   }
 
   const defaultClasses =

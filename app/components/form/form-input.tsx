@@ -65,7 +65,7 @@ export const FormInput = ({
           {description && <FormDescription>{description}</FormDescription>}
           <FormControl>
             {addon ? (
-              <InputGroup className="rounded-sm border-none bg-gray-100">
+              <InputGroup className="rounded-sm border-none bg-muted">
                 <InputGroupInput {...fieldProps} {...props} />
                 {addon && (
                   <InputGroupAddon
