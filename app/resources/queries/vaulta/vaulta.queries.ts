@@ -12,6 +12,8 @@ export async function uploadAssets(
   const { apiUrl, token } = config
 
   const payload = new FormData()
+  payload.set('project_id', body.project_id)
+  if (body.visibility) payload.set('visibility', body.visibility)
   if (body.name) payload.set('name', body.name)
   if (body.labels) payload.set('labels', body.labels)
   if (body.extract_data !== undefined) payload.set('extract_data', String(body.extract_data))
