@@ -17,6 +17,8 @@ export type IAssetResponse = {
 
 export type IAssetInput = {
   file: any
+  project_id: string
+  visibility?: 'private' | 'shareable'
   name?: string
   labels?: string
   extract_data?: boolean

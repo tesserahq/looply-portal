@@ -143,7 +143,12 @@ export const CampaignForm = forwardRef<CampaignFormRef, CampaignFormProps>(funct
   }
 
   const handleUploadImage = async (file: File) => {
-    const asset = await uploadAsset({ file, expires_in: SIX_MONTHS_IN_SECONDS })
+    const asset = await uploadAsset({
+      file,
+      project_id: '*',
+      visibility: 'shareable',
+      expires_in: SIX_MONTHS_IN_SECONDS,
+    })
     if (!asset) throw new Error('Upload failed')
     return { url: getAssetServeUrl(vaultaApiUrl, asset) }
   }
