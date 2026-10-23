@@ -7,8 +7,13 @@ import {
   createBatchContacts,
   updateContact,
   deleteContact,
+  bulkUpdateContacts,
+  bulkDeleteContacts,
 } from '@/resources/queries/contacts/contact.queries'
 import {
+  BulkContactResult,
+  BulkDeleteContactsData,
+  BulkUpdateContactsData,
   ContactQueryConfig,
   ContactQueryParams,
   ContactType,
@@ -338,4 +343,89 @@ export function useDeleteContact(
       options?.onError?.(error)
     },
   })
+}
+
+/**
+ * Hook for applying attribute changes and/or added tags to many contacts
+ */
+export function useBulkUpdateContacts(
+  config: ContactQueryConfig,
+  options?: {
+    onSuccess?: (data: BulkContactResult) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: BulkUpdateContactsData): Promise<BulkContactResult> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await bulkUpdateContacts(config, data)
+    },
+    onSuccess: (data) => {
+      // Changed contacts are stale in both the list and any open detail view
+      queryClient.invalidateQueries({ queryKey: contactQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: contactQueryKeys.details() })
+
+      toast.success(`${data.updated_count} contacts updated`, bulkSkipDescription(data))
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to update contacts', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for soft deleting many contacts
+ */
+export function useBulkDeleteContacts(
+  config: ContactQueryConfig,
+  options?: {
+    onSuccess?: (data: BulkContactResult) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: BulkDeleteContactsData): Promise<BulkContactResult> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await bulkDeleteContacts(config, data)
+    },
+    onSuccess: (data, variables) => {
+      variables.contact_ids.forEach((contactId) => {
+        queryClient.removeQueries({ queryKey: contactQueryKeys.detail(contactId) })
+      })
+      queryClient.invalidateQueries({ queryKey: contactQueryKeys.lists() })
+
+      toast.success(`${data.updated_count} contacts deleted`, bulkSkipDescription(data))
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to delete contacts', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Describes contacts a bulk request skipped (not found), or undefined when there were none.
+ */
+function bulkSkipDescription(result: BulkContactResult) {
+  if (result.skipped.length === 0) return undefined
+  return { description: `${result.skipped.length} not found and skipped.` }
 }
