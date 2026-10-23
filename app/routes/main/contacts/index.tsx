@@ -1,5 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
+import BulkUpdateContacts, { type BulkUpdateInput } from '@/components/dialog/bulk-update-contacts'
 import ContactInteractionShortcut from '@/components/dialog/contact-interaction-shorcut'
 import EmptyContent from '@/components/empty-content/empty-content'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
@@ -8,6 +9,8 @@ import NewButton from '@/components/new-button/new-button'
 import { ResourceID, useApp } from 'tessera-ui'
 import useDebounce from '@/hooks/useDebounce'
 import {
+  useBulkDeleteContacts,
+  useBulkUpdateContacts,
   useContacts,
   useContactStatuses,
   useContactTypes,
@@ -20,13 +23,20 @@ import type { LoaderFunctionArgs } from 'react-router'
 import { Link, useLoaderData, useNavigate, useSearchParams } from 'react-router'
 import { Badge } from '@shadcn/ui/badge'
 import { Button } from '@shadcn/ui/button'
+import { cn } from '@shadcn/lib/utils'
+import { Checkbox } from '@shadcn/ui/checkbox'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@shadcn/ui/input-group'
 import { Label } from '@shadcn/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
-import type { ColumnDef } from '@tanstack/react-table'
+import {
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type RowSelectionState,
+} from '@tanstack/react-table'
 import { Contact, Edit, Ellipsis, EyeIcon, Import, Search, Tag, Trash2, X } from 'lucide-react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { TagsInput } from 'tessera-ui/components'
 
 const ALL_STATUSES = '__all_statuses__'
@@ -65,6 +75,8 @@ export default function Contacts() {
   )
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const contactInteractionRef = useRef<React.ComponentRef<typeof ContactInteractionShortcut>>(null)
+  const bulkUpdateRef = useRef<React.ComponentRef<typeof BulkUpdateContacts>>(null)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
   const config = {
     nodeEnv,
@@ -97,6 +109,29 @@ export default function Contacts() {
     },
   })
 
+  const { mutateAsync: bulkUpdateContacts } = useBulkUpdateContacts(config, {
+    onSuccess: () => {
+      bulkUpdateRef.current?.onClose()
+      setRowSelection({})
+    },
+  })
+
+  const { mutate: bulkDeleteContacts } = useBulkDeleteContacts(config, {
+    onSuccess: () => {
+      deleteModalRef.current?.close()
+      setRowSelection({})
+    },
+    onError: () => {
+      deleteModalRef.current?.updateConfig({ isLoading: false })
+    },
+  })
+
+  // Selection is per visible result set: any change to the URL (page, size,
+  // search, filters) clears it so a bulk action never reaches off-screen contacts.
+  useEffect(() => {
+    setRowSelection({})
+  }, [searchParams.toString()])
+
   const handleDelete = useCallback(
     (contact: ContactType) => {
       deleteModalRef.current?.open({
@@ -109,6 +144,30 @@ export default function Contacts() {
       })
     },
     [deleteContact]
+  )
+
+  const selectedIds = useMemo(
+    () => Object.keys(rowSelection).filter((id) => rowSelection[id]),
+    [rowSelection]
+  )
+
+  const handleBulkDelete = useCallback(() => {
+    const count = selectedIds.length
+    deleteModalRef.current?.open({
+      title: `Remove ${count} contact${count === 1 ? '' : 's'}`,
+      description: `This will remove ${count} selected contact${count === 1 ? '' : 's'} from your contacts. This action cannot be undone.`,
+      onDelete: async () => {
+        deleteModalRef.current?.updateConfig({ isLoading: true })
+        bulkDeleteContacts({ contact_ids: selectedIds })
+      },
+    })
+  }, [selectedIds, bulkDeleteContacts])
+
+  const handleBulkUpdate = useCallback(
+    async (input: BulkUpdateInput) => {
+      await bulkUpdateContacts({ contact_ids: selectedIds, ...input })
+    },
+    [bulkUpdateContacts, selectedIds]
   )
 
   const handleSearchChange = (search: string) => {
@@ -195,6 +254,32 @@ export default function Contacts() {
 
   const columns: ColumnDef<ContactType>[] = useMemo(
     () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            className={cn('!mt-1 rounded-none', !hasData && 'hidden')}
+            checked={
+              table.getIsAllRowsSelected()
+                ? true
+                : table.getIsSomeRowsSelected()
+                  ? 'indeterminate'
+                  : false
+            }
+            onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+            aria-label="Select all contacts"
+          />
+        ),
+        size: 40,
+        cell: ({ row }) => (
+          <Checkbox
+            className="rounded-none"
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select contact"
+          />
+        ),
+      },
       {
         accessorKey: 'email',
         header: 'Email',
@@ -341,8 +426,22 @@ export default function Contacts() {
         },
       },
     ],
-    [navigate, handleDelete]
+    [navigate, handleDelete, hasData]
   )
+
+  const contacts = useMemo(() => data?.items || [], [data])
+
+  const table = useReactTable({
+    data: contacts,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    },
+    getRowId: (row) => row.id,
+  })
 
   if (isLoading && contactSearch === '') {
     return <AppPreloader />
@@ -442,6 +541,24 @@ export default function Contacts() {
               </Select>
             </div>
             <div className="flex items-center gap-2">
+              {selectedIds.length > 0 && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => bulkUpdateRef.current?.onOpen()}
+                    aria-label="Edit selected contacts">
+                    <Edit size={16} className="mr-1" />
+                    Edit ({selectedIds.length})
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleBulkDelete}
+                    aria-label="Delete selected contacts">
+                    <Trash2 size={16} className="mr-1" />
+                    Delete ({selectedIds.length})
+                  </Button>
+                </>
+              )}
               <NewButton
                 label="Import Contacts"
                 onClick={() => navigate('imports')}
@@ -466,7 +583,8 @@ export default function Contacts() {
         ) : (
           <DataTable
             columns={columns}
-            data={data?.items || []}
+            data={contacts}
+            table={table}
             hasFilter
             isLoading={isLoading}
             empty={emptySearchContent}
@@ -485,6 +603,13 @@ export default function Contacts() {
       </div>
 
       <DeleteConfirmation ref={deleteModalRef} />
+      <BulkUpdateContacts
+        ref={bulkUpdateRef}
+        selectedCount={selectedIds.length}
+        statuses={contactStatusesData?.items || []}
+        contactTypes={contactTypesData?.items || []}
+        onSubmit={handleBulkUpdate}
+      />
       <ContactInteractionShortcut ref={contactInteractionRef} apiUrl={apiUrl!} nodeEnv={nodeEnv!} />
     </div>
   )
