@@ -1,5 +1,8 @@
 import { fetchApi } from '@/libraries/fetch'
 import {
+  BulkContactResult,
+  BulkDeleteContactsData,
+  BulkUpdateContactsData,
   ContactQueryParams,
   ContactQueryConfig,
   ContactType,
@@ -128,4 +131,32 @@ export async function deleteContact(contactId: string, config: ContactQueryConfi
   await fetchApi(`${apiUrl}/contacts/${contactId}`, token, nodeEnv, {
     method: 'DELETE',
   })
+}
+
+/**
+ * Apply attribute changes and/or added tags to many contacts at once.
+ */
+export async function bulkUpdateContacts(config: ContactQueryConfig, data: BulkUpdateContactsData) {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(`${apiUrl}/contacts/bulk-update`, token, nodeEnv, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+  return response as BulkContactResult
+}
+
+/**
+ * Soft delete many contacts at once.
+ */
+export async function bulkDeleteContacts(config: ContactQueryConfig, data: BulkDeleteContactsData) {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(`${apiUrl}/contacts/bulk-delete`, token, nodeEnv, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+  return response as BulkContactResult
 }

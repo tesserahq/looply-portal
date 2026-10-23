@@ -93,6 +93,53 @@ export type CreateContactData = Omit<
 export type UpdateContactData = Partial<CreateContactData>
 
 /**
+ * Attributes a bulk update can set on every selected contact. Only the keys
+ * present are changed; `null` clears a nullable field. `status` and
+ * `contact_type` can't be cleared.
+ */
+export type BulkContactTextField =
+  | 'company'
+  | 'job'
+  | 'website'
+  | 'address_line_1'
+  | 'address_line_2'
+  | 'city'
+  | 'state'
+  | 'zip_code'
+  | 'country'
+  | 'notes'
+
+export type BulkContactChanges = {
+  status?: string
+  contact_type?: string
+} & Partial<Record<BulkContactTextField, string | null>>
+
+/**
+ * Body for POST /contacts/bulk-update.
+ */
+export type BulkUpdateContactsData = {
+  contact_ids: string[]
+  changes?: BulkContactChanges
+  add_tags?: string[]
+}
+
+/**
+ * Body for POST /contacts/bulk-delete.
+ */
+export type BulkDeleteContactsData = {
+  contact_ids: string[]
+}
+
+/**
+ * Response from the bulk endpoints.
+ */
+export type BulkContactResult = {
+  requested_count: number
+  updated_count: number
+  skipped: { contact_id: string; reason: string }[]
+}
+
+/**
  * Contact form data (for form submission)
  */
 export type ContactFormData = CreateContactData
