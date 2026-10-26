@@ -112,6 +112,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "tessera-ui@github:tesserahq/tessera-ui#e97afd8": "patches/tessera-ui@github%3Atesserahq%2Ftessera-ui#e97afd8.patch",
+  },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
