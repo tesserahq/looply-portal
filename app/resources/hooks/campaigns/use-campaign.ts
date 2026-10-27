@@ -6,12 +6,14 @@ import {
   getCampaigns,
   getCampaignStats,
   sendCampaign,
+  sendTestCampaign,
   updateCampaign,
   duplicateCampaign,
 } from '@/resources/queries/campaigns/campaign.queries'
 import {
   CampaignType,
   CreateCampaignPayload,
+  TestSendCampaignResponse,
   UpdateCampaignPayload,
 } from '@/resources/queries/campaigns/campaign.type'
 import { IQueryConfig, IQueryParams, QueryError } from '@/resources/queries'
@@ -322,6 +324,49 @@ export function useSendCampaign(
     },
     onError: (error: QueryError) => {
       toast.error('Failed to send campaign', {
+        description: error?.message || 'Please try again.',
+      })
+
+      options?.onError?.(error)
+    },
+  })
+}
+
+/**
+ * Hook for sending a test email of a campaign to one contact. Does not touch
+ * the campaign's cached state: the campaign stays a draft.
+ * @config - Campaign query configuration
+ * @options - Mutation callbacks
+ */
+export function useSendTestCampaign(
+  config: IQueryConfig,
+  options?: {
+    onSuccess?: (data: TestSendCampaignResponse) => void
+    onError?: (error: QueryError) => void
+  }
+) {
+  return useMutation({
+    mutationFn: async ({
+      campaignId,
+      contactId,
+    }: {
+      campaignId: string
+      contactId: string
+    }): Promise<TestSendCampaignResponse> => {
+      if (!config.token) {
+        throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+      }
+      return await sendTestCampaign(config, campaignId, { contact_id: contactId })
+    },
+    onSuccess: (data) => {
+      toast.success('Test email sent', {
+        description: `Sent to ${data.to_email}.`,
+      })
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error: QueryError) => {
+      toast.error('Failed to send test email', {
         description: error?.message || 'Please try again.',
       })
 
