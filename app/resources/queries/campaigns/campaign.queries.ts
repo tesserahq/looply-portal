@@ -6,6 +6,8 @@ import {
   CampaignStatsType,
   CampaignType,
   CreateCampaignPayload,
+  TestSendCampaignPayload,
+  TestSendCampaignResponse,
   UpdateCampaignPayload,
 } from './campaign.type'
 
@@ -134,6 +136,30 @@ export async function sendCampaign(config: IQueryConfig, id: string): Promise<Ca
   })
 
   return response as CampaignType
+}
+
+/**
+ * Send one test email of a campaign to a single contact. The campaign stays a
+ * draft and gets no recipients or stats.
+ */
+export async function sendTestCampaign(
+  config: IQueryConfig,
+  id: string,
+  data: TestSendCampaignPayload
+): Promise<TestSendCampaignResponse> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${CAMPAIGNS_ENDPOINT}/${id}/test-send`,
+    token,
+    nodeEnv,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }
+  )
+
+  return response as TestSendCampaignResponse
 }
 
 /**

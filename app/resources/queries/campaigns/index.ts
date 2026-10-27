@@ -6,11 +6,18 @@ export {
   updateCampaign,
   deleteCampaign,
   sendCampaign,
+  sendTestCampaign,
   duplicateCampaign,
 } from './campaign.queries'
 
 // Types
-export type { CampaignType, CreateCampaignPayload, UpdateCampaignPayload } from './campaign.type'
+export type {
+  CampaignType,
+  CreateCampaignPayload,
+  TestSendCampaignPayload,
+  TestSendCampaignResponse,
+  UpdateCampaignPayload,
+} from './campaign.type'
 
 // Recipient query functions
 export { getCampaignRecipients } from './campaign-recipient.queries'

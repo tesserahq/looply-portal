@@ -91,3 +91,20 @@ export type CreateCampaignPayload = {
  * Payload for updating a campaign
  */
 export type UpdateCampaignPayload = Partial<CreateCampaignPayload>
+
+/**
+ * Payload for sending a test email of a campaign to one contact
+ */
+export type TestSendCampaignPayload = {
+  contact_id: string
+}
+
+/**
+ * Response from sending a test email of a campaign
+ */
+export type TestSendCampaignResponse = {
+  email_id: string
+  to_email: string
+  subject: string
+  status: string
+}

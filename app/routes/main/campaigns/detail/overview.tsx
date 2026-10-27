@@ -1,6 +1,7 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import SendConfirmation from '@/components/send-confirmation/send-confirmation'
+import { TestSendCampaignModal } from '@/components/dialog/test-send-campaign-modal'
 import { ApiErrorOverlay } from '@/components/misc/api-error-overlay'
 import { CampaignStatusBadge } from '@/components/campaign-status/campaign-status'
 import { Badge } from '@shadcn/ui/badge'
@@ -25,7 +26,7 @@ import { useLayout } from '@/resources/hooks/layouts'
 import { mergeTemplateIntoLayout } from '@/utils/helpers/layout.helper'
 import { buildResourceUrl } from '@/utils/helpers/url.helper'
 import { Link, useLoaderData, useNavigate, useParams } from 'react-router'
-import { CopyPlus, Edit, EllipsisVertical, Send, Trash2 } from 'lucide-react'
+import { CopyPlus, Edit, EllipsisVertical, Mail, Send, Trash2 } from 'lucide-react'
 import { Activity, useCallback, useRef, useState } from 'react'
 
 function formatRate(rate: number | undefined): string {
@@ -49,6 +50,7 @@ export default function CampaignDetail() {
   const params = useParams()
   const deleteModalRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
   const sendModalRef = useRef<React.ComponentRef<typeof SendConfirmation>>(null)
+  const [isTestSendOpen, setIsTestSendOpen] = useState(false)
   const previewIframeRef = useRef<HTMLIFrameElement>(null)
   const [previewHeight, setPreviewHeight] = useState<number>()
 
@@ -203,6 +205,14 @@ export default function CampaignDetail() {
                       onClick={() => navigate(`/campaigns/${params.campaign_id}/edit`)}>
                       <Edit size={18} />
                       <span>Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="flex w-full justify-start gap-2"
+                      disabled={!isDraft}
+                      onClick={() => setIsTestSendOpen(true)}>
+                      <Mail size={18} />
+                      <span>Send test</span>
                     </Button>
                     <Button
                       variant="ghost"
@@ -507,6 +517,13 @@ export default function CampaignDetail() {
 
       <DeleteConfirmation ref={deleteModalRef} />
       <SendConfirmation ref={sendModalRef} />
+      <TestSendCampaignModal
+        open={isTestSendOpen}
+        onOpenChange={setIsTestSendOpen}
+        apiUrl={apiUrl!}
+        nodeEnv={nodeEnv}
+        campaignId={campaignId}
+      />
     </div>
   )
 }
