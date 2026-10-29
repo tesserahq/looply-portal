@@ -10,6 +10,8 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router'
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
 // Import global CSS styles for the application
@@ -24,7 +26,7 @@ import { getHints } from '@/hooks/useHints'
 import { useNonce } from '@/hooks/useNonce'
 import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
 import { useToast } from '@/hooks/useToast'
-import i18nServer, { localeCookie } from '@/modules/i18n/i18n.server'
+import { getLocale, i18nextMiddleware, localeCookie } from '@/modules/i18n/i18n.server'
 import { csrf } from '@/utils/cookies/csrf.server'
 import { combineHeaders, getDomainUrl } from '@/utils/helpers/misc.helper'
 import { getToastSession } from '@/utils/cookies/toast.server'
@@ -37,6 +39,8 @@ import { AuthProvider, Toaster } from 'tessera-ui'
 import { Button } from './modules/shadcn/ui/button'
 
 library.add(fab)
+
+export const middleware = [i18nextMiddleware]
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData, location }) => {
   // Get the current page title from the pathname
@@ -67,10 +71,10 @@ export const links: LinksFunction = () => {
 
 export type LoaderData = Exclude<Awaited<ReturnType<typeof loader>>, Response>
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const user = null
 
-  const locale = await i18nServer.getLocale(request)
+  const locale = getLocale(context)
   const { toast, headers: toastHeaders } = await getToastSession(request)
   const [csrfToken, csrfCookieHeader] = await csrf.commitToken()
   const clientID = process.env.AUTH0_CLIENT_ID
@@ -112,6 +116,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 function Document({
   children,
   nonce,
+  lang = 'en',
   dir = 'ltr',
   theme = 'light',
 }: {
@@ -123,7 +128,7 @@ function Document({
 }) {
   return (
     <html
-      lang="en"
+      lang={lang}
       dir={dir}
       className={`${theme} overflow-x-hidden`}
       style={{ colorScheme: theme }}>
@@ -150,18 +155,23 @@ function Document({
 }
 
 export default function AppWithProviders() {
-  const { toast, csrfToken, clientID, domain, audience, hostUrl, identiesApiUrl, organizationID } =
+  const { toast, csrfToken, clientID, domain, audience, hostUrl, identiesApiUrl, organizationID, locale } =
     useLoaderData<typeof loader>()
 
   const nonce = useNonce()
   const theme = useTheme()
   const navigate = useNavigate()
+  const { i18n } = useTranslation()
+
+  useEffect(() => {
+    if (i18n.language !== locale) void i18n.changeLanguage(locale)
+  }, [i18n, locale])
 
   // Renders toast (if any).
   useToast(toast)
 
   return (
-    <Document nonce={nonce} theme={theme}>
+    <Document nonce={nonce} theme={theme} lang={locale}>
       <ProgressBar />
       <AuthenticityTokenProvider token={csrfToken}>
         <AuthProvider
