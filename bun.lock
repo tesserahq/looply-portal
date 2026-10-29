@@ -64,7 +64,7 @@
         "sonner": "^2.0.8",
         "tailwind-merge": "^3.7.0",
         "tailwindcss-animate": "^1.0.7",
-        "tessera-ui": "github:tesserahq/tessera-ui#5ee6d2068450e5701adc8361d356b1f54760f584",
+        "tessera-ui": "github:tesserahq/tessera-ui#b28ebcda89d8804be9026929def89f6f03f64f4f",
         "tsx": "4.23.15",
         "zod": "^4.6.7",
       },
@@ -1926,7 +1926,7 @@
 
     "tapable": ["tapable@2.3.3", "", {}, "sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A=="],
 
-    "tessera-ui": ["tessera-ui@github:tesserahq/tessera-ui#5ee6d20", { "dependencies": { "@epic-web/client-hints": "^1.3.5", "axios": "^1.20.0", "cmdk": "^1.1.1", "cookie": "^1.0.2", "radix-ui": "^1.8.1" }, "peerDependencies": { "@auth0/auth0-react": "^2.0.0", "class-variance-authority": "^0.7.1", "lucide-react": "^0.563.0 || ^1.0.0", "react": "^19.2.7", "react-dom": "^19.2.7", "react-router": "^6.0.0 || ^7.0.0 || ^8.0.0", "sonner": "^2.0.8", "tailwindcss": "^4.3.3" } }, "tesserahq-tessera-ui-5ee6d20", "sha512-XsFzK2u2WB+i/dYrlg6CWmybCKFn43pNEYz5haOvKRMFy50mPwf8FuQ2SJWaWjmByL0JVr22EGgI0H0um6sKPg=="],
+    "tessera-ui": ["tessera-ui@github:tesserahq/tessera-ui#b28ebcd", { "dependencies": { "@epic-web/client-hints": "^1.3.5", "axios": "^1.20.0", "cmdk": "^1.1.1", "cookie": "^1.0.2", "radix-ui": "^1.8.1" }, "peerDependencies": { "@auth0/auth0-react": "^2.0.0", "class-variance-authority": "^0.7.1", "lucide-react": "^0.563.0 || ^1.0.0", "react": "^19.2.7", "react-dom": "^19.2.7", "react-router": "^6.0.0 || ^7.0.0 || ^8.0.0", "sonner": "^2.0.8", "tailwindcss": "^4.3.3" } }, "tesserahq-tessera-ui-b28ebcd", "sha512-HIgsrWIziMhtQYM02Gi3z4tBmXig1kw/SqLttDG1+lQRg+fdGx42bcMDt1cA+HP8d9V0xstLhdv2VCrQ9aT1Lw=="],
 
     "throttle-debounce": ["throttle-debounce@5.0.2", "", {}, "sha512-B71/4oyj61iNH0KeCamLuE2rmKuTO5byTOSVwECM5FA7TiAiAW+UqTKZ9ERueC4qvgSttUhdmq1mXC3kJqGX7A=="],
 
