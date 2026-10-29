@@ -126,7 +126,6 @@ export const FormDateTimePicker = ({
                       selected={dateValue}
                       onSelect={handleDateSelect}
                       disabled={disabled}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>

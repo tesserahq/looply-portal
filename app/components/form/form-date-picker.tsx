@@ -88,7 +88,6 @@ export const FormDatePicker = ({
                       fieldProps.onChange(date ? date.toISOString() : '')
                     }}
                     disabled={disabled}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
