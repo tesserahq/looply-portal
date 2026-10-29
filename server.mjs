@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { createRequestHandler } from '@react-router/express'
+import { RouterContextProvider } from 'react-router'
 import crypto from 'crypto'
 import express from 'express'
 import compression from 'compression'
@@ -141,18 +142,18 @@ app.use(['/img', '/favicons'], (req, res) => {
 })
 
 // Handle SSR requests.
-app.all(
-  /.*/,
-  createRequestHandler({
-    getLoadContext: (_, res) => ({
-      cspNonce: res.locals.cspNonce,
-    }),
+const requestHandler = createRequestHandler({
+  getLoadContext: () => new RouterContextProvider(),
+  build: viteDevServer
+    ? () => viteDevServer.ssrLoadModule('virtual:react-router/server-build')
+    : await import('./build/server/index.js'),
+})
 
-    build: viteDevServer
-      ? () => viteDevServer.ssrLoadModule('virtual:react-router/server-build')
-      : await import('./build/server/index.js'),
-  })
-)
+app.all(/.*/, (req, res, next) => {
+  // Overwrite any client-supplied value with this request's server-generated CSP nonce.
+  req.headers['x-looply-csp-nonce'] = res.locals.cspNonce
+  return requestHandler(req, res, next)
+})
 
 if (process.env.TRUST_PROXY) {
   app.set('trust proxy', 1 /* number of proxies between user and server */)

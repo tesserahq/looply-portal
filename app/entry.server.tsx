@@ -4,7 +4,7 @@ import { createReadableStreamFromReadable } from '@react-router/node'
 import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
 import { renderToPipeableStream } from 'react-dom/server.node'
-import type { AppLoadContext, EntryContext } from 'react-router'
+import type { EntryContext } from 'react-router'
 import { ServerRouter } from 'react-router'
 
 /**
@@ -18,8 +18,7 @@ export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext,
-  loadContext: AppLoadContext
+  reactRouterContext: EntryContext
 ) {
   const callbackName = isbot(request.headers.get('user-agent')) ? 'onAllReady' : 'onShellReady'
 
@@ -27,7 +26,7 @@ export default async function handleRequest(
    * Content Security Policy.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
    */
-  const nonce = String(loadContext.cspNonce) ?? undefined
+  const nonce = request.headers.get('x-looply-csp-nonce') || undefined
 
   /**
    * Currently, we're not setting the CSP headers due to lack of support on deferred scripts.

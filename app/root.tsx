@@ -38,7 +38,7 @@ import { Button } from './modules/shadcn/ui/button'
 
 library.add(fab)
 
-export const meta: MetaFunction<typeof loader> = ({ data, location }) => {
+export const meta: MetaFunction<typeof loader> = ({ loaderData, location }) => {
   // Get the current page title from the pathname
   const getPageTitle = () => {
     const path = location.pathname
@@ -54,7 +54,7 @@ export const meta: MetaFunction<typeof loader> = ({ data, location }) => {
 
   const pageTitle = getPageTitle()
 
-  return metaObject(data ? pageTitle : 'Error')
+  return metaObject(loaderData ? pageTitle : 'Error')
 }
 
 export const links: LinksFunction = () => {
