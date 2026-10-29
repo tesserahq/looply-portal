@@ -15,7 +15,7 @@ Package manager is **bun** (`bun 1.3.11`, Node `24.14.1` — see `.tool-versions
 - `bun run format` / `bun run format:check` — Prettier
 - `bun run check` — format + lint + typecheck, run this before considering a change done
 
-There is no test suite/framework configured in this repo (no `test` script, no test runner dependency).
+Tests use Node's built-in test runner with `tsx`: run `bun run test`. Keep `*.test.ts` files alongside the code they cover.
 
 Git hooks are managed by `lefthook` (`lefthook.yml`): on pre-commit, staged `*.{js,jsx,ts,tsx}` files are auto-fixed with ESLint and staged `*.{js,jsx,ts,tsx,json}` are formatted with Prettier.
 
