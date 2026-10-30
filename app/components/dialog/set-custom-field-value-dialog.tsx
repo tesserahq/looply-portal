@@ -197,6 +197,7 @@ export const SetCustomFieldValueDialog = ({
                       mode="single"
                       selected={value ? new Date(value as string) : undefined}
                       onSelect={(date) => setValue(date ? format(date, 'yyyy-MM-dd') : '')}
+                      autoFocus
                     />
                   </PopoverContent>
                 </Popover>
