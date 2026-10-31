@@ -1,7 +1,7 @@
 /**
  * Implementation based on github.com/epicweb-dev/epic-stack
  */
-import * as cookie from 'cookie'
+import { parseCookie, stringifySetCookie } from 'cookie'
 import { z } from 'zod'
 import { useFetcher } from 'react-router'
 import { useHints } from '@/hooks/useHints'
@@ -21,7 +21,7 @@ export type ThemeExtended = Theme | 'system'
  */
 export function getTheme(request: Request): Theme | null {
   const cookieHeader = request.headers.get('Cookie')
-  const parsed = cookieHeader ? cookie.parse(cookieHeader)[THEME_COOKIE_KEY] : 'light'
+  const parsed = cookieHeader ? parseCookie(cookieHeader)[THEME_COOKIE_KEY] : 'light'
 
   if (parsed === 'light' || parsed === 'dark') {
     return parsed
@@ -35,13 +35,17 @@ export function getTheme(request: Request): Theme | null {
  */
 export function setTheme(theme: Theme | 'system') {
   if (theme === 'system') {
-    return cookie.serialize(THEME_COOKIE_KEY, '', {
+    return stringifySetCookie({
+      name: THEME_COOKIE_KEY,
+      value: '',
       path: '/',
       maxAge: -1,
       sameSite: 'lax',
     })
   } else {
-    return cookie.serialize(THEME_COOKIE_KEY, theme, {
+    return stringifySetCookie({
+      name: THEME_COOKIE_KEY,
+      value: theme,
       path: '/',
       maxAge: 31536000,
       sameSite: 'lax',
