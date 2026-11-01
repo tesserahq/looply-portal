@@ -1,8 +1,7 @@
 # syntax = docker/dockerfile:1
 
-# Use the latest Bun version
-FROM oven/bun:1.3 AS base
-
+# Pin to a release with the Brotli security fix (CVE-2026-111497).
+FROM oven/bun:1.4.4 AS base
 # Remix app lives here
 WORKDIR /app
 
